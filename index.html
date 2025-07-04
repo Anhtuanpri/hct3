@@ -82,6 +82,27 @@
       text-align: left;
     }
 
+    .contact-box {
+      margin-top: 40px;
+      background: #fff3e0;
+      border: 2px solid #ff9800;
+      border-radius: 10px;
+      padding: 20px;
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+    }
+
+    .contact-box a {
+      color: #d84315;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .contact-box a:hover {
+      text-decoration: underline;
+    }
+
     .public-list {
       margin-top: 40px;
       width: 90%;
@@ -106,44 +127,6 @@
       padding: 10px 0;
       font-size: 14px;
     }
-
-    .contact-section {
-      margin-top: 50px;
-      padding: 30px;
-      background: #fff;
-      border: 3px solid;
-      border-image: linear-gradient(45deg, #0ff, #f0f, #0f0) 1;
-      border-radius: 12px;
-      max-width: 700px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .contact-section h2 {
-      margin-bottom: 10px;
-    }
-
-    .contact-section p {
-      margin-bottom: 20px;
-      font-size: 16px;
-    }
-
-    .contact-button {
-      display: inline-block;
-      background: linear-gradient(90deg, #00eaff, #ff00ff);
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-weight: bold;
-      text-decoration: none;
-      box-shadow: 0 0 10px rgba(0, 234, 255, 0.7);
-      transition: background 0.3s ease;
-    }
-
-    .contact-button:hover {
-      background: linear-gradient(90deg, #ff00ff, #00eaff);
-    }
   </style>
 </head>
 <body>
@@ -153,7 +136,7 @@
   </div>
 
   <div class="card">
-    <h1>🔍 HUYỀN CỬU THIÊN</h1>
+    <h1>🔍 Tra cứu Thiên Cơ Các</h1>
     <input type="text" id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..." />
     <div id="answerBox" class="hidden"></div>
 
@@ -161,19 +144,21 @@
       <h3>📌 Gợi ý:</h3>
       <ul>
         <li>Nhập Câu Hỏi Tra cứu nhanh</li>
-        <li>Chỉ cần nhập 1 chữ hoặc 1 từ liên quan sẽ trả kết quả cho đạo hữu là các câu hỏi có chữ mà đh đã tìm</li>
-        <li>Ví Dụ: Pháp thì nó sẽ ra là câu có chữ pháp, nhập càng nhiều chữ để tra sẽ trả kết quả chính xác và ít hơn</li>
+        <li>Chỉ cần nhập 1 chữ hoặc 1 từ liên quan sẽ trả kết quả cho đạo hữu</li>
+        <li>Ví Dụ: Pháp → Sẽ hiện các câu có chữ "pháp"</li>
       </ul>
     </div>
   </div>
 
-  <div class="public-list" id="publicList"></div>
-
-  <div class="contact-section">
-    <h2>💬 Gửi yêu cầu cập nhật câu hỏi</h2>
-    <p>Nếu bạn có câu hỏi mới, phát hiện sai sót, hoặc muốn đóng góp dữ liệu, hãy liên hệ với chúng tôi!</p>
-    <a href="mailto:Hoangtuanhpyd@gmail.com?subject=Yêu cầu cập nhật câu hỏi" class="contact-button">📩 Gửi Email</a>
+  <!-- GÓP Ý NÊU Ý KIẾN -->
+  <div class="contact-box">
+    <h3>📮 Góp ý & Yêu cầu thêm câu hỏi</h3>
+    <p>Nếu bạn có câu hỏi muốn thêm vào hệ thống, vui lòng gửi email đến:</p>
+    <p><a href="mailto:thiencocac@hh3d.vn?subject=Góp ý câu hỏi">thiencocac@hh3d.vn</a></p>
   </div>
+
+  <!-- DANH SÁCH CÂU HỎI -->
+  <div class="public-list" id="publicList"></div>
 
   <div class="footer-marquee">
     <marquee>📢 Xem danh sách đầy đủ bên dưới hoặc dùng ô tìm kiếm để tra nhanh theo từ khóa! 📢</marquee>
@@ -378,9 +363,8 @@
   { question: "Câu nói cuối cùng của Lý Ngư là gì?", answer: "“Hãy sống thay ta, bảo vệ lấy nàng ấy.”" },
   { question: "Trong Tiên Nghịch, ai là người kế thừa ý chí của Lý Ngư?", answer: "Ninh Phàm là người kế thừa ý chí và con đường của Lý Ngư." },
   { question: "Tô Ức Tâm sau cùng đạt cảnh giới gì?", answer: "Tô Ức Tâm đạt đến cảnh giới Đại Thừa, gần với Hợp Đạo." },
-  { question: "Tên gọi khác của Tiên Nghịch là gì?", answer: "Tên gọi khác là 'Renegade Immortal' trong bản tiếng." ];
-    ];
-    
+  { question: "Tên gọi khác của Tiên Nghịch là gì?", answer: "Tên gọi khác là 'Renegade Immortal' trong bản tiếng anh." }
+];
     function normalize(str) {
       return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     }
