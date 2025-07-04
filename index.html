@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thiên Cơ Các - HH3D</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: #f9f9f9;
+      color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .marquee-container {
+      width: 100%;
+      background: #ff0080;
+      color: white;
+      padding: 10px 0;
+      font-weight: bold;
+      overflow: hidden;
+    }
+
+    .marquee {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 15s linear infinite;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(100%); }
+      to { transform: translateX(-100%); }
+    }
+
+    .card {
+      margin-top: 20px;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      border: 4px solid;
+      border-image-slice: 1;
+      border-width: 4px;
+      border-image-source: linear-gradient(45deg, #00f0ff, #ff00ff, #00ff88);
+      text-align: center;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    #answerBox {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e0f7fa;
+      border: 3px dashed #00eaff;
+      border-radius: 10px;
+      animation: glow 1s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 5px #00eaff; }
+      to   { box-shadow: 0 0 15px #00eaff, 0 0 25px #00eaff; }
+    }
+
+    .hidden { display: none; }
+
+    .suggest {
+      margin-top: 25px;
+      text-align: left;
+    }
+
+    .public-list {
+      margin-top: 40px;
+      width: 90%;
+      max-width: 800px;
+    }
+
+    .qa-item {
+      background: #ffffff;
+      border: 3px solid transparent;
+      border-image: linear-gradient(45deg, #0ff, #f0f, #0f0) 1;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .footer-marquee {
+      margin-top: 50px;
+      width: 100%;
+      background: #e0e0e0;
+      color: #000;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="marquee-container">
+    <div class="marquee">⚡ Nhập từ khóa hoặc câu hỏi liên quan phim hoạt hình Trung Quốc để tra cứu nhanh! ⚡</div>
+  </div>
+
+  <div class="card">
+    <h1>🔍 Tra cứu Thiên Cơ Các</h1>
+    <input type="text" id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..." />
+    <div id="answerBox" class="hidden"></div>
+
+    <div class="suggest">
+      <h3>📌 Gợi ý:</h3>
+      <ul>
+        <li>ai là mẹ của đường tam</li>
+        <li>vũ hồn của tiểu vũ là gì</li>
+        <li>pháp bảo của tiêu viêm</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="public-list" id="publicList"></div>
+
+  <div class="footer-marquee">
+    <marquee>📢 Xem danh sách đầy đủ bên dưới hoặc dùng ô tìm kiếm để tra nhanh theo từ khóa! 📢</marquee>
+  </div>
+
+  <script>
+    const qaList = [
+  { question: "Câu hỏi số 1?", answer: "Đáp án số 1" },
+  { question: "Câu hỏi số 2?", answer: "Đáp án số 2" },
+  { question: "Câu hỏi số 3?", answer: "Đáp án số 3" },
+  { question: "Câu hỏi số 4?", answer: "Đáp án số 4" },
+  { question: "Câu hỏi số 5?", answer: "Đáp án số 5" },
+  { question: "Câu hỏi số 6?", answer: "Đáp án số 6" },
+  { question: "Câu hỏi số 7?", answer: "Đáp án số 7" },
+  { question: "Câu hỏi số 8?", answer: "Đáp án số 8" },
+  { question: "Câu hỏi số 9?", answer: "Đáp án số 9" },
+  { question: "Câu hỏi số 10?", answer: "Đáp án số 10" },
+  { question: "Câu hỏi số 11?", answer: "Đáp án số 11" },
+  { question: "Câu hỏi số 12?", answer: "Đáp án số 12" },
+  { question: "Câu hỏi số 13?", answer: "Đáp án số 13" },
+  { question: "Câu hỏi số 14?", answer: "Đáp án số 14" },
+  { question: "Câu hỏi số 15?", answer: "Đáp án số 15" },
+  { question: "Câu hỏi số 16?", answer: "Đáp án số 16" },
+  { question: "Câu hỏi số 17?", answer: "Đáp án số 17" },
+  { question: "Câu hỏi số 18?", answer: "Đáp án số 18" },
+  { question: "Câu hỏi số 19?", answer: "Đáp án số 19" },
+  { question: "Câu hỏi số 20?", answer: "Đáp án số 20" },
+  { question: "Câu hỏi số 21?", answer: "Đáp án số 21" },
+  { question: "Câu hỏi số 22?", answer: "Đáp án số 22" },
+  { question: "Câu hỏi số 23?", answer: "Đáp án số 23" },
+  { question: "Câu hỏi số 24?", answer: "Đáp án số 24" },
+  { question: "Câu hỏi số 25?", answer: "Đáp án số 25" },
+  { question: "Câu hỏi số 26?", answer: "Đáp án số 26" },
+  { question: "Câu hỏi số 27?", answer: "Đáp án số 27" },
+  { question: "Câu hỏi số 28?", answer: "Đáp án số 28" },
+  { question: "Câu hỏi số 29?", answer: "Đáp án số 29" },
+  { question: "Câu hỏi số 30?", answer: "Đáp án số 30" },
+  { question: "Câu hỏi số 31?", answer: "Đáp án số 31" },
+  { question: "Câu hỏi số 32?", answer: "Đáp án số 32" },
+  { question: "Câu hỏi số 33?", answer: "Đáp án số 33" },
+  { question: "Câu hỏi số 34?", answer: "Đáp án số 34" },
+  { question: "Câu hỏi số 35?", answer: "Đáp án số 35" },
+  { question: "Câu hỏi số 36?", answer: "Đáp án số 36" },
+  { question: "Câu hỏi số 37?", answer: "Đáp án số 37" },
+  { question: "Câu hỏi số 38?", answer: "Đáp án số 38" },
+  { question: "Câu hỏi số 39?", answer: "Đáp án số 39" },
+  { question: "Câu hỏi số 40?", answer: "Đáp án số 40" },
+  { question: "Câu hỏi số 41?", answer: "Đáp án số 41" },
+  { question: "Câu hỏi số 42?", answer: "Đáp án số 42" },
+  { question: "Câu hỏi số 43?", answer: "Đáp án số 43" },
+  { question: "Câu hỏi số 44?", answer: "Đáp án số 44" },
+  { question: "Câu hỏi số 45?", answer: "Đáp án số 45" },
+  { question: "Câu hỏi số 46?", answer: "Đáp án số 46" },
+  { question: "Câu hỏi số 47?", answer: "Đáp án số 47" },
+  { question: "Câu hỏi số 48?", answer: "Đáp án số 48" },
+  { question: "Câu hỏi số 49?", answer: "Đáp án số 49" },
+  { question: "Câu hỏi số 50?", answer: "Đáp án số 50" },
+  { question: "Câu hỏi số 51?", answer: "Đáp án số 51" },
+  { question: "Câu hỏi số 52?", answer: "Đáp án số 52" },
+  { question: "Câu hỏi số 53?", answer: "Đáp án số 53" },
+  { question: "Câu hỏi số 54?", answer: "Đáp án số 54" },
+  { question: "Câu hỏi số 55?", answer: "Đáp án số 55" },
+  { question: "Câu hỏi số 56?", answer: "Đáp án số 56" },
+  { question: "Câu hỏi số 57?", answer: "Đáp án số 57" },
+  { question: "Câu hỏi số 58?", answer: "Đáp án số 58" },
+  { question: "Câu hỏi số 59?", answer: "Đáp án số 59" },
+  { question: "Câu hỏi số 60?", answer: "Đáp án số 60" },
+  { question: "Câu hỏi số 61?", answer: "Đáp án số 61" },
+  { question: "Câu hỏi số 62?", answer: "Đáp án số 62" },
+  { question: "Câu hỏi số 63?", answer: "Đáp án số 63" },
+  { question: "Câu hỏi số 64?", answer: "Đáp án số 64" },
+  { question: "Câu hỏi số 65?", answer: "Đáp án số 65" },
+  { question: "Câu hỏi số 66?", answer: "Đáp án số 66" },
+  { question: "Câu hỏi số 67?", answer: "Đáp án số 67" },
+  { question: "Câu hỏi số 68?", answer: "Đáp án số 68" },
+  { question: "Câu hỏi số 69?", answer: "Đáp án số 69" },
+  { question: "Câu hỏi số 70?", answer: "Đáp án số 70" },
+  { question: "Câu hỏi số 71?", answer: "Đáp án số 71" },
+  { question: "Câu hỏi số 72?", answer: "Đáp án số 72" },
+  { question: "Câu hỏi số 73?", answer: "Đáp án số 73" },
+  { question: "Câu hỏi số 74?", answer: "Đáp án số 74" },
+  { question: "Câu hỏi số 75?", answer: "Đáp án số 75" },
+  { question: "Câu hỏi số 76?", answer: "Đáp án số 76" },
+  { question: "Câu hỏi số 77?", answer: "Đáp án số 77" },
+  { question: "Câu hỏi số 78?", answer: "Đáp án số 78" },
+  { question: "Câu hỏi số 79?", answer: "Đáp án số 79" },
+  { question: "Câu hỏi số 80?", answer: "Đáp án số 80" },
+  { question: "Câu hỏi số 81?", answer: "Đáp án số 81" },
+  { question: "Câu hỏi số 82?", answer: "Đáp án số 82" },
+  { question: "Câu hỏi số 83?", answer: "Đáp án số 83" },
+  { question: "Câu hỏi số 84?", answer: "Đáp án số 84" },
+  { question: "Câu hỏi số 85?", answer: "Đáp án số 85" },
+  { question: "Câu hỏi số 86?", answer: "Đáp án số 86" },
+  { question: "Câu hỏi số 87?", answer: "Đáp án số 87" },
+  { question: "Câu hỏi số 88?", answer: "Đáp án số 88" },
+  { question: "Câu hỏi số 89?", answer: "Đáp án số 89" },
+  { question: "Câu hỏi số 90?", answer: "Đáp án số 90" },
+  { question: "Câu hỏi số 91?", answer: "Đáp án số 91" },
+  { question: "Câu hỏi số 92?", answer: "Đáp án số 92" },
+  { question: "Câu hỏi số 93?", answer: "Đáp án số 93" },
+  { question: "Câu hỏi số 94?", answer: "Đáp án số 94" },
+  { question: "Câu hỏi số 95?", answer: "Đáp án số 95" },
+  { question: "Câu hỏi số 96?", answer: "Đáp án số 96" },
+  { question: "Câu hỏi số 97?", answer: "Đáp án số 97" },
+  { question: "Câu hỏi số 98?", answer: "Đáp án số 98" },
+  { question: "Câu hỏi số 99?", answer: "Đáp án số 99" },
+  { question: "Câu hỏi số 100?", answer: "Đáp án số 100" },
+  { question: "Câu hỏi số 101?", answer: "Đáp án số 101" },
+  { question: "Câu hỏi số 102?", answer: "Đáp án số 102" },
+  { question: "Câu hỏi số 103?", answer: "Đáp án số 103" },
+  { question: "Câu hỏi số 104?", answer: "Đáp án số 104" },
+  { question: "Câu hỏi số 105?", answer: "Đáp án số 105" },
+  { question: "Câu hỏi số 106?", answer: "Đáp án số 106" },
+  { question: "Câu hỏi số 107?", answer: "Đáp án số 107" },
+  { question: "Câu hỏi số 108?", answer: "Đáp án số 108" },
+  { question: "Câu hỏi số 109?", answer: "Đáp án số 109" },
+  { question: "Câu hỏi số 110?", answer: "Đáp án số 110" },
+  { question: "Câu hỏi số 111?", answer: "Đáp án số 111" },
+  { question: "Câu hỏi số 112?", answer: "Đáp án số 112" },
+  { question: "Câu hỏi số 113?", answer: "Đáp án số 113" },
+  { question: "Câu hỏi số 114?", answer: "Đáp án số 114" },
+  { question: "Câu hỏi số 115?", answer: "Đáp án số 115" },
+  { question: "Câu hỏi số 116?", answer: "Đáp án số 116" },
+  { question: "Câu hỏi số 117?", answer: "Đáp án số 117" },
+  { question: "Câu hỏi số 118?", answer: "Đáp án số 118" },
+  { question: "Câu hỏi số 119?", answer: "Đáp án số 119" },
+  { question: "Câu hỏi số 120?", answer: "Đáp án số 120" },
+  { question: "Câu hỏi số 121?", answer: "Đáp án số 121" },
+  { question: "Câu hỏi số 122?", answer: "Đáp án số 122" },
+  { question: "Câu hỏi số 123?", answer: "Đáp án số 123" },
+  { question: "Câu hỏi số 124?", answer: "Đáp án số 124" },
+  { question: "Câu hỏi số 125?", answer: "Đáp án số 125" },
+  { question: "Câu hỏi số 126?", answer: "Đáp án số 126" },
+  { question: "Câu hỏi số 127?", answer: "Đáp án số 127" },
+  { question: "Câu hỏi số 128?", answer: "Đáp án số 128" },
+  { question: "Câu hỏi số 129?", answer: "Đáp án số 129" },
+  { question: "Câu hỏi số 130?", answer: "Đáp án số 130" },
+  { question: "Câu hỏi số 131?", answer: "Đáp án số 131" },
+  { question: "Câu hỏi số 132?", answer: "Đáp án số 132" },
+  { question: "Câu hỏi số 133?", answer: "Đáp án số 133" },
+  { question: "Câu hỏi số 134?", answer: "Đáp án số 134" },
+  { question: "Câu hỏi số 135?", answer: "Đáp án số 135" },
+  { question: "Câu hỏi số 136?", answer: "Đáp án số 136" },
+  { question: "Câu hỏi số 137?", answer: "Đáp án số 137" },
+  { question: "Câu hỏi số 138?", answer: "Đáp án số 138" },
+  { question: "Câu hỏi số 139?", answer: "Đáp án số 139" },
+  { question: "Câu hỏi số 140?", answer: "Đáp án số 140" },
+  { question: "Câu hỏi số 141?", answer: "Đáp án số 141" },
+  { question: "Câu hỏi số 142?", answer: "Đáp án số 142" },
+  { question: "Câu hỏi số 143?", answer: "Đáp án số 143" },
+  { question: "Câu hỏi số 144?", answer: "Đáp án số 144" },
+  { question: "Câu hỏi số 145?", answer: "Đáp án số 145" },
+  { question: "Câu hỏi số 146?", answer: "Đáp án số 146" },
+  { question: "Câu hỏi số 147?", answer: "Đáp án số 147" },
+  { question: "Câu hỏi số 148?", answer: "Đáp án số 148" },
+  { question: "Câu hỏi số 149?", answer: "Đáp án số 149" },
+  { question: "Câu hỏi số 150?", answer: "Đáp án số 150" },
+  { question: "Câu hỏi số 151?", answer: "Đáp án số 151" },
+  { question: "Câu hỏi số 152?", answer: "Đáp án số 152" },
+  { question: "Câu hỏi số 153?", answer: "Đáp án số 153" },
+  { question: "Câu hỏi số 154?", answer: "Đáp án số 154" },
+  { question: "Câu hỏi số 155?", answer: "Đáp án số 155" },
+  { question: "Câu hỏi số 156?", answer: "Đáp án số 156" },
+  { question: "Câu hỏi số 157?", answer: "Đáp án số 157" },
+  { question: "Câu hỏi số 158?", answer: "Đáp án số 158" },
+  { question: "Câu hỏi số 159?", answer: "Đáp án số 159" },
+  { question: "Câu hỏi số 160?", answer: "Đáp án số 160" },
+  { question: "Câu hỏi số 161?", answer: "Đáp án số 161" },
+  { question: "Câu hỏi số 162?", answer: "Đáp án số 162" },
+  { question: "Câu hỏi số 163?", answer: "Đáp án số 163" },
+  { question: "Câu hỏi số 164?", answer: "Đáp án số 164" },
+  { question: "Câu hỏi số 165?", answer: "Đáp án số 165" },
+  { question: "Câu hỏi số 166?", answer: "Đáp án số 166" },
+  { question: "Câu hỏi số 167?", answer: "Đáp án số 167" },
+  { question: "Câu hỏi số 168?", answer: "Đáp án số 168" },
+  { question: "Câu hỏi số 169?", answer: "Đáp án số 169" },
+  { question: "Câu hỏi số 170?", answer: "Đáp án số 170" },
+  { question: "Câu hỏi số 171?", answer: "Đáp án số 171" },
+  { question: "Câu hỏi số 172?", answer: "Đáp án số 172" },
+  { question: "Câu hỏi số 173?", answer: "Đáp án số 173" },
+  { question: "Câu hỏi số 174?", answer: "Đáp án số 174" },
+  { question: "Câu hỏi số 175?", answer: "Đáp án số 175" },
+  { question: "Câu hỏi số 176?", answer: "Đáp án số 176" },
+  { question: "Câu hỏi số 177?", answer: "Đáp án số 177" },
+  { question: "Câu hỏi số 178?", answer: "Đáp án số 178" },
+  { question: "Câu hỏi số 179?", answer: "Đáp án số 179" },
+  { question: "Câu hỏi số 180?", answer: "Đáp án số 180" },
+  { question: "Câu hỏi số 181?", answer: "Đáp án số 181" },
+  { question: "Câu hỏi số 182?", answer: "Đáp án số 182" },
+  { question: "Câu hỏi số 183?", answer: "Đáp án số 183" },
+  { question: "Câu hỏi số 184?", answer: "Đáp án số 184" },
+  { question: "Câu hỏi số 185?", answer: "Đáp án số 185" },
+  { question: "Câu hỏi số 186?", answer: "Đáp án số 186" },
+  { question: "Câu hỏi số 187?", answer: "Đáp án số 187" },
+  { question: "Câu hỏi số 188?", answer: "Đáp án số 188" },
+  { question: "Câu hỏi số 189?", answer: "Đáp án số 189" },
+  { question: "Câu hỏi số 190?", answer: "Đáp án số 190" },
+  { question: "Câu hỏi số 191?", answer: "Đáp án số 191" },
+  { question: "Câu hỏi số 192?", answer: "Đáp án số 192" },
+  { question: "Câu hỏi số 193?", answer: "Đáp án số 193" },
+  { question: "Câu hỏi số 194?", answer: "Đáp án số 194" },
+  { question: "Câu hỏi số 195?", answer: "Đáp án số 195" },
+  { question: "Câu hỏi số 196?", answer: "Đáp án số 196" },
+  { question: "Câu hỏi số 197?", answer: "Đáp án số 197" },
+  { question: "Câu hỏi số 198?", answer: "Đáp án số 198" },
+  { question: "Câu hỏi số 199?", answer: "Đáp án số 199" },
+  { question: "Câu hỏi số 200?", answer: "Đáp án số 200" },
+  { question: "Câu hỏi số 201?", answer: "Đáp án số 201" },
+  { question: "Câu hỏi số 202?", answer: "Đáp án số 202" },
+  { question: "Câu hỏi số 203?", answer: "Đáp án số 203" },
+    ];
+
+    function normalize(str) {
+      return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function search() {
+      const input = normalize(document.getElementById("searchBox").value.trim());
+      const box = document.getElementById("answerBox");
+
+      if (!input) {
+        box.innerHTML = "";
+        box.classList.add("hidden");
+        return;
+      }
+
+      const results = qaList.filter(q =>
+        normalize(q.question).includes(input)
+      );
+
+      if (results.length > 0) {
+        box.classList.remove("hidden");
+        box.innerHTML = results.map(q =>
+          `<p><strong>❓ ${q.question}</strong><br/>💡 ${q.answer}</p>`
+        ).join("<hr/>");
+      } else {
+        box.classList.remove("hidden");
+        box.innerHTML = `❌ Không tìm thấy kết quả phù hợp cho: "<strong>${input}</strong>"`;
+      }
+    }
+
+    document.getElementById("searchBox").addEventListener("input", search);
+
+    // Hiển thị toàn bộ danh sách công khai
+    const listDiv = document.getElementById("publicList");
+    qaList.forEach(q => {
+      const div = document.createElement("div");
+      div.className = "qa-item";
+      div.innerHTML = `<strong>❓ ${q.question}</strong><br/>💡 ${q.answer}`;
+      listDiv.appendChild(div);
+    });
+  </script>
+
+</body>
+</html>
