@@ -5,13 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Thiên Cơ Các - HH3D</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
-
-  <!-- ✅ Version info & No-cache headers -->
-  <!-- Version 1.2.7 | Updated: 2025-07-04 -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-
   <style>
     body {
       margin: 0;
@@ -191,6 +184,11 @@
       div.innerHTML = `<strong>❓ ${q.question}</strong><br/>💡 ${q.answer}`;
       listDiv.appendChild(div);
     });
+
+    // Ép tải lại bản mới nhất từ server (chống cache)
+    fetch(window.location.href, { cache: "no-store" })
+      .then(() => console.log("🔁 Luôn tải phiên bản mới nhất (bypass cache)."))
+      .catch(() => console.warn("Không thể kiểm tra cache."));
   </script>
 
 </body>
