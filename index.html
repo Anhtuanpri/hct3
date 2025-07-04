@@ -106,6 +106,44 @@
       padding: 10px 0;
       font-size: 14px;
     }
+
+    .contact-section {
+      margin-top: 50px;
+      padding: 30px;
+      background: #fff;
+      border: 3px solid;
+      border-image: linear-gradient(45deg, #0ff, #f0f, #0f0) 1;
+      border-radius: 12px;
+      max-width: 700px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .contact-section h2 {
+      margin-bottom: 10px;
+    }
+
+    .contact-section p {
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    .contact-button {
+      display: inline-block;
+      background: linear-gradient(90deg, #00eaff, #ff00ff);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 0 10px rgba(0, 234, 255, 0.7);
+      transition: background 0.3s ease;
+    }
+
+    .contact-button:hover {
+      background: linear-gradient(90deg, #ff00ff, #00eaff);
+    }
   </style>
 </head>
 <body>
@@ -130,6 +168,12 @@
   </div>
 
   <div class="public-list" id="publicList"></div>
+
+  <div class="contact-section">
+    <h2>💬 Gửi yêu cầu cập nhật câu hỏi</h2>
+    <p>Nếu bạn có câu hỏi mới, phát hiện sai sót, hoặc muốn đóng góp dữ liệu, hãy liên hệ với chúng tôi!</p>
+    <a href="mailto:thiencocac@gmail.com?subject=Yêu cầu cập nhật câu hỏi" class="contact-button">📩 Gửi Email</a>
+  </div>
 
   <div class="footer-marquee">
     <marquee>📢 Xem danh sách đầy đủ bên dưới hoặc dùng ô tìm kiếm để tra nhanh theo từ khóa! 📢</marquee>
