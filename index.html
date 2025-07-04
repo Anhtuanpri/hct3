@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Thiên Cơ Các - HH3D</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Open Sans', sans-serif;
       background: #f9f9f9;
       color: #000;
       display: flex;
@@ -335,7 +335,7 @@
   { question: "Trong Tiên Nghịch, ai là người kế thừa ý chí của Lý Ngư?", answer: "Ninh Phàm là người kế thừa ý chí và con đường của Lý Ngư." },
   { question: "Tô Ức Tâm sau cùng đạt cảnh giới gì?", answer: "Tô Ức Tâm đạt đến cảnh giới Đại Thừa, gần với Hợp Đạo." },
   { question: "Tên gọi khác của Tiên Nghịch là gì?", answer: "Tên gọi khác là 'Renegade Immortal' trong bản tiếng Anh." }
-];
+    ];
 
     function normalize(str) {
       return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -368,7 +368,6 @@
 
     document.getElementById("searchBox").addEventListener("input", search);
 
-    // Hiển thị toàn bộ danh sách công khai
     const listDiv = document.getElementById("publicList");
     qaList.forEach(q => {
       const div = document.createElement("div");
@@ -377,7 +376,6 @@
       listDiv.appendChild(div);
     });
 
-    // Ép tải lại bản mới nhất từ server (chống cache)
     fetch(window.location.href, { cache: "no-store" })
       .then(() => console.log("🔁 Luôn tải phiên bản mới nhất (bypass cache)."))
       .catch(() => console.warn("Không thể kiểm tra cache."));
