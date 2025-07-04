@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Thiên Cơ Các - HH3D</title>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -52,6 +53,14 @@
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
 
+    .title-thuphap {
+      font-family: 'Dancing Script', cursive;
+      font-size: 42px;
+      color: #ff3399;
+      text-shadow: 0 0 6px #ff66cc, 0 0 10px #ff3399;
+      font-weight: bold;
+    }
+
     input[type="text"] {
       width: 100%;
       padding: 14px;
@@ -80,6 +89,11 @@
     .suggest {
       margin-top: 25px;
       text-align: left;
+    }
+
+    .suggest li strong.highlight {
+      color: #d32f2f;
+      font-weight: bold;
     }
 
     .contact-box {
@@ -136,33 +150,31 @@
   </div>
 
   <div class="card">
-    <h1>🔍 HUYỀN CỬU THIÊN </h1>
+    <h1 class="title-thuphap">🔍 HUYỀN CỬU THIÊN</h1>
     <input type="text" id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..." />
     <div id="answerBox" class="hidden"></div>
 
- <div class="suggest">
-  <h3>📌 Gợi ý:</h3>
-  <ul>
-    <li>Nhập Câu Hỏi Tra cứu nhanh</li>
-    <li>Chỉ cần nhập 1 chữ hoặc 1 từ liên quan sẽ trả kết quả cho đạo hữu</li>
-    <li>Ví Dụ: Pháp → Sẽ hiện các câu có chữ "pháp" Nhập càng nhiều chữ đáp án càng chính xác</li>
-    <li><strong>‼️Lưu Ý: Nhiều câu tra không ra thì bạn hãy xoá dấu " ? " ở cuối câu hỏi nhé</strong></li>
-  </ul>
-</div>
+    <div class="suggest">
+      <h3>📌 Gợi ý:</h3>
+      <ul>
+        <li><strong>Nhập Câu Hỏi Tra cứu nhanh</strong></li>
+        <li><strong>Chỉ cần nhập 1 chữ hoặc 1 từ liên quan sẽ trả kết quả cho đạo hữu</strong></li>
+        <li><strong>Ví Dụ: Pháp → Sẽ hiện các câu có chữ "pháp" Nhập càng nhiều chữ đáp án càng chính xác</strong></li>
+        <li><strong class="highlight">‼️Lưu Ý: Nhiều câu tra không ra thì bạn hãy xoá dấu " ? " ở cuối câu hỏi nhé</strong></li>
+      </ul>
+    </div>
 
-    
-  <!-- GÓP Ý NÊU Ý KIẾN -->
-  <div class="contact-box">
-    <h3>📮 Góp ý & Yêu cầu thêm câu hỏi</h3>
-    <p>Nếu bạn có câu hỏi muốn thêm vào hệ thống, vui lòng gửi email đến:</p>
-    <p><a href="mailto:Hoangtuanhpyd@gmail.com?subject=Góp ý câu hỏi">Gửi Mail 📨</a></p>
-  </div>
+    <div class="contact-box">
+      <h3>📮 Góp ý & Yêu cầu thêm câu hỏi</h3>
+      <p>Nếu bạn có câu hỏi muốn thêm vào hệ thống, vui lòng gửi email đến:</p>
+      <p><a href="mailto:Hoangtuanhpyd@gmail.com?subject=Góp ý câu hỏi">Gửi Mail 📨</a></p>
+    </div>
 
-  <!-- DANH SÁCH CÂU HỎI -->
-  <div class="public-list" id="publicList"></div>
+    <div class="public-list" id="publicList"></div>
 
-  <div class="footer-marquee">
-    <marquee>📢 Xem danh sách đầy đủ bên dưới hoặc dùng ô tìm kiếm để tra nhanh theo từ khóa! 📢</marquee>
+    <div class="footer-marquee">
+      <marquee>📢 Xem danh sách đầy đủ bên dưới hoặc dùng ô tìm kiếm để tra nhanh theo từ khóa! 📢</marquee>
+    </div>
   </div>
 
   <script>
