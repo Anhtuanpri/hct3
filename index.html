@@ -96,6 +96,28 @@
       font-weight: bold;
     }
 
+    .next-button-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .next-page-btn {
+      padding: 12px 28px;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .next-page-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 114, 255, 0.5);
+    }
+
     .contact-box {
       margin-top: 40px;
       background: #fff3e0;
@@ -159,9 +181,13 @@
       <ul>
         <li><strong>Nhập Câu Hỏi Tra cứu nhanh</strong></li>
         <li><strong>Chỉ cần nhập 1 chữ hoặc 1 từ liên quan sẽ trả kết quả cho đạo hữu</strong></li>
-        <li><strong>Ví Dụ: Pháp → Sẽ hiện các câu có chữ "pháp" Nhập càng nhiều chữ đáp án càng chính xác</strong></li>
-        <li><strong class="highlight">‼️Lưu Ý: Nhiều câu tra không ra thì bạn hãy xoá dấu " ? " ở cuối câu hỏi nhé</strong></li>
+        <li><strong>Ví Dụ: Pháp → Sẽ hiện các câu có chữ "pháp"</strong></li>
+        <li><strong class="highlight">‼️Lưu Ý: Nhiều câu tra không ra thì bạn hãy xoá dấu "?" ở cuối nhé</strong></li>
       </ul>
+    </div>
+
+    <div class="next-button-container">
+      <button class="next-page-btn" onclick="goToPage(2)">➡️ Xem thêm câu hỏi</button>
     </div>
 
     <div class="contact-box">
@@ -386,8 +412,11 @@
   { "question": "Trong Đấu Phá Thương Khung, Tiêu Viêm hơn Cổ Hà ở điểm gì?", "answer": "Dị Hỏa." },
   { "question": "Phong Hi trong Phàm Nhân Tu Tiên vì sao được gọi là Đại Thiện Nhân?", "answer": "Cả 1 và 2." },
   { "question": "Trong Đấu Phá Thương Khung, khi Vân Lam Tông giải tán thì Vân Vận đã gia nhập tông phái nào?", "answer": "Hoa Tông." },
-  { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung Thiên." }
-];
+  { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung Thiên." }  
+    ];
+
+    const ITEMS_PER_PAGE = 5;
+    let currentPage = 1;
 
     function normalize(str) {
       return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -403,9 +432,7 @@
         return;
       }
 
-      const results = qaList.filter(q =>
-        normalize(q.question).includes(input)
-      );
+      const results = qaList.filter(q => normalize(q.question).includes(input));
 
       if (results.length > 0) {
         box.classList.remove("hidden");
@@ -420,18 +447,29 @@
 
     document.getElementById("searchBox").addEventListener("input", search);
 
-    const listDiv = document.getElementById("publicList");
-    qaList.forEach(q => {
-      const div = document.createElement("div");
-      div.className = "qa-item";
-      div.innerHTML = `<strong>❓ ${q.question}</strong><br/>💡 ${q.answer}`;
-      listDiv.appendChild(div);
-    });
+    function renderPage(page) {
+      const startIndex = (page - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      const listDiv = document.getElementById("publicList");
+      listDiv.innerHTML = "";
 
-    fetch(window.location.href, { cache: "no-store" })
-      .then(() => console.log("🔁 Luôn tải phiên bản mới nhất (bypass cache)."))
-      .catch(() => console.warn("Không thể kiểm tra cache."));
+      const items = qaList.slice(startIndex, endIndex);
+      items.forEach(q => {
+        const div = document.createElement("div");
+        div.className = "qa-item";
+        div.innerHTML = `<strong>❓ ${q.question}</strong><br/>💡 ${q.answer}`;
+        listDiv.appendChild(div);
+      });
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      renderPage(currentPage);
+    }
+
+    window.onload = () => {
+      renderPage(currentPage);
+    };
   </script>
-
 </body>
 </html>
