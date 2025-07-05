@@ -187,7 +187,7 @@
     </div>
 
     <div class="next-button-container">
-      <button class="next-page-btn" onclick="goToPage(2)">➡️ Vấn Đáp Tông Môn Ấn Vào Đây</button>
+      <button class="next-page-btn" onclick="goToNextPage()">➡️ Xem thêm câu hỏi</button>
     </div>
 
     <div class="contact-box">
@@ -415,7 +415,7 @@
   { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung Thiên." }  
     ];
 
-    const ITEMS_PER_PAGE = 5;
+      const ITEMS_PER_PAGE = 5;
     let currentPage = 1;
 
     function normalize(str) {
@@ -462,14 +462,15 @@
       });
     }
 
-    function goToPage(page) {
-      currentPage = page;
-      renderPage(currentPage);
+    function goToNextPage() {
+      // Điều hướng sang index2.html
+      window.location.href = "index2.html";
     }
 
     window.onload = () => {
       renderPage(currentPage);
     };
   </script>
+
 </body>
 </html>
