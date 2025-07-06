@@ -56,6 +56,16 @@
 
     .hidden { display: none; }
 
+    #notificationBox {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f1f8e9;
+      border-left: 6px solid #8bc34a;
+      border-radius: 10px;
+      font-weight: bold;
+      color: #33691e;
+    }
+
     .back-link {
       margin-top: 40px;
       text-align: center;
@@ -82,6 +92,9 @@
   <div class="container">
     <input type="text" id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..." />
     <div id="answerBox" class="hidden"></div>
+    <div id="notificationBox">
+      ✅ Đã cập nhật thành công <span id="qaCount">0</span> câu hỏi!
+    </div>
   </div>
 
   <div class="back-link">
@@ -386,6 +399,9 @@
 
 
     ];
+
+    // Cập nhật số lượng câu hỏi
+    document.getElementById("qaCount").textContent = qaList.length;
 
     function normalize(str) {
       return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
