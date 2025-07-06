@@ -17,7 +17,6 @@
       flex-direction: column;
       align-items: center;
     }
-
     .marquee-container {
       width: 100%;
       background: #ff0080;
@@ -26,18 +25,15 @@
       font-weight: bold;
       overflow: hidden;
     }
-
     .marquee {
       display: inline-block;
       white-space: nowrap;
       animation: marquee 15s linear infinite;
     }
-
     @keyframes marquee {
       from { transform: translateX(100%); }
       to { transform: translateX(-100%); }
     }
-
     .card {
       margin-top: 20px;
       background: #ffffff;
@@ -52,7 +48,6 @@
       max-width: 700px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
-
     .title-thuphap {
       font-family: 'Dancing Script', cursive;
       font-size: 42px;
@@ -60,7 +55,6 @@
       text-shadow: 0 0 6px #ff66cc, 0 0 10px #ff3399;
       font-weight: bold;
     }
-
     input[type="text"] {
       width: 100%;
       padding: 14px;
@@ -69,7 +63,6 @@
       font-size: 16px;
       margin-bottom: 15px;
     }
-
     #answerBox {
       margin-top: 20px;
       padding: 15px;
@@ -78,29 +71,23 @@
       border-radius: 10px;
       animation: glow 1s infinite alternate;
     }
-
     @keyframes glow {
       from { box-shadow: 0 0 5px #00eaff; }
       to   { box-shadow: 0 0 15px #00eaff, 0 0 25px #00eaff; }
     }
-
     .hidden { display: none; }
-
     .suggest {
       margin-top: 25px;
       text-align: left;
     }
-
     .suggest li strong.highlight {
       color: #d32f2f;
       font-weight: bold;
     }
-
     .next-button-container {
       margin-top: 20px;
       text-align: center;
     }
-
     .next-page-btn {
       padding: 12px 28px;
       background: linear-gradient(to right, #00c6ff, #0072ff);
@@ -112,12 +99,10 @@
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-
     .next-page-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 114, 255, 0.5);
     }
-
     .contact-box {
       margin-top: 40px;
       background: #fff3e0;
@@ -128,23 +113,19 @@
       max-width: 700px;
       text-align: center;
     }
-
     .contact-box a {
       color: #d84315;
       text-decoration: none;
       font-weight: bold;
     }
-
     .contact-box a:hover {
       text-decoration: underline;
     }
-
     .public-list {
       margin-top: 40px;
       width: 90%;
       max-width: 800px;
     }
-
     .qa-item {
       background: #ffffff;
       border: 3px solid transparent;
@@ -154,7 +135,6 @@
       margin-bottom: 15px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
-
     .footer-marquee {
       margin-top: 50px;
       width: 100%;
@@ -166,13 +146,27 @@
   </style>
 </head>
 <body>
-
   <div class="marquee-container">
     <div class="marquee">⚡ Nhập từ khóa hoặc câu hỏi liên quan phim hoạt hình Trung Quốc để tra cứu nhanh! ⚡</div>
   </div>
 
+  <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; background: #fff0f0; border: 2px solid #ff4081; padding: 10px 20px; border-radius: 10px;">
+    <img src="https://i.ibb.co/vfd4g2B/IMG-3441.png" alt="update gif" style="width: 40px; height: 40px;" />
+    <span style="font-weight: bold; color: #e91e63; font-size: 16px;">🔥 Đã cập nhật dữ liệu mới!</span>
+  </div>
+
   <div class="card">
-    <h1 class="title-thuphap">🔍 HUYỀN CỬU THIÊN</h1>
+    <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+      <div style="position: relative; width: 336px; height: 336px;">
+        <img src="https://i.ibb.co/xt6qPW9D/IMG-3442.jpg" alt="Avatar"
+             style="position: absolute; top: 98px; left: 98px; width: 140px; height: 140px;
+                    border-radius: 50%; z-index: 1; object-fit: cover;" />
+        <img src="https://i.ibb.co/rqp2Tnt/khung.png" alt="Khung"
+             style="position: absolute; top: -24px; left: 0; width: 336px; height: 336px; z-index: 2;" />
+      </div>
+      <h1 class="title-thuphap">🔍 HUYỀN CỬU THIÊN</h1>
+    </div>
+
     <input type="text" id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..." />
     <div id="answerBox" class="hidden"></div>
 
@@ -192,10 +186,10 @@
 
     <div class="contact-box">
       <h3>📮 Góp ý & Yêu cầu thêm câu hỏi</h3>
-      <p>Nếu bạn có câu hỏi muốn thêm vào hệ thống, vui lòng gửi email đến:                                         <p style="color: red; font-weight: bold;">
-❗ <b> <big>LƯU Ý - CÂU HỎI CỦA VẤN ĐÁP BẠN HÃY GHI VẤN ĐÁP ĐẦU - 
-CÂU HỎI CỦA SỰ KIỆN BẠN HÃY GHI SỰ KIỆN Ở ĐẦU </big> </b> 😊
-</p> </p>
+      <p>Nếu bạn có câu hỏi muốn thêm vào hệ thống, vui lòng gửi email đến:</p>
+      <p style="color: red; font-weight: bold;">
+        ❗ <b><big>LƯU Ý - CÂU HỎI CỦA VẤN ĐÁP BẠN HÃY GHI VẤN ĐÁP ĐẦU - CÂU HỎI CỦA SỰ KIỆN BẠN HÃY GHI SỰ KIỆN Ở ĐẦU</big></b> 😊
+      </p>
       <p><a href="mailto:Hoangtuanhpyd@gmail.com?subject=Góp ý câu hỏi EX: VẤN ĐÁP: CÂU HỎI / ĐÁP ÁN HOẶC SỰ KIỆN: CÂU HỎI / ĐÁP ÁN">Gửi Mail 📨</a></p>
     </div>
 
@@ -417,26 +411,20 @@ CÂU HỎI CỦA SỰ KIỆN BẠN HÃY GHI SỰ KIỆN Ở ĐẦU </big> </b> �
   { "question": "Trong Đấu Phá Thương Khung, khi Vân Lam Tông giải tán thì Vân Vận đã gia nhập tông phái nào?", "answer": "Hoa Tông." },
   { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung Thiên." }  
     ];
-
-      const ITEMS_PER_PAGE = 5;
+    const ITEMS_PER_PAGE = 5;
     let currentPage = 1;
-
     function normalize(str) {
-      return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return str.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
     }
-
     function search() {
       const input = normalize(document.getElementById("searchBox").value.trim());
       const box = document.getElementById("answerBox");
-
       if (!input) {
         box.innerHTML = "";
         box.classList.add("hidden");
         return;
       }
-
       const results = qaList.filter(q => normalize(q.question).includes(input));
-
       if (results.length > 0) {
         box.classList.remove("hidden");
         box.innerHTML = results.map(q =>
@@ -447,15 +435,12 @@ CÂU HỎI CỦA SỰ KIỆN BẠN HÃY GHI SỰ KIỆN Ở ĐẦU </big> </b> �
         box.innerHTML = `❌ Không tìm thấy kết quả phù hợp cho: "<strong>${input}</strong>"`;
       }
     }
-
     document.getElementById("searchBox").addEventListener("input", search);
-
     function renderPage(page) {
       const startIndex = (page - 1) * ITEMS_PER_PAGE;
       const endIndex = startIndex + ITEMS_PER_PAGE;
       const listDiv = document.getElementById("publicList");
       listDiv.innerHTML = "";
-
       const items = qaList.slice(startIndex, endIndex);
       items.forEach(q => {
         const div = document.createElement("div");
@@ -464,16 +449,12 @@ CÂU HỎI CỦA SỰ KIỆN BẠN HÃY GHI SỰ KIỆN Ở ĐẦU </big> </b> �
         listDiv.appendChild(div);
       });
     }
-
     function goToNextPage() {
-      // Điều hướng sang index2.html
       window.location.href = "index2.html";
     }
-
     window.onload = () => {
       renderPage(currentPage);
     };
   </script>
-
 </body>
 </html>
