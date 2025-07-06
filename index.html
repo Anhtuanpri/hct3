@@ -4,57 +4,89 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Thiên Cơ Các - HH3D</title>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+  <!-- Font chữ tu tiên -->
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+
   <style>
     body {
       margin: 0;
       padding: 0;
       font-family: 'Open Sans', sans-serif;
-      background: #f9f9f9;
-      color: #000;
+      background: url('https://i.ibb.co/xt6qPW9D/IMG-3442.jpg') no-repeat center center fixed; /* 🔁 Thay ảnh nền ở đây */
+      background-size: cover;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    .marquee-container {
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      background: #ff0080;
-      color: white;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.15); /* Nhẹ hơn */
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      z-index: -1;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .marquee-container,
+    .footer-marquee {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.4);
+      color: #8e24aa;
       padding: 10px 0;
       font-weight: bold;
       overflow: hidden;
+      z-index: 10;
+      backdrop-filter: blur(4px);
     }
+
+    .footer-marquee {
+      color: #000;
+    }
+
     .marquee {
       display: inline-block;
       white-space: nowrap;
       animation: marquee 15s linear infinite;
     }
+
     @keyframes marquee {
       from { transform: translateX(100%); }
       to { transform: translateX(-100%); }
     }
+
     .card {
       margin-top: 20px;
-      background: #ffffff;
+      background: rgba(255, 255, 255, 0.8);
       padding: 30px;
       border-radius: 16px;
       border: 4px solid;
       border-image-slice: 1;
-      border-width: 4px;
       border-image-source: linear-gradient(45deg, #00f0ff, #ff00ff, #00ff88);
       text-align: center;
       width: 90%;
       max-width: 700px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
-    .title-thuphap {
-      font-family: 'Dancing Script', cursive;
-      font-size: 42px;
-      color: #ff3399;
-      text-shadow: 0 0 6px #ff66cc, 0 0 10px #ff3399;
+
+    .masked-text {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 64px;
       font-weight: bold;
+      background: url('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGZ2djdkbTY2cHcwODJrcjlvMGZrNmNndnV5dDl0Njd0NnhkOGZ1bCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/xT9IgzoKnwFNmISR8I/giphy.gif') repeat; /* 🔁 Thay GIF hiệu ứng chữ ở đây */
+      background-size: cover;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-shadow: 0 0 10px rgba(255,255,255,0.6);
+      margin: 30px 0 10px;
     }
+
     input[type="text"] {
       width: 100%;
       padding: 14px;
@@ -63,31 +95,37 @@
       font-size: 16px;
       margin-bottom: 15px;
     }
+
     #answerBox {
       margin-top: 20px;
       padding: 15px;
-      background: #e0f7fa;
+      background: rgba(255, 255, 255, 0.7);
       border: 3px dashed #00eaff;
       border-radius: 10px;
       animation: glow 1s infinite alternate;
     }
+
     @keyframes glow {
       from { box-shadow: 0 0 5px #00eaff; }
       to   { box-shadow: 0 0 15px #00eaff, 0 0 25px #00eaff; }
     }
+
     .hidden { display: none; }
+
     .suggest {
       margin-top: 25px;
       text-align: left;
     }
+
     .suggest li strong.highlight {
       color: #d32f2f;
-      font-weight: bold;
     }
+
     .next-button-container {
       margin-top: 20px;
       text-align: center;
     }
+
     .next-page-btn {
       padding: 12px 28px;
       background: linear-gradient(to right, #00c6ff, #0072ff);
@@ -99,33 +137,12 @@
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+
     .next-page-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 114, 255, 0.5);
     }
-    .contact-box {
-      margin-top: 40px;
-      background: #fff3e0;
-      border: 2px solid #ff9800;
-      border-radius: 10px;
-      padding: 20px;
-      width: 90%;
-      max-width: 700px;
-      text-align: center;
-    }
-    .contact-box a {
-      color: #d84315;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .contact-box a:hover {
-      text-decoration: underline;
-    }
-    .public-list {
-      margin-top: 40px;
-      width: 90%;
-      max-width: 800px;
-    }
+
     .qa-item {
       background: #ffffff;
       border: 3px solid transparent;
@@ -135,28 +152,17 @@
       margin-bottom: 15px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
-    .footer-marquee {
-      margin-top: 50px;
-      width: 100%;
-      background: #e0e0e0;
-      color: #000;
-      padding: 10px 0;
-      font-size: 14px;
-    }
   </style>
 </head>
 <body>
-  <div class="marquee-container">
-    <div class="marquee">⚡ Nhập từ khóa hoặc câu hỏi liên quan phim hoạt hình Trung Quốc để tra cứu nhanh! ⚡</div>
-  </div>
+  <div class="overlay"></div>
 
-  <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; background: #fff0f0; border: 2px solid #ff4081; padding: 10px 20px; border-radius: 10px;">
-    <img src="https://i.ibb.co/vfd4g2B/IMG-3441.png" alt="update gif" style="width: 40px; height: 40px;" />
-    <span style="font-weight: bold; color: #e91e63; font-size: 16px;">🔥 Đã cập nhật dữ liệu mới!</span>
+  <div class="marquee-container">
+    <div class="marquee">🌸 Nhập từ khóa hoặc câu hỏi để tra cứu nhanh trong thế giới tu tiên! 🌸</div>
   </div>
 
   <div class="card">
-    <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: column; align-items: center;">
       <div style="position: relative; width: 336px; height: 336px;">
         <img src="https://i.ibb.co/mCCWr5L6/IMG-3452.webp" alt="Avatar"
              style="position: absolute; top: 98px; left: 98px; width: 140px; height: 140px;
@@ -164,7 +170,7 @@
         <img src="https://i.ibb.co/rqp2Tnt/khung.png" alt="Khung"
              style="position: absolute; top: -24px; left: 0; width: 336px; height: 336px; z-index: 2;" />
       </div>
-      <h1 class="title-thuphap">🔍 HUYỀN CỬU THIÊN</h1>
+      <h1 class="masked-text">Huyền Cửu Thiên</h1>
     </div>
 
     <input type="text" id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..." />
@@ -173,31 +179,19 @@
     <div class="suggest">
       <h3>📌 Gợi ý:</h3>
       <ul>
-        <li><strong>Nhập Câu Hỏi Tra cứu nhanh</strong></li>
-        <li><strong>Chỉ cần nhập 1 chữ hoặc 1 từ liên quan sẽ trả kết quả cho đạo hữu</strong></li>
-        <li><strong>Ví Dụ: Pháp → Sẽ hiện các câu có chữ "pháp"</strong></li>
-        <li><strong class="highlight">‼️Lưu Ý: Nhiều câu tra không ra thì bạn hãy xoá dấu "?" ở cuối nhé</strong></li>
+        <li><strong>Chỉ cần nhập 1 từ liên quan sẽ hiện kết quả phù hợp</strong></li>
+        <li><strong>Ví dụ: “pháp” sẽ trả về tất cả câu hỏi chứa từ pháp</strong></li>
+        <li><strong class="highlight">‼️ Xoá dấu “?” nếu không ra kết quả</strong></li>
       </ul>
     </div>
 
     <div class="next-button-container">
-      <button class="next-page-btn" onclick="goToNextPage()">➡️ ẤN VÀO ĐÂY TRA CỨU VẤN ĐÁP TÔNG MÔN</button>
+      <button class="next-page-btn" onclick="goToNextPage()">➡️ Ấn để sang trang tra cứu tiếp</button>
     </div>
+  </div>
 
-    <div class="contact-box">
-      <h3>📮 Góp ý & Yêu cầu thêm câu hỏi</h3>
-      <p>Nếu bạn có câu hỏi muốn thêm vào hệ thống, vui lòng gửi email đến:</p>
-      <p style="color: red; font-weight: bold;">
-        ❗ <b><big>LƯU Ý - CÂU HỎI CỦA VẤN ĐÁP BẠN HÃY GHI VẤN ĐÁP ĐẦU - CÂU HỎI CỦA SỰ KIỆN BẠN HÃY GHI SỰ KIỆN Ở ĐẦU</big></b> 😊
-      </p>
-      <p><a href="mailto:Hoangtuanhpyd@gmail.com?subject=Góp ý câu hỏi EX: VẤN ĐÁP: CÂU HỎI / ĐÁP ÁN HOẶC SỰ KIỆN: CÂU HỎI / ĐÁP ÁN">Gửi Mail 📨</a></p>
-    </div>
-
-    <div class="public-list" id="publicList"></div>
-
-    <div class="footer-marquee">
-      <marquee>📢 Xem danh sách đầy đủ bên dưới hoặc dùng ô tìm kiếm để tra nhanh theo từ khóa! 📢</marquee>
-    </div>
+  <div class="footer-marquee">
+    <marquee>📢 Dùng thanh tìm kiếm để tra cứu nhanh câu hỏi - Sử dụng từ khóa là đủ! 📢</marquee>
   </div>
 
   <script>
@@ -409,13 +403,15 @@
   { "question": "Trong Đấu Phá Thương Khung, Tiêu Viêm hơn Cổ Hà ở điểm gì?", "answer": "Dị Hỏa." },
   { "question": "Phong Hi trong Phàm Nhân Tu Tiên vì sao được gọi là Đại Thiện Nhân?", "answer": "Cả 1 và 2." },
   { "question": "Trong Đấu Phá Thương Khung, khi Vân Lam Tông giải tán thì Vân Vận đã gia nhập tông phái nào?", "answer": "Hoa Tông." },
-  { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung Thiên." }  
+  { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung Thiên. " }
     ];
     const ITEMS_PER_PAGE = 5;
     let currentPage = 1;
+
     function normalize(str) {
       return str.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
     }
+
     function search() {
       const input = normalize(document.getElementById("searchBox").value.trim());
       const box = document.getElementById("answerBox");
@@ -435,25 +431,15 @@
         box.innerHTML = `❌ Không tìm thấy kết quả phù hợp cho: "<strong>${input}</strong>"`;
       }
     }
+
     document.getElementById("searchBox").addEventListener("input", search);
-    function renderPage(page) {
-      const startIndex = (page - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const listDiv = document.getElementById("publicList");
-      listDiv.innerHTML = "";
-      const items = qaList.slice(startIndex, endIndex);
-      items.forEach(q => {
-        const div = document.createElement("div");
-        div.className = "qa-item";
-        div.innerHTML = `<strong>❓ ${q.question}</strong><br/>💡 ${q.answer}`;
-        listDiv.appendChild(div);
-      });
-    }
+
     function goToNextPage() {
       window.location.href = "index2.html";
     }
+
     window.onload = () => {
-      renderPage(currentPage);
+      // Future Q&A pagination
     };
   </script>
 </body>
