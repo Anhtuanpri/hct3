@@ -158,17 +158,31 @@
       box-shadow: 0 4px 12px rgba(0, 114, 255, 0.5);
     }
 
-    .qa-item {
-      background: #ffffff;
-      border: 3px solid transparent;
-      border-image: linear-gradient(45deg, #0ff, #f0f, #0f0) 1;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-  </style>
-</head>
+ .qa-item {
+    background: #ffffff;
+    border: 3px solid transparent;
+    border-image: linear-gradient(45deg, #0ff, #f0f, #0f0) 1;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  }
+
+  /* 👇 Chống sao chép văn bản */
+  body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* 👇 Ngăn kéo hoặc tải ảnh */
+  img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+</style>
 <body>
   <div class="overlay"></div>
 
@@ -530,21 +544,36 @@ function sendMail() {
   </script>
 
 <script>
-  //ban chuột
-  document.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-  });
+  // Chặn chuột phải
+  document.addEventListener('contextmenu', event => event.preventDefault());
 
-  // Cấm F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-  document.addEventListener("keydown", function (e) {
+  // Chặn phím F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Ctrl+C
+  document.addEventListener('keydown', function(e) {
     if (
-      e.key === "F12" ||
-      (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
-      (e.ctrlKey && e.key === "U")
+      e.key === "F12" || 
+      (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'c' || e.key === 'i' || e.key === 'j' || e.key === 'p'))
     ) {
       e.preventDefault();
     }
+
+    // Chặn Ctrl + Shift + I/J/C
+    if ((e.ctrlKey && e.shiftKey) && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
+      e.preventDefault();
+    }
   });
+
+  // Chặn kéo ảnh
+  document.querySelectorAll('img').forEach(img => {
+    img.setAttribute('draggable', 'false');
+  });
+
+  // Chặn copy
+  document.addEventListener('copy', e => {
+    e.preventDefault();
+  });
+
+  // Chặn kéo thả bất kỳ nội dung nào
+  document.addEventListener('dragstart', e => e.preventDefault());
 </script>
   
 
