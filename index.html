@@ -189,7 +189,78 @@
       <button class="next-page-btn" onclick="goToNextPage()">➡️ Ấn để sang trang tra cứu tiếp</button>
     </div>
   </div>
+<!-- Thêm sau phần nút chuyển trang hoặc bất kỳ đâu bạn muốn -->
+<div class="send-question">
+  <h3>📬 Bạn muốn đóng góp câu hỏi mới?</h3>
+  <input type="text" id="newQuestion" placeholder="Nhập câu hỏi cần bổ sung..." />
+  <textarea id="newDetails" placeholder="Mô tả chi tiết hoặc câu trả lời đề xuất..."></textarea>
+  <button onclick="sendMail()">Gửi yêu cầu 📩</button>
+</div>
 
+<style>
+.send-question {
+  margin-top: 30px;
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.send-question input,
+.send-question textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+.send-question textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.send-question button {
+  background: linear-gradient(to right, #00bcd4, #7b1fa2);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.send-question button:hover {
+  background: linear-gradient(to right, #7b1fa2, #00bcd4);
+  box-shadow: 0 4px 12px rgba(123, 31, 162, 0.4);
+}
+</style>
+
+<script>
+function sendMail() {
+  const question = document.getElementById("newQuestion").value.trim();
+  const details = document.getElementById("newDetails").value.trim();
+
+  if (!question) {
+    alert("⚠️ Vui lòng nhập câu hỏi cần bổ sung!");
+    return;
+  }
+
+  const subject = encodeURIComponent("Yêu cầu bổ sung câu hỏi cho Thiên Cơ Các");
+  const body = encodeURIComponent(
+    `🔮 Câu hỏi:\n${question}\n\n💬 Chi tiết / Gợi ý trả lời:\n${details || "(Không có)"}`
+  );
+
+  // Thay bằng email thật nếu bạn có
+  const email = "your_email@example.com";
+
+  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+}
+</script>
   <div class="footer-marquee">
     <marquee>📢 Dùng thanh tìm kiếm để tra cứu nhanh câu hỏi - Sử dụng từ khóa là đủ! 📢</marquee>
   </div>
