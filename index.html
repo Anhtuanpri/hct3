@@ -186,10 +186,9 @@
     </div>
 
     <div class="next-button-container">
-      <button class="next-page-btn" onclick="goToNextPage()">➡️ Ấn để sang trang tra cứu tiếp</button>
+      <button class="next-page-btn" onclick="goToNextPage()">➡️ Vấn Đáp Tông Môn</button>
     </div>
   </div>
-<!-- Thêm sau phần nút chuyển trang hoặc bất kỳ đâu bạn muốn -->
 <div class="send-question">
   <h3>📬 Bạn muốn đóng góp câu hỏi mới?</h3>
   <input type="text" id="newQuestion" placeholder="Nhập câu hỏi cần bổ sung..." />
@@ -255,8 +254,7 @@ function sendMail() {
     `🔮 Câu hỏi:\n${question}\n\n💬 Chi tiết / Gợi ý trả lời:\n${details || "(Không có)"}`
   );
 
-  // Thay bằng email thật nếu bạn có
-  const email = "your_email@example.com";
+  const email = "Hoangtuanhpyd@gmail.com";
 
   window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 }
