@@ -576,16 +576,5 @@ function sendMail() {
   document.addEventListener('dragstart', e => e.preventDefault());
 </script>
   
-<div id="visitorCount" style="margin-top: 20px; font-size: 18px; font-weight: bold; color: darkgreen;"></div>
-
-<script>
-  fetch("counter.php")
-    .then(res => res.text())
-    .then(number => {
-      document.getElementById("visitorCount").textContent = `🔢 Bạn là lượt truy cập số: ${number}`;
-    });
-</script>
-
-  
 </body>
 </html>
