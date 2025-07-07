@@ -6,7 +6,7 @@
   <title>Thiên Cơ Các - HH3D</title>
   <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
   <style>
-    html, body {
+    body {
       margin: 0;
       padding: 0;
       font-family: 'Open Sans', sans-serif;
@@ -34,14 +34,15 @@
       padding: 10px 0;
       font-weight: bold;
       overflow: hidden;
-      backdrop-filter: blur(4px);
       z-index: 10;
+      backdrop-filter: blur(4px);
     }
 
     .footer-marquee {
-      position: relative;
-      margin-top: 40px;
+      position: fixed;
+      bottom: 0;
       color: #000;
+      z-index: 999;
     }
 
     .marquee {
@@ -168,19 +169,6 @@
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.45);
       backdrop-filter: blur(12px);
-      text-align: center;
-    }
-
-    .send-question button {
-      padding: 12px 24px;
-      font-size: 16px;
-      background: linear-gradient(to right, #00c6ff, #0072ff);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-top: 10px;
     }
 
     .qa-item {
@@ -192,9 +180,40 @@
       margin-bottom: 15px;
     }
 
+    .avatar-wrapper {
+      position: relative;
+      width: 336px;
+      height: 336px;
+      margin: 0 auto;
+    }
+
+    .avatar-wrapper img:first-child {
+      position: absolute;
+      top: 98px;
+      left: 98px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .avatar-wrapper img:last-child {
+      position: absolute;
+      top: -24px;
+      left: 0;
+      width: 336px;
+      height: 336px;
+    }
+
     body, img {
       user-select: none;
+      pointer-events: none;
       -webkit-user-drag: none;
+    }
+
+    input, textarea, button {
+      pointer-events: auto;
+      user-select: auto;
     }
   </style>
 </head>
@@ -207,12 +226,9 @@
 
   <div class="card">
     <div style="display: flex; flex-direction: column; align-items: center;">
-      <div style="position: relative; width: 336px; height: 336px;">
-        <img src="https://i.ibb.co/mCCWr5L6/IMG-3452.webp"
-             style="position: absolute; top: 98px; left: 98px; width: 140px; height: 140px;
-                    border-radius: 50%; object-fit: cover;" />
-        <img src="https://i.ibb.co/rqp2Tnt/khung.png"
-             style="position: absolute; top: -24px; left: 0; width: 336px; height: 336px;" />
+      <div class="avatar-wrapper">
+        <img src="https://i.ibb.co/mCCWr5L6/IMG-3452.webp" alt="Avatar">
+        <img src="https://i.ibb.co/rqp2Tnt/khung.png" alt="Khung viền">
       </div>
       <h1 class="masked-text">Huyền Cửu Thiên</h1>
     </div>
@@ -245,10 +261,12 @@
     <div class="glow-input">
       <textarea id="newDetails" placeholder="Mô tả chi tiết hoặc câu trả lời đề xuất..."></textarea>
     </div>
-    <button onclick="sendMail()">Gửi yêu cầu 📩</button>
+    <div style="text-align:center">
+      <button onclick="sendMail()">Gửi yêu cầu 📩</button>
+    </div>
   </div>
 
-  <div style="margin: 20px auto 40px; text-align: center; font-weight: bold; font-size: 18px; color: #2e7d32;">
+  <div style="margin: 20px auto 60px; text-align: center; font-weight: bold; font-size: 18px; color: #2e7d32;">
     ✅ Đã Cập nhật Hoàn tất
   </div>
 
@@ -466,7 +484,7 @@
   { "question": "Phong Hi trong Phàm Nhân Tu Tiên vì sao được gọi là Đại Thiện Nhân?", "answer": "Cả 1 và 2." },
   { "question": "Trong Đấu Phá Thương Khung, khi Vân Lam Tông giải tán thì Vân Vận đã gia nhập tông phái nào?", "answer": "Hoa Tông." },
   { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung Thiên. " }
-      ];
+     ];
 
     function normalize(str) {
       return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -523,21 +541,20 @@
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     }
 
-    // Chặn chuột phải và sao chép nhưng không chặn input
+    // Chặn sao chép và mở DevTools
     document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('copy', e => e.preventDefault());
-    document.addEventListener('dragstart', e => e.preventDefault());
-
-    // Chặn F12, Ctrl+U, Ctrl+Shift+I/J
     document.addEventListener('keydown', e => {
       if (
         e.key === "F12" ||
-        (e.ctrlKey && ["u"].includes(e.key.toLowerCase())) ||
-        (e.ctrlKey && e.shiftKey && ["I", "J"].includes(e.key.toUpperCase()))
+        (e.ctrlKey && ["u", "s", "c", "i", "j", "p"].includes(e.key.toLowerCase())) ||
+        (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key.toUpperCase()))
       ) {
         e.preventDefault();
       }
     });
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
+    document.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
   </script>
 </body>
 </html>
