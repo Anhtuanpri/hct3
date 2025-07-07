@@ -4,16 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Thiên Cơ Các - HH3D</title>
-
-  <!-- Font chữ tu tiên -->
   <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 
   <style>
     body {
       margin: 0;
-      padding: 0;
+      padding: 0 0 80px; /* 👈 Thêm khoảng trống dưới cùng để tránh bị footer che */
       font-family: 'Open Sans', sans-serif;
-      background: url('https://i.postimg.cc/hvL71hgT/IMG-3463.jpg') no-repeat center center fixed; /* 🔁 Thay ảnh nền ở đây */
+      background: url('https://i.postimg.cc/hvL71hgT/IMG-3463.jpg') no-repeat center center fixed;
       background-size: cover;
       display: flex;
       flex-direction: column;
@@ -22,19 +20,15 @@
 
     .overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.15); /* Nhẹ hơn */
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       z-index: -1;
-      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .marquee-container,
-    .footer-marquee {
+    .marquee-container, .footer-marquee {
       width: 100%;
       background: rgba(255, 255, 255, 0.4);
       color: #8e24aa;
@@ -46,17 +40,12 @@
     }
 
     .footer-marquee {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.4);
-  color: #000;
-  padding: 10px 0;
-  font-weight: bold;
-  overflow: hidden;
-  z-index: 999;
-  backdrop-filter: blur(4px);
-}
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      color: #000;
+      z-index: 999;
+    }
 
     .marquee {
       display: inline-block;
@@ -66,7 +55,7 @@
 
     @keyframes marquee {
       from { transform: translateX(100%); }
-      to { transform: translateX(-100%); }
+      to   { transform: translateX(-100%); }
     }
 
     .card {
@@ -83,32 +72,56 @@
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
 
-   .masked-text {
-  font-family: 'Ma Shan Zheng', cursive;
-  font-size: 64px;
-  font-weight: bold;
-  background: url('https://i.postimg.cc/xdfJns0D/IMG-2770.gif') repeat;
-  background-size: cover;
-  color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
+    .masked-text {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 64px;
+      font-weight: bold;
+      background: url('https://i.postimg.cc/xdfJns0D/IMG-2770.gif') repeat;
+      background-size: cover;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-stroke: 0.5px gold;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+      margin: 30px 0 10px;
+    }
 
+    .glow-input {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto 15px;
+    }
 
-  -webkit-text-stroke: 0.5px gold; /* viền trắng 2px */
-  
-  
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-
-  margin: 30px 0 10px;
-}
-
-    input[type="text"] {
+    .glow-input input,
+    .glow-input textarea {
       width: 100%;
       padding: 14px;
-      border: 2px solid #ccc;
+      border: none;
       border-radius: 10px;
       font-size: 16px;
-      margin-bottom: 15px;
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.9);
+      color: #000;
+      box-sizing: border-box;
+    }
+
+    .glow-input::before {
+      content: "";
+      position: absolute;
+      top: -3px; left: -3px; right: -3px; bottom: -3px;
+      border-radius: 12px;
+      background: linear-gradient(270deg, #00f0ff, #ff00ff, #00ff88, #ff9900, #00f0ff);
+      background-size: 600% 600%;
+      animation: borderLED 6s linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes borderLED {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     #answerBox {
@@ -150,39 +163,34 @@
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .next-page-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 114, 255, 0.5);
+    .send-question {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(12px);
+      max-width: 700px;
+      width: 90%;
     }
 
- .qa-item {
-    background: #ffffff;
-    border: 3px solid transparent;
-    border-image: linear-gradient(45deg, #0ff, #f0f, #0f0) 1;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-  }
+    .qa-item {
+      background: #fff;
+      border: 3px solid transparent;
+      border-image: linear-gradient(45deg, #0ff, #f0f, #0f0) 1;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
 
-  /* 👇 Chống sao chép văn bản */
-  body {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  /* 👇 Ngăn kéo hoặc tải ảnh */
-  img {
-    pointer-events: none;
-    -webkit-user-drag: none;
-    user-drag: none;
-  }
-</style>
+    body, img {
+      user-select: none;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+  </style>
+</head>
 <body>
   <div class="overlay"></div>
 
@@ -193,16 +201,19 @@
   <div class="card">
     <div style="display: flex; flex-direction: column; align-items: center;">
       <div style="position: relative; width: 336px; height: 336px;">
-        <img src="https://i.ibb.co/mCCWr5L6/IMG-3452.webp" alt="Avatar"
+        <img src="https://i.ibb.co/mCCWr5L6/IMG-3452.webp"
              style="position: absolute; top: 98px; left: 98px; width: 140px; height: 140px;
-                    border-radius: 50%; z-index: 1; object-fit: cover;" />
-        <img src="https://i.ibb.co/rqp2Tnt/khung.png" alt="Khung"
-             style="position: absolute; top: -24px; left: 0; width: 336px; height: 336px; z-index: 2;" />
+                    border-radius: 50%; object-fit: cover;" />
+        <img src="https://i.ibb.co/rqp2Tnt/khung.png"
+             style="position: absolute; top: -24px; left: 0; width: 336px; height: 336px;" />
       </div>
       <h1 class="masked-text">Huyền Cửu Thiên</h1>
     </div>
 
-    <input type="text" id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..." />
+    <div class="glow-input">
+      <input type="text" id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..." />
+    </div>
+
     <div id="answerBox" class="hidden"></div>
 
     <div class="suggest">
@@ -218,78 +229,23 @@
       <button class="next-page-btn" onclick="goToNextPage()">➡️ Vấn Đáp Tông Môn</button>
     </div>
   </div>
-<div class="send-question">
-  <h3>📬 Bạn muốn đóng góp câu hỏi mới?</h3>
-  <input type="text" id="newQuestion" placeholder="Nhập câu hỏi cần bổ sung..." />
-  <textarea id="newDetails" placeholder="Mô tả chi tiết hoặc câu trả lời đề xuất..."></textarea>
-  <button onclick="sendMail()">Gửi yêu cầu 📩</button>
-</div>
-<div style="margin: 20px auto 40px; text-align: center; font-weight: bold; font-size: 18px; color: #2e7d32;">
-  ✅ Đã Cập nhật Hoàn tất
-</div>
-<style>
-.send-question {
-  margin-top: 30px;
-  padding: 20px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
-}
 
-.send-question input,
-.send-question textarea {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 15px;
-}
+  <!-- ✅ Gửi câu hỏi và cập nhật để trên marquee -->
+  <div class="send-question">
+    <h3>📬 Bạn muốn đóng góp câu hỏi mới?</h3>
+    <div class="glow-input">
+      <input type="text" id="newQuestion" placeholder="Nhập câu hỏi cần bổ sung..." />
+    </div>
+    <div class="glow-input">
+      <textarea id="newDetails" placeholder="Mô tả chi tiết hoặc câu trả lời đề xuất..."></textarea>
+    </div>
+    <button onclick="sendMail()">Gửi yêu cầu 📩</button>
+  </div>
 
-.send-question textarea {
-  height: 100px;
-  resize: vertical;
-}
+  <div style="margin: 20px auto 10px; text-align: center; font-weight: bold; font-size: 18px; color: #2e7d32;">
+    ✅ Đã Cập nhật Hoàn tất
+  </div>
 
-.send-question button {
-  background: linear-gradient(to right, #00bcd4, #7b1fa2);
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.send-question button:hover {
-  background: linear-gradient(to right, #7b1fa2, #00bcd4);
-  box-shadow: 0 4px 12px rgba(123, 31, 162, 0.4);
-}
-</style>
-
-<script>
-function sendMail() {
-  const question = document.getElementById("newQuestion").value.trim();
-  const details = document.getElementById("newDetails").value.trim();
-
-  if (!question) {
-    alert("⚠️ Vui lòng nhập câu hỏi cần bổ sung!");
-    return;
-  }
-
-  const subject = encodeURIComponent("Yêu cầu bổ sung câu hỏi cho Thiên Cơ Các");
-  const body = encodeURIComponent(
-    `🔮 Câu hỏi:\n${question}\n\n💬 Chi tiết / Gợi ý trả lời:\n${details || "(Không có)"}`
-  );
-
-  const email = "Hoangtuanhpyd@gmail.com";
-
-  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-}
-</script>
   <div class="footer-marquee">
     <marquee>📢 Dùng thanh tìm kiếm để tra cứu nhanh câu hỏi - Sử dụng từ khóa là đủ! 📢</marquee>
   </div>
@@ -503,24 +459,30 @@ function sendMail() {
   { "question": "Trong Đấu Phá Thương Khung, Tiêu Viêm hơn Cổ Hà ở điểm gì?", "answer": "Dị Hỏa." },
   { "question": "Phong Hi trong Phàm Nhân Tu Tiên vì sao được gọi là Đại Thiện Nhân?", "answer": "Cả 1 và 2." },
   { "question": "Trong Đấu Phá Thương Khung, khi Vân Lam Tông giải tán thì Vân Vận đã gia nhập tông phái nào?", "answer": "Hoa Tông." },
-  { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung Thiên. " }
-    ];
-    const ITEMS_PER_PAGE = 5;
-    let currentPage = 1;
+  { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung     ];
 
     function normalize(str) {
-      return str.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+      return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     }
 
     function search() {
       const input = normalize(document.getElementById("searchBox").value.trim());
       const box = document.getElementById("answerBox");
+
       if (!input) {
         box.innerHTML = "";
         box.classList.add("hidden");
         return;
       }
-      const results = qaList.filter(q => normalize(q.question).includes(input));
+
+      const results = qaList
+        .map(q => ({
+          ...q,
+          matchScore: (normalize(q.question).match(new RegExp(input, "g")) || []).length
+        }))
+        .filter(q => q.matchScore > 0)
+        .sort((a, b) => b.matchScore - a.matchScore);
+
       if (results.length > 0) {
         box.classList.remove("hidden");
         box.innerHTML = results.map(q =>
@@ -538,43 +500,32 @@ function sendMail() {
       window.location.href = "index2.html";
     }
 
-    window.onload = () => {
-      // Future Q&A pagination
-    };
+    function sendMail() {
+      const question = document.getElementById("newQuestion").value.trim();
+      const details = document.getElementById("newDetails").value.trim();
+      if (!question) {
+        alert("⚠️ Vui lòng nhập câu hỏi cần bổ sung!");
+        return;
+      }
+
+      const subject = encodeURIComponent("Yêu cầu bổ sung câu hỏi cho Thiên Cơ Các");
+      const body = encodeURIComponent(
+        `🔮 Câu hỏi:\n${question}\n\n💬 Chi tiết / Gợi ý trả lời:\n${details || "(Không có)"}`
+      );
+      const email = "Hoangtuanhpyd@gmail.com";
+      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    }
+
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (e.key === "F12" || (e.ctrlKey && ["u", "s", "c", "i", "j", "p"].includes(e.key.toLowerCase()))
+        || (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key.toUpperCase()))) {
+        e.preventDefault();
+      }
+    });
+    document.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
   </script>
-
-<script>
-  // Chặn chuột phải
-  document.addEventListener('contextmenu', event => event.preventDefault());
-
-  // Chặn phím F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Ctrl+C
-  document.addEventListener('keydown', function(e) {
-    if (
-      e.key === "F12" || 
-      (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'c' || e.key === 'i' || e.key === 'j' || e.key === 'p'))
-    ) {
-      e.preventDefault();
-    }
-
-    // Chặn Ctrl + Shift + I/J/C
-    if ((e.ctrlKey && e.shiftKey) && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
-      e.preventDefault();
-    }
-  });
-
-  // Chặn kéo ảnh
-  document.querySelectorAll('img').forEach(img => {
-    img.setAttribute('draggable', 'false');
-  });
-
-  // Chặn copy
-  document.addEventListener('copy', e => {
-    e.preventDefault();
-  });
-
-  // Chặn kéo thả bất kỳ nội dung nào
-  document.addEventListener('dragstart', e => e.preventDefault());
-</script>
-  
 </body>
 </html>
