@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Thiên Cơ Các - HH3D</title>
   <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-
   <style>
-    body {
+    html, body {
       margin: 0;
-      padding: 0 0 80px; /* 👈 Thêm khoảng trống dưới cùng để tránh bị footer che */
+      padding: 0;
       font-family: 'Open Sans', sans-serif;
       background: url('https://i.postimg.cc/hvL71hgT/IMG-3463.jpg') no-repeat center center fixed;
       background-size: cover;
@@ -35,16 +34,14 @@
       padding: 10px 0;
       font-weight: bold;
       overflow: hidden;
-      z-index: 10;
       backdrop-filter: blur(4px);
+      z-index: 10;
     }
 
     .footer-marquee {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
+      position: relative;
+      margin-top: 40px;
       color: #000;
-      z-index: 999;
     }
 
     .marquee {
@@ -171,8 +168,19 @@
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.45);
       backdrop-filter: blur(12px);
-      max-width: 700px;
-      width: 90%;
+      text-align: center;
+    }
+
+    .send-question button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
     }
 
     .qa-item {
@@ -186,7 +194,6 @@
 
     body, img {
       user-select: none;
-      pointer-events: none;
       -webkit-user-drag: none;
     }
   </style>
@@ -230,7 +237,6 @@
     </div>
   </div>
 
-  <!-- ✅ Gửi câu hỏi và cập nhật để trên marquee -->
   <div class="send-question">
     <h3>📬 Bạn muốn đóng góp câu hỏi mới?</h3>
     <div class="glow-input">
@@ -242,7 +248,7 @@
     <button onclick="sendMail()">Gửi yêu cầu 📩</button>
   </div>
 
-  <div style="margin: 20px auto 10px; text-align: center; font-weight: bold; font-size: 18px; color: #2e7d32;">
+  <div style="margin: 20px auto 40px; text-align: center; font-weight: bold; font-size: 18px; color: #2e7d32;">
     ✅ Đã Cập nhật Hoàn tất
   </div>
 
@@ -459,7 +465,8 @@
   { "question": "Trong Đấu Phá Thương Khung, Tiêu Viêm hơn Cổ Hà ở điểm gì?", "answer": "Dị Hỏa." },
   { "question": "Phong Hi trong Phàm Nhân Tu Tiên vì sao được gọi là Đại Thiện Nhân?", "answer": "Cả 1 và 2." },
   { "question": "Trong Đấu Phá Thương Khung, khi Vân Lam Tông giải tán thì Vân Vận đã gia nhập tông phái nào?", "answer": "Hoa Tông." },
-  { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung     ];
+  { "question": "Gia gia Thạch Hạo trong phim Thế Giới Hoàn Mỹ tên gì?", "answer": "Thạch Trung Thiên. "
+      ];
 
     function normalize(str) {
       return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -516,16 +523,21 @@
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     }
 
+    // Chặn chuột phải và sao chép nhưng không chặn input
     document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
+
+    // Chặn F12, Ctrl+U, Ctrl+Shift+I/J
     document.addEventListener('keydown', e => {
-      if (e.key === "F12" || (e.ctrlKey && ["u", "s", "c", "i", "j", "p"].includes(e.key.toLowerCase()))
-        || (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key.toUpperCase()))) {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && ["u"].includes(e.key.toLowerCase())) ||
+        (e.ctrlKey && e.shiftKey && ["I", "J"].includes(e.key.toUpperCase()))
+      ) {
         e.preventDefault();
       }
     });
-    document.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
-    document.addEventListener('copy', e => e.preventDefault());
-    document.addEventListener('dragstart', e => e.preventDefault());
   </script>
 </body>
 </html>
