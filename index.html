@@ -556,5 +556,37 @@
     document.addEventListener('dragstart', e => e.preventDefault());
     document.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
   </script>
+  <script>
+  // Chặn chuột phải
+  document.addEventListener('contextmenu', event => event.preventDefault());
+
+  // Chặn phím F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Ctrl+C
+  document.addEventListener('keydown', function(e) {
+    if (
+      e.key === "F12" || 
+      (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'c' || e.key === 'i' || e.key === 'j' || e.key === 'p'))
+    ) {
+      e.preventDefault();
+    }
+
+    // Chặn Ctrl + Shift + I/J/C
+    if ((e.ctrlKey && e.shiftKey) && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
+      e.preventDefault();
+    }
+  });
+
+  // Chặn kéo ảnh
+  document.querySelectorAll('img').forEach(img => {
+    img.setAttribute('draggable', 'false');
+  });
+
+  // Chặn copy
+  document.addEventListener('copy', e => {
+    e.preventDefault();
+  });
+
+  // Chặn kéo thả bất kỳ nội dung nào
+  document.addEventListener('dragstart', e => e.preventDefault());
+</script>
 </body>
 </html>
