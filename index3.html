@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ô May Mắn</title>
+  <title>HUYỀN CỬU THIÊN </title>
   <style>
     body {
       margin: 0;
@@ -34,7 +34,8 @@
     }
 
     .lucky-box {
-      background: rgba(255, 255, 255, 0.8);
+      position: relative;
+      background: rgba(255, 255, 255, 0.85);
       border: 4px solid #333;
       border-radius: 12px;
       display: flex;
@@ -44,14 +45,29 @@
       font-weight: bold;
       color: #222;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      transition: 0.3s;
+      transition: 0.2s;
     }
 
-    .lucky-box.winner {
+    .lucky-box.active {
       background: gold;
       color: black;
       border-color: red;
       box-shadow: 0 0 25px red;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 2px;
+      right: 5px;
+      background: crimson;
+      color: white;
+      border: none;
+      font-size: 14px;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      line-height: 17px;
     }
 
     #controls {
@@ -94,14 +110,14 @@
 </head>
 <body>
 
-  <h1>🔮 Ô May Mắn  🔮</h1>
+  <h1>🎁 Chúc Đạo Hữu May Mắn 🎁</h1>
 
   <div id="box-container"></div>
 
   <div id="controls">
     <input type="text" id="rewardInput" placeholder="Tên phần thưởng..." />
     <button onclick="addBox()">➕ Thêm Ô</button>
-    <button onclick="spin()">🎯 Quay</button>
+    <button onclick="startSpin()">🎯 Quay</button>
   </div>
 
   <div class="back-button">
@@ -121,23 +137,52 @@
 
       const box = document.createElement("div");
       box.className = "lucky-box";
-      box.innerText = reward;
+      box.innerHTML = `
+        ${reward}
+        <button class="delete-btn" onclick="deleteBox(this)">×</button>
+      `;
       container.appendChild(box);
       input.value = "";
     }
 
-    function spin() {
+    function deleteBox(btn) {
+      const box = btn.closest(".lucky-box");
+      box.remove();
+    }
+
+    function startSpin() {
       const boxes = document.querySelectorAll(".lucky-box");
-      if (boxes.length === 0) return alert("Chưa có ô nào!");
+      if (boxes.length < 2) {
+        alert("Cần ít nhất 2 phần thưởng để quay!");
+        return;
+      }
 
-      boxes.forEach(b => b.classList.remove("winner"));
+      boxes.forEach(b => b.classList.remove("active"));
 
-      const winnerIndex = Math.floor(Math.random() * boxes.length);
-      const winnerBox = boxes[winnerIndex];
+      const total = boxes.length;
+      const winnerIndex = Math.floor(Math.random() * total);
+      let current = 0;
+      let rounds = total * 3 + winnerIndex;
+      let delay = 80;
 
-      setTimeout(() => {
-        winnerBox.classList.add("winner");
-      }, 300);
+      function highlightNext() {
+        boxes.forEach(b => b.classList.remove("active"));
+        boxes[current % total].classList.add("active");
+        current++;
+
+        if (current <= rounds) {
+          setTimeout(highlightNext, delay);
+          if (current > rounds - total) delay += 15; // chậm dần
+        } else {
+          // Xoá ô trúng
+          const winnerBox = boxes[winnerIndex];
+          setTimeout(() => {
+            winnerBox.remove();
+          }, 600);
+        }
+      }
+
+      highlightNext();
     }
   </script>
 
