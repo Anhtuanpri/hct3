@@ -143,6 +143,7 @@
     <input type="text" id="rewardInput" placeholder="Tên phần thưởng..." />
     <button onclick="addBox()">➕ Thêm Ô</button>
     <button onclick="startSpin()">🎯 Quay</button>
+    <button onclick="shuffleBoxes()">🔀 Xáo trộn</button>
   </div>
 
   <div class="back-button">
@@ -223,6 +224,20 @@
       }
 
       highlightNext();
+    }
+
+    function shuffleBoxes() {
+      const boxes = Array.from(container.children);
+      if (boxes.length < 2) return;
+
+      for (let i = boxes.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [boxes[i], boxes[j]] = [boxes[j], boxes[i]];
+      }
+
+      // Xóa tất cả rồi thêm lại theo thứ tự đã xáo
+      container.innerHTML = '';
+      boxes.forEach(box => container.appendChild(box));
     }
   </script>
 
