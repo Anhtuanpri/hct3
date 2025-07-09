@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Huyền Cửu Thiên</title>
   <style>
     body {
@@ -24,6 +24,15 @@
       margin-bottom: 20px;
     }
 
+    .glass {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 15px rgba(255,255,255,0.15);
+    }
+
     #box-container {
       display: grid;
       grid-template-columns: repeat(3, 100px);
@@ -35,23 +44,20 @@
 
     .lucky-box {
       position: relative;
-      background: rgba(255, 255, 255, 0.85);
-      border: 4px solid #333;
-      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      font-weight: bold;
-      color: #222;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
       transition: 0.2s;
+      padding: 10px;
     }
 
     .lucky-box.active {
-      background: gold;
+      background: rgba(255, 255, 255, 0.4);
       color: black;
-      border-color: red;
+      border: 2px solid red;
       box-shadow: 0 0 25px red;
     }
 
@@ -76,22 +82,26 @@
     }
 
     #controls input {
-      padding: 5px;
+      padding: 8px;
       margin: 5px;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      color: white;
     }
 
     #controls button {
       padding: 10px 20px;
-      background: crimson;
+      background: rgba(255,255,255,0.1);
       color: white;
-      border: none;
-      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 0 10px yellow;
+      box-shadow: 0 0 8px rgba(255,255,255,0.2);
       margin: 5px;
+      backdrop-filter: blur(8px);
     }
 
     .back-button {
@@ -100,7 +110,7 @@
     }
 
     .back-button a {
-      background: #222;
+      background: rgba(0,0,0,0.5);
       color: white;
       padding: 10px 20px;
       border-radius: 8px;
@@ -112,16 +122,13 @@
       margin-top: 30px;
       width: 90%;
       max-width: 500px;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 10px;
       padding: 15px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      color: #333;
+      color: white;
     }
 
     #history h3 {
       margin-top: 0;
-      color: darkgreen;
+      color: gold;
     }
 
     #history ul {
@@ -132,14 +139,13 @@
       margin-bottom: 6px;
     }
 
-    /* Popup */
     .popup {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.5);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -147,20 +153,10 @@
     }
 
     .popup-content {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
       padding: 30px;
-      border-radius: 16px;
       text-align: center;
       color: white;
-      border: 2px solid rgba(255, 255, 255, 0.3);
       animation: pulseLED 2s infinite;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.2);
-    }
-
-    .popup-content h2 {
-      margin-bottom: 15px;
     }
 
     .popup-content button {
@@ -200,25 +196,25 @@
     <a href="index.html">⬅️ Quay về</a>
   </div>
 
-  <div id="history">
+  <div id="history" class="glass">
     <h3>📜 Lịch sử trúng thưởng:</h3>
     <ul id="historyList"></ul>
   </div>
 
   <!-- Popup chào mừng -->
   <div id="welcomePopup" class="popup">
-    <div class="popup-content">
-      <h2>✨ Chào mừng đến với Huyền Cửu Thiên Tông Môn Không Mạnh Nhưng Vip Vờ lờ ✨</h2>
-      <button onclick="closeWelcome()"> BẮT ĐẦU THỬ VẬN MAY </button>
+    <div class="popup-content glass">
+      <h2>✨ Chào mừng đến với Huyền Cửu Thiên Tông Không Mạnh Nhưng Vip Vờ Lờ ✨</h2>
+      <button onclick="closeWelcome()">Bắt đầu</button>
     </div>
   </div>
 
   <!-- Popup kết quả -->
   <div id="resultPopup" class="popup" style="display:none;">
-    <div class="popup-content">
+    <div class="popup-content glass">
       <h2>🎊 Chúc Mừng Bạn:</h2>
       <p id="resultText" style="font-size: 20px; font-weight: bold;"></p>
-      <button onclick="closeResult()">OK</button>
+      <button onclick="closeResult()">Bắt Đầu Thử Vận May</button>
     </div>
   </div>
 
@@ -235,11 +231,8 @@
       }
 
       const box = document.createElement("div");
-      box.className = "lucky-box";
-      box.innerHTML = `
-        ${reward}
-        <button class="delete-btn" onclick="deleteBox(this)">×</button>
-      `;
+      box.className = "lucky-box glass";
+      box.innerHTML = `${reward}<button class="delete-btn" onclick="deleteBox(this)">×</button>`;
       container.appendChild(box);
       input.value = "";
     }
@@ -252,12 +245,10 @@
     function shuffleBoxes() {
       const boxes = Array.from(container.children);
       if (boxes.length < 2) return;
-
       for (let i = boxes.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [boxes[i], boxes[j]] = [boxes[j], boxes[i]];
       }
-
       container.innerHTML = '';
       boxes.forEach(box => container.appendChild(box));
     }
@@ -288,19 +279,15 @@
         } else {
           const winnerBox = boxes[winnerIndex];
           const prizeText = winnerBox.textContent.replace("×", "").trim();
-
-          // Ghi vào lịch sử
           const now = new Date();
           const time = now.toLocaleTimeString();
           const li = document.createElement("li");
           li.textContent = `${time} - ${prizeText}`;
           historyList.appendChild(li);
 
-          // Hiện popup kết quả
           document.getElementById("resultText").textContent = prizeText;
           document.getElementById("resultPopup").style.display = "flex";
 
-          // Xóa ô trúng sau khi xem kết quả
           setTimeout(() => {
             winnerBox.remove();
           }, 1000);
@@ -317,6 +304,11 @@
     function closeResult() {
       document.getElementById("resultPopup").style.display = "none";
     }
+
+    // Add .glass class to container elements
+    window.onload = () => {
+      container.classList.add('glass');
+    };
   </script>
 
 </body>
