@@ -161,6 +161,7 @@
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
+      margin: 10px 5px;
     }
 
     .send-question {
@@ -216,32 +217,6 @@
       user-select: auto;
     }
   </style>
-  <style>
-  /* ... các CSS hiện tại của bạn ... */
-
-  /* DÁN ĐOẠN CSS CHẶN SAO CHÉP & TẢI ẢNH Ở CUỐI STYLE */
-  body, html {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    pointer-events: none;
-  }
-
-  input, textarea, button {
-    pointer-events: auto !important;
-    user-select: text !important;
-    -webkit-user-select: text !important;
-    -moz-user-select: text !important;
-    -ms-user-select: text !important;
-  }
-
-  img {
-    -webkit-user-drag: none;
-    user-drag: none;
-    pointer-events: none;
-  }
-</style>
 </head>
 <body>
   <div class="overlay"></div>
@@ -276,6 +251,7 @@
 
     <div class="next-button-container">
       <button class="next-page-btn" onclick="goToNextPage()">➡️ Vấn Đáp Tông Môn</button>
+      <button class="next-page-btn" onclick="goToSpin()">🎰 Vòng Quay May Mắn</button>
     </div>
   </div>
 
@@ -551,6 +527,10 @@
       window.location.href = "index2.html";
     }
 
+    function goToSpin() {
+      window.location.href = "index3.html";
+    }
+
     function sendMail() {
       const question = document.getElementById("newQuestion").value.trim();
       const details = document.getElementById("newDetails").value.trim();
@@ -567,7 +547,7 @@
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     }
 
-    // Chặn sao chép và mở DevTools
+    // 🔒 Chống copy/devtools
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keydown', e => {
       if (
@@ -582,37 +562,5 @@
     document.addEventListener('dragstart', e => e.preventDefault());
     document.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
   </script>
-  <script>
-  // Chặn chuột phải
-  document.addEventListener('contextmenu', event => event.preventDefault());
-
-  // Chặn phím F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Ctrl+C
-  document.addEventListener('keydown', function(e) {
-    if (
-      e.key === "F12" || 
-      (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'c' || e.key === 'i' || e.key === 'j' || e.key === 'p'))
-    ) {
-      e.preventDefault();
-    }
-
-    // Chặn Ctrl + Shift + I/J/C
-    if ((e.ctrlKey && e.shiftKey) && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
-      e.preventDefault();
-    }
-  });
-
-  // Chặn kéo ảnh
-  document.querySelectorAll('img').forEach(img => {
-    img.setAttribute('draggable', 'false');
-  });
-
-  // Chặn copy
-  document.addEventListener('copy', e => {
-    e.preventDefault();
-  });
-
-  // Chặn kéo thả bất kỳ nội dung nào
-  document.addEventListener('dragstart', e => e.preventDefault());
-</script>
 </body>
 </html>
