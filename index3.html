@@ -131,6 +131,56 @@
     #history li {
       margin-bottom: 6px;
     }
+
+    /* Popup */
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .popup-content {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      animation: pulseLED 2s infinite;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.2);
+    }
+
+    .popup-content h2 {
+      margin-bottom: 15px;
+    }
+
+    .popup-content button {
+      padding: 10px 20px;
+      background: gold;
+      color: black;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    @keyframes pulseLED {
+      0% { box-shadow: 0 0 10px red, 0 0 20px orange; }
+      25% { box-shadow: 0 0 10px yellow, 0 0 20px lime; }
+      50% { box-shadow: 0 0 10px cyan, 0 0 20px blue; }
+      75% { box-shadow: 0 0 10px magenta, 0 0 20px purple; }
+      100% { box-shadow: 0 0 10px red, 0 0 20px orange; }
+    }
   </style>
 </head>
 <body>
@@ -153,6 +203,23 @@
   <div id="history">
     <h3>📜 Lịch sử trúng thưởng:</h3>
     <ul id="historyList"></ul>
+  </div>
+
+  <!-- Popup chào mừng -->
+  <div id="welcomePopup" class="popup">
+    <div class="popup-content">
+      <h2>✨ Chào mừng đến với Huyền Cửu Thiên Tông Môn Không Mạnh Nhưng Vip Vờ lờ ✨</h2>
+      <button onclick="closeWelcome()"> BẮT ĐẦU THỬ VẬN MAY </button>
+    </div>
+  </div>
+
+  <!-- Popup kết quả -->
+  <div id="resultPopup" class="popup" style="display:none;">
+    <div class="popup-content">
+      <h2>🎊 Chúc Mừng Bạn:</h2>
+      <p id="resultText" style="font-size: 20px; font-weight: bold;"></p>
+      <button onclick="closeResult()">OK</button>
+    </div>
   </div>
 
   <script>
@@ -182,6 +249,19 @@
       box.remove();
     }
 
+    function shuffleBoxes() {
+      const boxes = Array.from(container.children);
+      if (boxes.length < 2) return;
+
+      for (let i = boxes.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [boxes[i], boxes[j]] = [boxes[j], boxes[i]];
+      }
+
+      container.innerHTML = '';
+      boxes.forEach(box => container.appendChild(box));
+    }
+
     function startSpin() {
       const boxes = document.querySelectorAll(".lucky-box");
       if (boxes.length < 2) {
@@ -204,7 +284,7 @@
 
         if (current <= rounds) {
           setTimeout(highlightNext, delay);
-          if (current > rounds - total) delay += 15; // chậm dần
+          if (current > rounds - total) delay += 15;
         } else {
           const winnerBox = boxes[winnerIndex];
           const prizeText = winnerBox.textContent.replace("×", "").trim();
@@ -216,28 +296,26 @@
           li.textContent = `${time} - ${prizeText}`;
           historyList.appendChild(li);
 
-          // Xóa ô trúng sau 600ms
+          // Hiện popup kết quả
+          document.getElementById("resultText").textContent = prizeText;
+          document.getElementById("resultPopup").style.display = "flex";
+
+          // Xóa ô trúng sau khi xem kết quả
           setTimeout(() => {
             winnerBox.remove();
-          }, 600);
+          }, 1000);
         }
       }
 
       highlightNext();
     }
 
-    function shuffleBoxes() {
-      const boxes = Array.from(container.children);
-      if (boxes.length < 2) return;
+    function closeWelcome() {
+      document.getElementById("welcomePopup").style.display = "none";
+    }
 
-      for (let i = boxes.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [boxes[i], boxes[j]] = [boxes[j], boxes[i]];
-      }
-
-      // Xóa tất cả rồi thêm lại theo thứ tự đã xáo
-      container.innerHTML = '';
-      boxes.forEach(box => container.appendChild(box));
+    function closeResult() {
+      document.getElementById("resultPopup").style.display = "none";
     }
   </script>
 
