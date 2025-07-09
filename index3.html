@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vòng Quay Kiếm Hiệp - Tỷ Lệ + Mũi Tên Đẹp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: url('https://i.postimg.cc/hvL71hgT/IMG-3463.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      text-shadow: 0 0 5px #000;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 30px;
+      user-select: none;
+    }
+
+    #wheel-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 20px;
+    }
+
+    #wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 10px solid gold;
+      box-shadow: 0 0 20px yellow;
+      position: relative;
+      transition: transform 5s ease-out;
+      overflow: hidden;
+    }
+
+    #pointer {
+      position: absolute;
+      top: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 25px solid transparent;
+      border-right: 25px solid transparent;
+      border-bottom: 40px solid red;
+      z-index: 10;
+    }
+
+    .icon-segment {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: 0% 0%;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      white-space: pre-line;
+      pointer-events: none;
+      transform: rotate(var(--angle)) translate(0%, -50%) translate(100px);
+    }
+
+    #spin {
+      padding: 10px 30px;
+      font-size: 18px;
+      border: none;
+      background: crimson;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 0 10px gold;
+      margin: 10px;
+    }
+
+    #result {
+      font-size: 20px;
+      font-weight: bold;
+      color: yellow;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    #config {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 15px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: center;
+      padding: 5px;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 95%;
+      padding: 4px;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .deleteRow {
+      background: darkred;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+
+    #apply, #addRow {
+      margin-top: 10px;
+      padding: 6px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #apply {
+      background: gold;
+      color: black;
+    }
+
+    #addRow {
+      background: #222;
+      color: white;
+      border: 1px solid #555;
+    }
+
+    img, canvas, video {
+      pointer-events: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="wheel-container">
+    <div id="pointer"></div>
+    <div id="wheel"></div>
+  </div>
+
+  <button id="spin">🎯 Quay Ngay</button>
+  <div id="result"></div>
+
+  <div id="config">
+    <h3>⚙️ Thiết lập phần thưởng</h3>
+    <table id="prizeTable">
+      <thead>
+        <tr>
+          <th>Icon</th>
+          <th>Tên phần thưởng</th>
+          <th>Tỷ lệ (%)</th>
+          <th>Xoá</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="text" value="🧧"></td>
+          <td><input type="text" value="hổ trợ may mắn"></td>
+          <td><input type="number" value="30" min="0"></td>
+          <td><button class="deleteRow">❌</button></td>
+        </tr>
+        <tr>
+          <td><input type="text" value="🪙"></td>
+          <td><input type="text" value="Xu"></td>
+          <td><input type="number" value="50" min="0"></td>
+          <td><button class="deleteRow">❌</button></td>
+        </tr>
+        <tr>
+          <td><input type="text" value="❌"></td>
+          <td><input type="text" value="Chúc may mắn!"></td>
+          <td><input type="number" value="20" min="0"></td>
+          <td><button class="deleteRow">❌</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button id="addRow">➕ Thêm phần thưởng</button>
+    <button id="apply">✅ Áp dụng</button>
+  </div>
+
+  <script>
+    const wheel = document.getElementById("wheel");
+    const resultBox = document.getElementById("result");
+    let currentRotation = 0;
+    let spinning = false;
+    let currentPrizes = [];
+
+    function getPrizes() {
+      const rows = document.querySelectorAll("#prizeTable tbody tr");
+      const prizes = [];
+      rows.forEach(row => {
+        const icon = row.cells[0].querySelector("input").value.trim();
+        const name = row.cells[1].querySelector("input").value.trim();
+        const rate = parseFloat(row.cells[2].querySelector("input").value) || 0;
+        if (icon && name && rate > 0) {
+          prizes.push({ icon, name, rate });
+        }
+      });
+      return prizes;
+    }
+
+    function drawWheel(prizes) {
+      wheel.innerHTML = '';
+      const total = prizes.length;
+      const angle = 360 / total;
+
+      const bgGradient = prizes.map((_, i) => {
+        const color = `hsl(${i * 360 / total}, 70%, 50%)`;
+        const start = i * angle;
+        const end = start + angle;
+        return `${color} ${start}deg ${end}deg`;
+      }).join(', ');
+      wheel.style.background = `conic-gradient(${bgGradient})`;
+
+      prizes.forEach((p, i) => {
+        const segment = document.createElement("div");
+        segment.className = "icon-segment";
+        segment.innerText = p.icon;
+        segment.style.setProperty('--angle', `${i * angle}deg`);
+        wheel.appendChild(segment);
+      });
+
+      currentPrizes = prizes;
+    }
+
+    function pickPrizeByRate(prizes) {
+      const totalRate = prizes.reduce((sum, p) => sum + p.rate, 0);
+      const rnd = Math.random() * totalRate;
+      let acc = 0;
+      for (let i = 0; i < prizes.length; i++) {
+        acc += prizes[i].rate;
+        if (rnd <= acc) return i;
+      }
+      return prizes.length - 1;
+    }
+
+    function spinWheel() {
+      if (spinning || currentPrizes.length < 2) return;
+      spinning = true;
+
+      const selected = pickPrizeByRate(currentPrizes);
+      const anglePer = 360 / currentPrizes.length;
+      const offset = anglePer / 2;
+      const targetAngle = 360 - (selected * anglePer + offset);
+      const spins = 5;
+      currentRotation += spins * 360 + targetAngle;
+
+      wheel.style.transition = 'transform 5s ease-out';
+      wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+      setTimeout(() => {
+        const prize = currentPrizes[selected];
+        resultBox.innerHTML = `🎉 Bạn nhận được:<br>${prize.icon}<br><b>${prize.name}</b>`;
+        spinning = false;
+      }, 5100);
+    }
+
+    document.getElementById("spin").onclick = spinWheel;
+
+    document.getElementById("apply").onclick = () => {
+      const prizes = getPrizes();
+      if (prizes.length < 2) {
+        alert("Cần ít nhất 2 phần thưởng có tỷ lệ > 0.");
+        return;
+      }
+      drawWheel(prizes);
+      resultBox.innerHTML = '';
+    };
+
+    document.getElementById("addRow").onclick = () => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><input type="text" value=""></td>
+        <td><input type="text" value=""></td>
+        <td><input type="number" value="0" min="0"></td>
+        <td><button class="deleteRow">❌</button></td>
+      `;
+      document.querySelector("#prizeTable tbody").appendChild(row);
+      addDeleteEvents();
+    };
+
+    function addDeleteEvents() {
+      document.querySelectorAll(".deleteRow").forEach(btn => {
+        btn.onclick = () => {
+          btn.closest("tr").remove();
+          drawWheel(getPrizes());
+        };
+      });
+    }
+
+    addDeleteEvents();
+    drawWheel(getPrizes());
+  </script>
+
+  <script>
+    // 🚫 Bảo vệ trang khỏi F12, devtools, chuột phải, tải ảnh
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'K'].includes(e.key.toUpperCase())) ||
+        (e.ctrlKey && e.key.toLowerCase() === 'u')
+      ) {
+        e.preventDefault();
+      }
+    });
+    document.addEventListener("dragstart", e => e.preventDefault());
+    document.addEventListener("touchstart", e => {
+      if (e.target.tagName === 'IMG') e.preventDefault();
+    }, { passive: false });
+  </script>
+</body>
+</html>
