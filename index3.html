@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HUYỀN CỬU THIÊN </title>
+  <title>Huyền Cửu Thiên</title>
   <style>
     body {
       margin: 0;
@@ -91,6 +91,7 @@
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 0 10px yellow;
+      margin: 5px;
     }
 
     .back-button {
@@ -105,6 +106,30 @@
       border-radius: 8px;
       text-decoration: none;
       box-shadow: 0 0 10px gold;
+    }
+
+    #history {
+      margin-top: 30px;
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      color: #333;
+    }
+
+    #history h3 {
+      margin-top: 0;
+      color: darkgreen;
+    }
+
+    #history ul {
+      padding-left: 20px;
+    }
+
+    #history li {
+      margin-bottom: 6px;
     }
   </style>
 </head>
@@ -124,8 +149,14 @@
     <a href="index.html">⬅️ Quay về</a>
   </div>
 
+  <div id="history">
+    <h3>📜 Lịch sử trúng thưởng:</h3>
+    <ul id="historyList"></ul>
+  </div>
+
   <script>
     const container = document.getElementById("box-container");
+    const historyList = document.getElementById("historyList");
 
     function addBox() {
       const input = document.getElementById("rewardInput");
@@ -174,8 +205,17 @@
           setTimeout(highlightNext, delay);
           if (current > rounds - total) delay += 15; // chậm dần
         } else {
-          // Xoá ô trúng
           const winnerBox = boxes[winnerIndex];
+          const prizeText = winnerBox.textContent.replace("×", "").trim();
+
+          // Ghi vào lịch sử
+          const now = new Date();
+          const time = now.toLocaleTimeString();
+          const li = document.createElement("li");
+          li.textContent = `${time} - ${prizeText}`;
+          historyList.appendChild(li);
+
+          // Xóa ô trúng sau 600ms
           setTimeout(() => {
             winnerBox.remove();
           }, 600);
