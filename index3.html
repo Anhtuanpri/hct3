@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -23,6 +24,7 @@
       color: gold;
       text-shadow: 0 0 5px black;
       margin-bottom: 20px;
+      font-size: 28px;
     }
 
     .glass {
@@ -84,11 +86,20 @@
     #controls {
       text-align: center;
       margin-top: 10px;
+      padding: 15px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #controls input, #controls select, #controls button {
+      font-size: 16px;
     }
 
     #controls input, #controls select {
-      padding: 8px;
-      margin: 5px;
+      padding: 10px 12px;
+      width: 260px;
       border-radius: 6px;
       border: 1px solid rgba(255,255,255,0.3);
       background: rgba(255,255,255,0.15);
@@ -105,7 +116,6 @@
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 0 8px rgba(255,255,255,0.2);
-      margin: 5px;
       backdrop-filter: blur(8px);
     }
 
@@ -154,6 +164,46 @@
       margin-top: 15px;
     }
 
+    .popup-content.glass {
+      position: relative;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      color: white;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+      border: 2px solid transparent;
+      z-index: 1;
+    }
+
+    .popup-content.glass::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 12px;
+      background: linear-gradient(270deg, #ff00ff, #00ffff, #ff00ff);
+      background-size: 600% 600%;
+      animation: glowBorder 4s linear infinite, pulseGlow 2s ease-in-out infinite;
+      z-index: -1;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask-composite: destination-out;
+      padding: 2px;
+    }
+
+    @keyframes glowBorder {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { filter: brightness(1.2); }
+      50% { filter: brightness(2.2); }
+    }
+
     canvas#fireworks {
       position: fixed;
       pointer-events: none;
@@ -177,46 +227,6 @@
       text-decoration: none;
       box-shadow: 0 0 10px gold;
     }
-    .popup-content.glass {
-  position: relative;
-  border-radius: 12px;
-  padding: 30px;
-  text-align: center;
-  color: white;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(15px);
-  border: 2px solid transparent;
-  z-index: 1;
-}
-
-.popup-content.glass::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 12px;
-  background: linear-gradient(270deg, #ff00ff, #00ffff, #ff00ff);
-  background-size: 600% 600%;
-  animation: glowBorder 4s linear infinite, pulseGlow 2s ease-in-out infinite;
-  z-index: -1;
-
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: destination-out;
-  padding: 2px;
-}
-
-@keyframes glowBorder {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-}
-
-@keyframes pulseGlow {
-  0%, 100% { filter: brightness(1.2); }
-  50% { filter: brightness(2.2); }
-}
   </style>
 </head>
 <body>
@@ -226,13 +236,13 @@
 
   <div id="controls" class="glass">
     <input type="text" id="rewardInput" placeholder="Tên phần thưởng..." />
-    <button onclick="addBox()">➕ Thêm Ô</button><br>
+    <button onclick="addBox()">➕ Thêm Ô</button>
     <input type="text" id="playerInput" placeholder="ID người tham gia..." />
     <button onclick="addPlayer()">➕ Thêm Người</button>
-    <button onclick="removePlayer()">❌ Xóa Người</button><br>
+    <button onclick="removePlayer()">❌ Xóa Người</button>
     <select id="playerSelect">
       <option disabled selected>-- Chọn người chơi --</option>
-    </select><br>
+    </select>
     <button onclick="shuffleBoxes()">🔀 Xáo trộn</button>
     <button onclick="startSpin()">🎯 Quay</button>
   </div>
