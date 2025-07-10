@@ -419,36 +419,5 @@
       animate();
     }
   </script>
-  <script>
-  // Chặn phím tắt DevTools, sao chép, chuột phải
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'F12' || 
-        (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) || 
-        (e.ctrlKey && e.key === 'U')) {
-      e.preventDefault();
-      alert("🚫 Không được phép truy cập công cụ dành cho nhà phát triển!");
-    }
-  });
-
-  document.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-  });
-
-  document.addEventListener('copy', function (e) {
-    e.preventDefault();
-    alert("🚫 Sao chép nội dung bị vô hiệu hóa!");
-  });
-
-  document.addEventListener('dragstart', function (e) {
-    e.preventDefault();
-  });
-
-  // (Tùy chọn) Phát hiện mở DevTools bằng cửa sổ nhỏ — nhẹ nhàng hơn
-  let checkDevTools = setInterval(() => {
-    if (window.outerHeight - window.innerHeight > 150 || window.outerWidth - window.innerWidth > 150) {
-      console.log("DevTools có thể đang được mở");
-    }
-  }, 1000);
-</script>
 </body>
 </html>
