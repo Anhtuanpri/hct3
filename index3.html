@@ -35,6 +35,29 @@
       box-shadow: 0 0 15px rgba(255,255,255,0.15);
     }
 
+    .player-select-wrapper {
+      position: relative;
+      width: 200px;
+    }
+
+    #playerSelect {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      backdrop-filter: blur(8px);
+      appearance: none;
+      -webkit-appearance: none;
+      overflow-y: auto;
+    }
+
+    #playerSelect option {
+      white-space: nowrap;
+    }
+
     #box-container {
       display: grid;
       grid-template-columns: repeat(3, 100px);
@@ -91,7 +114,8 @@
       margin-bottom: 20px;
     }
 
-    #controls input, #controls select {
+    #controls input,
+    #controls select {
       padding: 10px 12px;
       width: 200px;
       font-size: 16px;
@@ -138,7 +162,59 @@
       font-size: 17px;
       margin-bottom: 6px;
     }
+  </style>
+</head>
+<body>
+  <h1>🎁 Chúc Bạn May Mắn 🎁</h1>
 
+  <div id="box-container" class="glass"></div>
+
+  <div id="controls" class="glass">
+    <input type="text" id="rewardInput" placeholder="Tên phần thưởng..." />
+    <button onclick="addBox()">➕ Thêm Phần Thưởng</button>
+    <input type="text" id="playerInput" placeholder="ID người tham gia..." />
+    <button onclick="addPlayer()">➕ Thêm Thành Viên</button>
+    <button onclick="removePlayer()">❌ Xóa Người</button>
+    <div class="player-select-wrapper">
+      <select id="playerSelect">
+        <option disabled selected>-- Chọn người chơi --</option>
+      </select>
+    </div>
+    <button onclick="shuffleBoxes()">🔀 Xáo trộn</button>
+    <button onclick="startSpin()">🎯 Quay</button>
+    <input type="text" id="checkInput" placeholder="Nhập ID để tra..." />
+    <button onclick="checkPlayer()">🔍 Tra ID</button>
+  </div>
+
+  <div id="history" class="glass">
+    <h3>📜 Lịch sử trúng thưởng:</h3>
+    <ul id="historyList"></ul>
+  </div>
+
+  <div class="back-button">
+    <a href="index.html">⬅️ Quay về</a>
+  </div>
+
+  <!-- Welcome popup -->
+  <div id="welcomePopup" class="popup">
+    <div class="popup-content glass">
+      <h2>✨ Chào mừng đến với RD May mắn - TUANONLY ✨</h2>
+      <button onclick="closeWelcome()">Bắt đầu</button>
+    </div>
+  </div>
+
+  <!-- Result popup -->
+  <div id="resultPopup" class="popup" style="display:none;">
+    <div class="popup-content glass">
+      <h2>🎉 KẾT QUẢ 🎉</h2>
+      <p id="resultText" style="font-size: 20px; font-weight: bold;"></p>
+      <button onclick="closeResult()">Thử lại</button>
+    </div>
+  </div>
+
+  <canvas id="fireworks"></canvas>
+
+  <style>
     .popup {
       position: fixed;
       top: 0; left: 0;
@@ -232,242 +308,173 @@
       box-shadow: 0 0 10px gold;
     }
   </style>
-</head>
-<body>
-  <h1>🎁 Chúc Bạn May Mắn 🎁</h1>
 
-  <div id="box-container" class="glass"></div>
+<script>
+  const container = document.getElementById("box-container");
+  const historyList = document.getElementById("historyList");
+  const playerSelect = document.getElementById("playerSelect");
+  const resultPopup = document.getElementById("resultPopup");
+  const resultText = document.getElementById("resultText");
+  const fireworksCanvas = document.getElementById("fireworks");
+  const ctx = fireworksCanvas.getContext("2d");
 
-  <div id="controls" class="glass">
-    <input type="text" id="rewardInput" placeholder="Tên phần thưởng..." />
-    <button onclick="addBox()">➕ Thêm Phần Thưởng</button>
-    <input type="text" id="playerInput" placeholder="ID người tham gia..." />
-    <button onclick="addPlayer()">➕ Thêm Thành Viên</button>
-    <button onclick="removePlayer()">❌ Xóa Người</button>
-    <select id="playerSelect">
-      <option disabled selected>-- Chọn người chơi --</option>
-    </select>
-    <button onclick="shuffleBoxes()">🔀 Xáo trộn</button>
-    <button onclick="startSpin()">🎯 Quay</button>
-    <input type="text" id="checkInput" placeholder="Nhập ID để tra..." />
-    <button onclick="checkPlayer()">🔍 Tra ID</button>
-  </div>
+  let deletedPlayers = [];
 
-  <div id="history" class="glass">
-    <h3>📜 Lịch sử trúng thưởng:</h3>
-    <ul id="historyList"></ul>
-  </div>
+  function addBox() {
+    const input = document.getElementById("rewardInput");
+    const reward = input.value.trim();
+    if (!reward) return alert("Vui lòng nhập phần thưởng!");
+    const box = document.createElement("div");
+    box.className = "lucky-box glass";
+    box.innerHTML = `${reward}<button class="delete-btn" onclick="deleteBox(this)">×</button>`;
+    container.appendChild(box);
+    input.value = "";
+  }
 
-  <div class="back-button">
-    <a href="index.html">⬅️ Quay về</a>
-  </div>
+  function deleteBox(btn) {
+    const box = btn.closest(".lucky-box");
+    box.remove();
+  }
 
-  <!-- Welcome popup -->
-  <div id="welcomePopup" class="popup">
-    <div class="popup-content glass">
-      <h2>✨ Chào mừng đến với RD May mắn - TUANONLY ✨</h2>
-      <button onclick="closeWelcome()">Bắt đầu</button>
-    </div>
-  </div>
-
-  <!-- Result popup -->
-  <div id="resultPopup" class="popup" style="display:none;">
-    <div class="popup-content glass">
-      <h2>🎉 KẾT QUẢ 🎉</h2>
-      <p id="resultText" style="font-size: 20px; font-weight: bold;"></p>
-      <button onclick="closeResult()">Thử lại</button>
-    </div>
-  </div>
-
-  <canvas id="fireworks"></canvas>
-
-  <script>
-    const container = document.getElementById("box-container");
-    const historyList = document.getElementById("historyList");
-    const playerSelect = document.getElementById("playerSelect");
-    const resultPopup = document.getElementById("resultPopup");
-    const resultText = document.getElementById("resultText");
-    const fireworksCanvas = document.getElementById("fireworks");
-    const ctx = fireworksCanvas.getContext("2d");
-
-    function addBox() {
-      const input = document.getElementById("rewardInput");
-      const reward = input.value.trim();
-      if (!reward) return alert("Vui lòng nhập phần thưởng!");
-      const box = document.createElement("div");
-      box.className = "lucky-box glass";
-      box.innerHTML = `${reward}<button class="delete-btn" onclick="deleteBox(this)">×</button>`;
-      container.appendChild(box);
-      input.value = "";
+  function shuffleBoxes() {
+    const boxes = Array.from(container.children);
+    for (let i = boxes.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [boxes[i], boxes[j]] = [boxes[j], boxes[i]];
     }
+    container.innerHTML = '';
+    boxes.forEach(b => container.appendChild(b));
+  }
 
-    function deleteBox(btn) {
-      const box = btn.closest(".lucky-box");
-      box.remove();
+  function addPlayer() {
+    const input = document.getElementById("playerInput");
+    const id = input.value.trim();
+    if (!id) return alert("Nhập ID người chơi!");
+    const exists = [...playerSelect.options].some(opt => opt.value === id);
+    if (exists) return alert("ID đã tồn tại!");
+    const option = document.createElement("option");
+    option.value = id;
+    option.textContent = id;
+    playerSelect.appendChild(option);
+    input.value = "";
+  }
+
+  function removePlayer() {
+    const index = playerSelect.selectedIndex;
+    if (index > 0) {
+      const removedID = playerSelect.options[index].value;
+      deletedPlayers.push(removedID);
+      playerSelect.remove(index);
     }
+  }
 
-    function shuffleBoxes() {
-      const boxes = Array.from(container.children);
-      for (let i = boxes.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [boxes[i], boxes[j]] = [boxes[j], boxes[i]];
-      }
-      container.innerHTML = '';
-      boxes.forEach(b => container.appendChild(b));
-    }
-
-    function addPlayer() {
-      const input = document.getElementById("playerInput");
-      const id = input.value.trim();
-      if (!id) return alert("Nhập ID người chơi!");
-      const option = document.createElement("option");
-      option.value = id;
-      option.textContent = id;
-      playerSelect.appendChild(option);
-      input.value = "";
-    }
-
-    function removePlayer() {
-      const index = playerSelect.selectedIndex;
-      if (index > 0) playerSelect.remove(index);
-    }
-
-    function checkPlayer() {
-      const checkInput = document.getElementById("checkInput").value.trim();
-      if (!checkInput) return alert("❗ Nhập ID để kiểm tra.");
-      let found = false;
-      for (let i = 0; i < playerSelect.options.length; i++) {
-        if (playerSelect.options[i].value === checkInput) {
-          found = true;
-          break;
-        }
-      }
-      if (found) {
-        alert("✅ ID đã có trong danh sách.");
-      } else {
-        alert("❌ ID chưa được thêm.");
+  function checkPlayer() {
+    const checkInput = document.getElementById("checkInput").value.trim();
+    if (!checkInput) return alert("❗ Nhập ID để kiểm tra.");
+    let found = false;
+    for (let i = 0; i < playerSelect.options.length; i++) {
+      if (playerSelect.options[i].value === checkInput) {
+        found = true;
+        break;
       }
     }
+    if (found) {
+      alert("✅ ID đã có trong danh sách.");
+    } else {
+      alert("❌ ID chưa được thêm.");
+    }
+  }
 
-    function startSpin() {
-      const boxes = document.querySelectorAll(".lucky-box");
-      if (boxes.length < 2) return alert("Cần ít nhất 2 phần thưởng!");
-      const selected = playerSelect.value;
-      if (!selected || selected.includes("Chọn")) return alert("Chọn người chơi!");
+  function startSpin() {
+    const boxes = document.querySelectorAll(".lucky-box");
+    if (boxes.length < 2) return alert("Cần ít nhất 2 phần thưởng!");
+    const selected = playerSelect.value;
+    if (!selected || selected.includes("Chọn")) return alert("Chọn người chơi!");
 
+    boxes.forEach(b => b.classList.remove("active"));
+    const total = boxes.length;
+    const winnerIndex = Math.floor(Math.random() * total);
+    let current = 0, rounds = total * 3 + winnerIndex, delay = 80;
+
+    function highlightNext() {
       boxes.forEach(b => b.classList.remove("active"));
-      const total = boxes.length;
-      const winnerIndex = Math.floor(Math.random() * total);
-      let current = 0, rounds = total * 3 + winnerIndex, delay = 80;
-
-      function highlightNext() {
-        boxes.forEach(b => b.classList.remove("active"));
-        boxes[current % total].classList.add("active");
-        current++;
-        if (current <= rounds) {
-          setTimeout(highlightNext, delay);
-          if (current > rounds - total) delay += 15;
-        } else {
-          const winnerBox = boxes[winnerIndex];
-          const prizeText = winnerBox.textContent.replace("×", "").trim();
-          const now = new Date();
-          const time = now.toLocaleTimeString();
-          const li = document.createElement("li");
-          li.textContent = `${time} - ID: ${selected} - 🎁 ${prizeText}`;
-          historyList.appendChild(li);
-          triggerFireworks(() => {
-            resultText.textContent = `${selected} đã trúng: ${prizeText}`;
-            resultPopup.style.display = "flex";
-          });
-          setTimeout(() => winnerBox.remove(), 1000);
-        }
-      }
-
-      highlightNext();
-    }
-
-    function closeResult() {
-      resultPopup.style.display = "none";
-    }
-
-    function closeWelcome() {
-      document.getElementById("welcomePopup").style.display = "none";
-    }
-
-    function triggerFireworks(callback) {
-      fireworksCanvas.width = window.innerWidth;
-      fireworksCanvas.height = window.innerHeight;
-      const particles = [];
-
-      for (let i = 0; i < 100; i++) {
-        particles.push({
-          x: fireworksCanvas.width / 2,
-          y: fireworksCanvas.height / 2,
-          radius: Math.random() * 2 + 1,
-          color: `hsl(${Math.random() * 360}, 100%, 60%)`,
-          angle: Math.random() * 2 * Math.PI,
-          speed: Math.random() * 4 + 2,
-          alpha: 1
+      boxes[current % total].classList.add("active");
+      current++;
+      if (current <= rounds) {
+        setTimeout(highlightNext, delay);
+        if (current > rounds - total) delay += 15;
+      } else {
+        const winnerBox = boxes[winnerIndex];
+        const prizeText = winnerBox.textContent.replace("×", "").trim();
+        const now = new Date();
+        const time = now.toLocaleTimeString();
+        const li = document.createElement("li");
+        li.textContent = `${time} - ID: ${selected} - 🎁 ${prizeText}`;
+        historyList.appendChild(li);
+        triggerFireworks(() => {
+          resultText.textContent = `${selected} đã trúng: ${prizeText}`;
+          resultPopup.style.display = "flex";
         });
+        setTimeout(() => winnerBox.remove(), 1000);
       }
-
-      function animate() {
-        ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
-        let active = false;
-        particles.forEach(p => {
-          p.x += Math.cos(p.angle) * p.speed;
-          p.y += Math.sin(p.angle) * p.speed;
-          p.alpha -= 0.01;
-          if (p.alpha > 0) active = true;
-          ctx.globalAlpha = p.alpha;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.fill();
-        });
-        ctx.globalAlpha = 1;
-        if (active) {
-          requestAnimationFrame(animate);
-        } else {
-          ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
-          callback();
-        }
-      }
-
-      animate();
     }
-  </script>
 
-  <!-- Anti-copy script -->
-  <script>
-    document.addEventListener('keydown', function (e) {
-      const key = e.key.toUpperCase();
-      if (
-        key === 'F12' ||
-        (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(key)) ||
-        (e.ctrlKey && key === 'U')
-      ) {
-        e.preventDefault();
-        alert("🚫 Hành động bị chặn!");
-      }
-    });
+    highlightNext();
+  }
 
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('copy', e => {
-      e.preventDefault();
-      alert("🚫 Không được sao chép!");
-    });
+  function closeResult() {
+    resultPopup.style.display = "none";
+  }
 
-    document.addEventListener('dragstart', e => e.preventDefault());
+  function closeWelcome() {
+    document.getElementById("welcomePopup").style.display = "none";
+  }
 
-    window.addEventListener('load', () => {
-      document.querySelectorAll('img').forEach(img => {
-        img.setAttribute('draggable', 'false');
-        img.addEventListener('contextmenu', e => e.preventDefault());
+  function triggerFireworks(callback) {
+    fireworksCanvas.width = window.innerWidth;
+    fireworksCanvas.height = window.innerHeight;
+    const particles = [];
+
+    for (let i = 0; i < 100; i++) {
+      particles.push({
+        x: fireworksCanvas.width / 2,
+        y: fireworksCanvas.height / 2,
+        radius: Math.random() * 2 + 1,
+        color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+        angle: Math.random() * 2 * Math.PI,
+        speed: Math.random() * 4 + 2,
+        alpha: 1
       });
-    });
-  </script>
-  <!-- 💬 Chat Button + Box -->
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+      let active = false;
+      particles.forEach(p => {
+        p.x += Math.cos(p.angle) * p.speed;
+        p.y += Math.sin(p.angle) * p.speed;
+        p.alpha -= 0.01;
+        if (p.alpha > 0) active = true;
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      if (active) {
+        requestAnimationFrame(animate);
+      } else {
+        ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+        callback();
+      }
+    }
+
+    animate();
+  }
+</script>
+
+<!-- 💬 Chat Button + Box -->
 <style>
   #chat-toggle {
     position: fixed;
@@ -487,6 +494,7 @@
     box-shadow: 0 0 12px rgba(0,0,0,0.3);
     transition: transform 0.3s ease;
   }
+
   #chat-toggle:hover {
     transform: scale(1.1);
   }
@@ -511,17 +519,9 @@
   }
 
   @keyframes popupIn {
-    0% {
-      transform: scale(0.2);
-      opacity: 0;
-    }
-    60% {
-      transform: scale(1.05);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1);
-    }
+    0% { transform: scale(0.2); opacity: 0; }
+    60% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); }
   }
 
   .chat-header {
@@ -581,6 +581,17 @@
     margin-left: 6px;
     color: white;
   }
+
+  /* Cuộn danh sách người chơi */
+  .player-select-wrapper {
+    max-height: 150px;
+    overflow-y: auto;
+    width: 200px;
+  }
+
+  #playerSelect {
+    width: 100%;
+  }
 </style>
 
 <!-- Nút mở chat -->
@@ -626,6 +637,36 @@
   function clearChat() {
     document.getElementById("chatMessages").innerHTML = "";
   }
+</script>
+
+<!-- Anti-copy script -->
+<script>
+  document.addEventListener('keydown', function (e) {
+    const key = e.key.toUpperCase();
+    if (
+      key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(key)) ||
+      (e.ctrlKey && key === 'U')
+    ) {
+      e.preventDefault();
+      alert("🚫 Hành động bị chặn!");
+    }
+  });
+
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('copy', e => {
+    e.preventDefault();
+    alert("🚫 Không được sao chép!");
+  });
+
+  document.addEventListener('dragstart', e => e.preventDefault());
+
+  window.addEventListener('load', () => {
+    document.querySelectorAll('img').forEach(img => {
+      img.setAttribute('draggable', 'false');
+      img.addEventListener('contextmenu', e => e.preventDefault());
+    });
+  });
 </script>
 </body>
 </html>
