@@ -467,5 +467,165 @@
       });
     });
   </script>
+  <!-- 💬 Chat Button + Box -->
+<style>
+  #chat-toggle {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 55px;
+    height: 55px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+  }
+  #chat-toggle:hover {
+    transform: scale(1.1);
+  }
+
+  #chat-box {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 340px;
+    max-height: 500px;
+    min-height: 400px;
+    display: none;
+    flex-direction: column;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+    overflow: hidden;
+    animation: popupIn 0.4s ease;
+    z-index: 10000;
+  }
+
+  @keyframes popupIn {
+    0% {
+      transform: scale(0.2);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.05);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .chat-header {
+    padding: 10px 15px;
+    color: white;
+    font-weight: bold;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chat-messages {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    max-height: 300px;
+    min-height: 200px;
+  }
+
+  .chat-input {
+    display: flex;
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .chat-input input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.12);
+    color: white;
+    backdrop-filter: blur(8px);
+  }
+
+  .chat-input button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    cursor: pointer;
+  }
+
+  .msg {
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .msg .sender {
+    font-weight: bold;
+    color: gold;
+  }
+
+  .msg .text {
+    margin-left: 6px;
+    color: white;
+  }
+</style>
+
+<!-- Nút mở chat -->
+<div id="chat-toggle" onclick="toggleChat()">💬</div>
+
+<!-- Hộp chat -->
+<div id="chat-box">
+  <div class="chat-header">
+    <span>📢 Trò chuyện</span>
+    <button onclick="clearChat()" style="background:none;border:none;color:white;font-size:16px;">🧹</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg"><span class="sender">Tuấn:</span><span class="text">Chào mọi người 👋</span></div>
+    <div class="msg"><span class="sender">Linh:</span><span class="text">Hello Tuấn nha 😄</span></div>
+    <div class="msg"><span class="sender">Khách:</span><span class="text">Có thể tham gia may mắn không?</span></div>
+    <div class="msg"><span class="sender">Tuấn:</span><span class="text">Được nhé bạn!</span></div>
+  </div>
+  <div class="chat-input">
+    <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." />
+    <button onclick="sendChat()">Gửi</button>
+  </div>
+</div>
+
+<script>
+  function toggleChat() {
+    const box = document.getElementById("chat-box");
+    box.style.display = (box.style.display === "flex") ? "none" : "flex";
+  }
+
+  function sendChat() {
+    const input = document.getElementById("chatInput");
+    const msg = input.value.trim();
+    if (!msg) return;
+    const chatArea = document.getElementById("chatMessages");
+    const newMsg = document.createElement("div");
+    newMsg.className = "msg";
+    newMsg.innerHTML = `<span class="sender">Bạn:</span><span class="text">${msg}</span>`;
+    chatArea.appendChild(newMsg);
+    input.value = "";
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  function clearChat() {
+    document.getElementById("chatMessages").innerHTML = "";
+  }
+</script>
 </body>
 </html>
