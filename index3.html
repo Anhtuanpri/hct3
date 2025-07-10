@@ -23,6 +23,7 @@
       color: gold;
       text-shadow: 0 0 5px black;
       margin-bottom: 20px;
+      font-size: 28px;
     }
 
     .glass {
@@ -84,16 +85,22 @@
     #controls {
       text-align: center;
       margin-top: 10px;
+      padding: 15px 20px;
+    }
+
+    #controls input, #controls select, #controls button {
+      font-size: 16px;
     }
 
     #controls input, #controls select {
-      padding: 8px;
-      margin: 5px;
+      padding: 10px 12px;
+      width: 260px;
       border-radius: 6px;
       border: 1px solid rgba(255,255,255,0.3);
       background: rgba(255,255,255,0.15);
       backdrop-filter: blur(8px);
       color: white;
+      margin: 5px 0;
     }
 
     #controls button {
@@ -105,8 +112,8 @@
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 0 8px rgba(255,255,255,0.2);
-      margin: 5px;
       backdrop-filter: blur(8px);
+      margin: 5px;
     }
 
     #history {
@@ -114,6 +121,9 @@
       max-width: 500px;
       padding: 15px;
       color: white;
+      height: auto;
+      max-height: 250px;
+      overflow-y: auto;
     }
 
     #history h3 {
@@ -123,6 +133,13 @@
 
     #history ul {
       padding-left: 20px;
+      margin: 0;
+      list-style: disc;
+    }
+
+    #history ul li {
+      margin-bottom: 6px;
+      font-size: 15px;
     }
 
     .popup {
@@ -136,22 +153,44 @@
       z-index: 9999;
     }
 
-    .popup-content {
+    .popup-content.glass {
+      position: relative;
+      border-radius: 12px;
       padding: 30px;
       text-align: center;
       color: white;
-      max-width: 90%;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+      border: 2px solid transparent;
+      z-index: 1;
     }
 
-    .popup-content button {
-      padding: 10px 20px;
-      background: gold;
-      color: black;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 15px;
+    .popup-content.glass::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 12px;
+      background: linear-gradient(270deg, #ff00ff, #00ffff, #ff00ff);
+      background-size: 600% 600%;
+      animation: glowBorder 4s linear infinite, pulseGlow 2s ease-in-out infinite;
+      z-index: -1;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask-composite: destination-out;
+      padding: 2px;
+    }
+
+    @keyframes glowBorder {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { filter: brightness(1.2); }
+      50% { filter: brightness(2.2); }
     }
 
     canvas#fireworks {
@@ -177,46 +216,6 @@
       text-decoration: none;
       box-shadow: 0 0 10px gold;
     }
-    .popup-content.glass {
-  position: relative;
-  border-radius: 12px;
-  padding: 30px;
-  text-align: center;
-  color: white;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(15px);
-  border: 2px solid transparent;
-  z-index: 1;
-}
-
-.popup-content.glass::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 12px;
-  background: linear-gradient(270deg, #ff00ff, #00ffff, #ff00ff);
-  background-size: 600% 600%;
-  animation: glowBorder 4s linear infinite, pulseGlow 2s ease-in-out infinite;
-  z-index: -1;
-
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: destination-out;
-  padding: 2px;
-}
-
-@keyframes glowBorder {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-}
-
-@keyframes pulseGlow {
-  0%, 100% { filter: brightness(1.2); }
-  50% { filter: brightness(2.2); }
-}
   </style>
 </head>
 <body>
@@ -246,15 +245,13 @@
     <a href="index.html">⬅️ Quay về</a>
   </div>
 
-  <!-- Welcome popup -->
   <div id="welcomePopup" class="popup">
     <div class="popup-content glass">
       <h2>✨ Chào mừng đến với RD May mắn - TUANONLY ✨</h2>
-      <button onclick="closeWelcome()">Bắt đầu</button>
+      <button onclick="document.getElementById('welcomePopup').style.display='none'">Bắt đầu</button>
     </div>
   </div>
 
-  <!-- Result popup -->
   <div id="resultPopup" class="popup" style="display:none;">
     <div class="popup-content glass">
       <h2>🎉 KẾT QUẢ 🎉</h2>
@@ -357,10 +354,6 @@
       resultPopup.style.display = "none";
     }
 
-    function closeWelcome() {
-      document.getElementById("welcomePopup").style.display = "none";
-    }
-
     function triggerFireworks(callback) {
       fireworksCanvas.width = window.innerWidth;
       fireworksCanvas.height = window.innerHeight;
@@ -402,10 +395,6 @@
       }
 
       animate();
-    }
-
-    window.onload = () => {
-      container.classList.add('glass');
     }
   </script>
 </body>
