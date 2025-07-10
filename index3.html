@@ -123,7 +123,6 @@
       color: white;
       max-height: 300px;
       overflow-y: auto;
-      box-sizing: border-box;
     }
 
     #history h3 {
@@ -250,6 +249,8 @@
     </select>
     <button onclick="shuffleBoxes()">🔀 Xáo trộn</button>
     <button onclick="startSpin()">🎯 Quay</button>
+    <input type="text" id="checkInput" placeholder="Nhập ID để tra..." />
+    <button onclick="checkPlayer()">🔍 Tra ID</button>
   </div>
 
   <div id="history" class="glass">
@@ -329,6 +330,23 @@
     function removePlayer() {
       const index = playerSelect.selectedIndex;
       if (index > 0) playerSelect.remove(index);
+    }
+
+    function checkPlayer() {
+      const checkInput = document.getElementById("checkInput").value.trim();
+      if (!checkInput) return alert("❗ Nhập ID để kiểm tra.");
+      let found = false;
+      for (let i = 0; i < playerSelect.options.length; i++) {
+        if (playerSelect.options[i].value === checkInput) {
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        alert("✅ ID đã có trong danh sách.");
+      } else {
+        alert("❌ ID chưa được thêm.");
+      }
     }
 
     function startSpin() {
@@ -419,43 +437,35 @@
       animate();
     }
   </script>
+
+  <!-- Anti-copy script -->
   <script>
-  // Chặn tổ hợp phím mở DevTools và hành vi sao chép
-  document.addEventListener('keydown', function (e) {
-    const key = e.key.toUpperCase();
-    if (
-      key === 'F12' ||
-      (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(key)) ||
-      (e.ctrlKey && key === 'U')
-    ) {
-      e.preventDefault();
-      alert("🚫 Hành động bị chặn!");
-    }
-  });
-
-  // Chặn chuột phải
-  document.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-  });
-
-  // Chặn sao chép
-  document.addEventListener('copy', function (e) {
-    e.preventDefault();
-    alert("🚫 Không được sao chép nội dung!");
-  });
-
-  // Chặn kéo ảnh, lưu ảnh
-  document.addEventListener('dragstart', function (e) {
-    e.preventDefault();
-  });
-
-  // Ngăn tải ảnh hoặc kéo ảnh về
-  window.addEventListener('load', () => {
-    document.querySelectorAll('img').forEach(img => {
-      img.setAttribute('draggable', 'false');
-      img.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', function (e) {
+      const key = e.key.toUpperCase();
+      if (
+        key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(key)) ||
+        (e.ctrlKey && key === 'U')
+      ) {
+        e.preventDefault();
+        alert("🚫 Hành động bị chặn!");
+      }
     });
-  });
-</script>
+
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('copy', e => {
+      e.preventDefault();
+      alert("🚫 Không được sao chép!");
+    });
+
+    document.addEventListener('dragstart', e => e.preventDefault());
+
+    window.addEventListener('load', () => {
+      document.querySelectorAll('img').forEach(img => {
+        img.setAttribute('draggable', 'false');
+        img.addEventListener('contextmenu', e => e.preventDefault());
+      });
+    });
+  </script>
 </body>
 </html>
