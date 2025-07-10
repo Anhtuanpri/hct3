@@ -419,5 +419,43 @@
       animate();
     }
   </script>
+  <script>
+  // Chặn tổ hợp phím mở DevTools và hành vi sao chép
+  document.addEventListener('keydown', function (e) {
+    const key = e.key.toUpperCase();
+    if (
+      key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(key)) ||
+      (e.ctrlKey && key === 'U')
+    ) {
+      e.preventDefault();
+      alert("🚫 Hành động bị chặn!");
+    }
+  });
+
+  // Chặn chuột phải
+  document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+  });
+
+  // Chặn sao chép
+  document.addEventListener('copy', function (e) {
+    e.preventDefault();
+    alert("🚫 Không được sao chép nội dung!");
+  });
+
+  // Chặn kéo ảnh, lưu ảnh
+  document.addEventListener('dragstart', function (e) {
+    e.preventDefault();
+  });
+
+  // Ngăn tải ảnh hoặc kéo ảnh về
+  window.addEventListener('load', () => {
+    document.querySelectorAll('img').forEach(img => {
+      img.setAttribute('draggable', 'false');
+      img.addEventListener('contextmenu', e => e.preventDefault());
+    });
+  });
+</script>
 </body>
 </html>
