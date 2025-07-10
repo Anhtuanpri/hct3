@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Huyền Cửu Thiên</title>
+  <title>Huyền Cửu Thiên - May Mắn</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       padding: 0;
@@ -50,15 +51,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: 0.2s;
       padding: 10px;
     }
 
     .lucky-box.active {
-      background: rgba(255, 255, 255, 0.4);
-      color: black;
-      border: 2px solid red;
-      box-shadow: 0 0 25px red;
+      animation: pulseRGB 1s infinite alternate;
+      border: 2px solid white;
+      color: yellow;
+    }
+
+    @keyframes pulseRGB {
+      0% { box-shadow: 0 0 10px red; transform: scale(1); }
+      50% { box-shadow: 0 0 20px lime; transform: scale(1.05); }
+      100% { box-shadow: 0 0 10px blue; transform: scale(1); }
     }
 
     .delete-btn {
@@ -78,10 +83,10 @@
 
     #controls {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
-    #controls input {
+    #controls input, #controls select {
       padding: 8px;
       margin: 5px;
       border-radius: 6px;
@@ -104,23 +109,8 @@
       backdrop-filter: blur(8px);
     }
 
-    .back-button {
-      margin-top: 25px;
-      text-align: center;
-    }
-
-    .back-button a {
-      background: rgba(0,0,0,0.5);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      text-decoration: none;
-      box-shadow: 0 0 10px gold;
-    }
-
     #history {
-      margin-top: 30px;
-      width: 90%;
+      margin-top: 20px;
       max-width: 500px;
       padding: 15px;
       color: white;
@@ -135,17 +125,11 @@
       padding-left: 20px;
     }
 
-    #history li {
-      margin-bottom: 6px;
-    }
-
     .popup {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -156,7 +140,7 @@
       padding: 30px;
       text-align: center;
       color: white;
-      animation: pulseLED 2s infinite;
+      max-width: 90%;
     }
 
     .popup-content button {
@@ -170,30 +154,87 @@
       margin-top: 15px;
     }
 
-    @keyframes pulseLED {
-      0% { box-shadow: 0 0 10px red, 0 0 20px orange; }
-      25% { box-shadow: 0 0 10px yellow, 0 0 20px lime; }
-      50% { box-shadow: 0 0 10px cyan, 0 0 20px blue; }
-      75% { box-shadow: 0 0 10px magenta, 0 0 20px purple; }
-      100% { box-shadow: 0 0 10px red, 0 0 20px orange; }
+    canvas#fireworks {
+      position: fixed;
+      pointer-events: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9998;
     }
+
+    .back-button {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .back-button a {
+      background: rgba(0,0,0,0.5);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 0 10px gold;
+    }
+    .popup-content.glass {
+  position: relative;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border: 2px solid transparent;
+  z-index: 1;
+}
+
+.popup-content.glass::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 12px;
+  background: linear-gradient(270deg, #ff00ff, #00ffff, #ff00ff);
+  background-size: 600% 600%;
+  animation: glowBorder 4s linear infinite, pulseGlow 2s ease-in-out infinite;
+  z-index: -1;
+
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: destination-out;
+  padding: 2px;
+}
+
+@keyframes glowBorder {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { filter: brightness(1.2); }
+  50% { filter: brightness(2.2); }
+}
   </style>
 </head>
 <body>
-
   <h1>🎁 Chúc Bạn May Mắn 🎁</h1>
 
-  <div id="box-container"></div>
+  <div id="box-container" class="glass"></div>
 
-  <div id="controls">
+  <div id="controls" class="glass">
     <input type="text" id="rewardInput" placeholder="Tên phần thưởng..." />
-    <button onclick="addBox()">➕ Thêm Ô</button>
-    <button onclick="startSpin()">🎯 Quay</button>
+    <button onclick="addBox()">➕ Thêm Ô</button><br>
+    <input type="text" id="playerInput" placeholder="ID người tham gia..." />
+    <button onclick="addPlayer()">➕ Thêm Người</button>
+    <button onclick="removePlayer()">❌ Xóa Người</button><br>
+    <select id="playerSelect">
+      <option disabled selected>-- Chọn người chơi --</option>
+    </select><br>
     <button onclick="shuffleBoxes()">🔀 Xáo trộn</button>
-  </div>
-
-  <div class="back-button">
-    <a href="index.html">⬅️ Quay về</a>
+    <button onclick="startSpin()">🎯 Quay</button>
   </div>
 
   <div id="history" class="glass">
@@ -201,35 +242,42 @@
     <ul id="historyList"></ul>
   </div>
 
-  <!-- Popup chào mừng -->
+  <div class="back-button">
+    <a href="index.html">⬅️ Quay về</a>
+  </div>
+
+  <!-- Welcome popup -->
   <div id="welcomePopup" class="popup">
     <div class="popup-content glass">
-      <h2>✨ Chào mừng đến với RD May mắn MADE BY TUANONLY ✨</h2>
+      <h2>✨ Chào mừng đến với RD May mắn - TUANONLY ✨</h2>
       <button onclick="closeWelcome()">Bắt đầu</button>
     </div>
   </div>
 
-  <!-- Popup kết quả -->
+  <!-- Result popup -->
   <div id="resultPopup" class="popup" style="display:none;">
     <div class="popup-content glass">
-      <h2>🎊 Chúc Mừng Bạn:</h2>
+      <h2>🎉 KẾT QUẢ 🎉</h2>
       <p id="resultText" style="font-size: 20px; font-weight: bold;"></p>
-      <button onclick="closeResult()">Bắt Đầu Thử Vận May</button>
+      <button onclick="closeResult()">Thử lại</button>
     </div>
   </div>
+
+  <canvas id="fireworks"></canvas>
 
   <script>
     const container = document.getElementById("box-container");
     const historyList = document.getElementById("historyList");
+    const playerSelect = document.getElementById("playerSelect");
+    const resultPopup = document.getElementById("resultPopup");
+    const resultText = document.getElementById("resultText");
+    const fireworksCanvas = document.getElementById("fireworks");
+    const ctx = fireworksCanvas.getContext("2d");
 
     function addBox() {
       const input = document.getElementById("rewardInput");
       const reward = input.value.trim();
-      if (!reward) {
-        alert("Vui lòng nhập phần thưởng!");
-        return;
-      }
-
+      if (!reward) return alert("Vui lòng nhập phần thưởng!");
       const box = document.createElement("div");
       box.className = "lucky-box glass";
       box.innerHTML = `${reward}<button class="delete-btn" onclick="deleteBox(this)">×</button>`;
@@ -244,35 +292,45 @@
 
     function shuffleBoxes() {
       const boxes = Array.from(container.children);
-      if (boxes.length < 2) return;
       for (let i = boxes.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [boxes[i], boxes[j]] = [boxes[j], boxes[i]];
       }
       container.innerHTML = '';
-      boxes.forEach(box => container.appendChild(box));
+      boxes.forEach(b => container.appendChild(b));
+    }
+
+    function addPlayer() {
+      const input = document.getElementById("playerInput");
+      const id = input.value.trim();
+      if (!id) return alert("Nhập ID người chơi!");
+      const option = document.createElement("option");
+      option.value = id;
+      option.textContent = id;
+      playerSelect.appendChild(option);
+      input.value = "";
+    }
+
+    function removePlayer() {
+      const index = playerSelect.selectedIndex;
+      if (index > 0) playerSelect.remove(index);
     }
 
     function startSpin() {
       const boxes = document.querySelectorAll(".lucky-box");
-      if (boxes.length < 2) {
-        alert("Cần ít nhất 2 phần thưởng để quay!");
-        return;
-      }
+      if (boxes.length < 2) return alert("Cần ít nhất 2 phần thưởng!");
+      const selected = playerSelect.value;
+      if (!selected || selected.includes("Chọn")) return alert("Chọn người chơi!");
 
       boxes.forEach(b => b.classList.remove("active"));
-
       const total = boxes.length;
       const winnerIndex = Math.floor(Math.random() * total);
-      let current = 0;
-      let rounds = total * 3 + winnerIndex;
-      let delay = 80;
+      let current = 0, rounds = total * 3 + winnerIndex, delay = 80;
 
       function highlightNext() {
         boxes.forEach(b => b.classList.remove("active"));
         boxes[current % total].classList.add("active");
         current++;
-
         if (current <= rounds) {
           setTimeout(highlightNext, delay);
           if (current > rounds - total) delay += 15;
@@ -282,34 +340,73 @@
           const now = new Date();
           const time = now.toLocaleTimeString();
           const li = document.createElement("li");
-          li.textContent = `${time} - ${prizeText}`;
+          li.textContent = `${time} - ID: ${selected} - 🎁 ${prizeText}`;
           historyList.appendChild(li);
-
-          document.getElementById("resultText").textContent = prizeText;
-          document.getElementById("resultPopup").style.display = "flex";
-
-          setTimeout(() => {
-            winnerBox.remove();
-          }, 1000);
+          triggerFireworks(() => {
+            resultText.textContent = `${selected} đã trúng: ${prizeText}`;
+            resultPopup.style.display = "flex";
+          });
+          setTimeout(() => winnerBox.remove(), 1000);
         }
       }
 
       highlightNext();
     }
 
+    function closeResult() {
+      resultPopup.style.display = "none";
+    }
+
     function closeWelcome() {
       document.getElementById("welcomePopup").style.display = "none";
     }
 
-    function closeResult() {
-      document.getElementById("resultPopup").style.display = "none";
+    function triggerFireworks(callback) {
+      fireworksCanvas.width = window.innerWidth;
+      fireworksCanvas.height = window.innerHeight;
+      const particles = [];
+
+      for (let i = 0; i < 100; i++) {
+        particles.push({
+          x: fireworksCanvas.width / 2,
+          y: fireworksCanvas.height / 2,
+          radius: Math.random() * 2 + 1,
+          color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+          angle: Math.random() * 2 * Math.PI,
+          speed: Math.random() * 4 + 2,
+          alpha: 1
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+        let active = false;
+        particles.forEach(p => {
+          p.x += Math.cos(p.angle) * p.speed;
+          p.y += Math.sin(p.angle) * p.speed;
+          p.alpha -= 0.01;
+          if (p.alpha > 0) active = true;
+          ctx.globalAlpha = p.alpha;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        if (active) {
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+          callback();
+        }
+      }
+
+      animate();
     }
 
-    // Add .glass class to container elements
     window.onload = () => {
       container.classList.add('glass');
-    };
+    }
   </script>
-
 </body>
 </html>
