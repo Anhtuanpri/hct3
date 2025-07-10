@@ -420,59 +420,35 @@
     }
   </script>
   <script>
-  // Chặn F12, Ctrl+Shift+I, Ctrl+U, Chuột phải
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', e => {
-    if (
-      e.key === 'F12' ||
-      (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
-      (e.ctrlKey && e.key.toUpperCase() === 'U')
-    ) {
+  // Chặn phím tắt DevTools, sao chép, chuột phải
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) || 
+        (e.ctrlKey && e.key === 'U')) {
       e.preventDefault();
+      alert("🚫 Không được phép truy cập công cụ dành cho nhà phát triển!");
     }
   });
 
-  // Chặn mở DevTools qua resize cửa sổ (chiều cao console mở ra)
+  document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+  });
+
+  document.addEventListener('copy', function (e) {
+    e.preventDefault();
+    alert("🚫 Sao chép nội dung bị vô hiệu hóa!");
+  });
+
+  document.addEventListener('dragstart', function (e) {
+    e.preventDefault();
+  });
+
+  // (Tùy chọn) Phát hiện mở DevTools bằng cửa sổ nhỏ — nhẹ nhàng hơn
   let checkDevTools = setInterval(() => {
-    if (
-      window.outerHeight - window.innerHeight > 200 ||
-      window.outerWidth - window.innerWidth > 200
-    ) {
-      document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:50px;'>🚫 Không được phép mở DevTools!</h1>";
-      clearInterval(checkDevTools);
+    if (window.outerHeight - window.innerHeight > 150 || window.outerWidth - window.innerWidth > 150) {
+      console.log("DevTools có thể đang được mở");
     }
   }, 1000);
-
-  // Chặn kéo/thả ảnh, lưu ảnh
-  document.addEventListener('dragstart', e => e.preventDefault());
-  document.addEventListener('mousedown', e => {
-    if (e.target.tagName === 'IMG') {
-      e.preventDefault();
-    }
-  });
-
-  // Chặn bôi đen, copy, cut
-  document.addEventListener('selectstart', e => {
-    const tag = e.target.tagName;
-    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
-      e.preventDefault();
-    }
-  });
-
-  document.addEventListener('copy', e => e.preventDefault());
-  document.addEventListener('cut', e => e.preventDefault());
-
-  // Chặn kéo chuột (bôi đen)
-  document.addEventListener('mousedown', e => {
-    const tag = e.target.tagName;
-    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
-      e.preventDefault();
-    }
-  });
-
-  // Ngăn ảnh bị tải khi kéo
-  const imgs = document.querySelectorAll('img');
-  imgs.forEach(img => img.setAttribute('draggable', 'false'));
 </script>
 </body>
 </html>
