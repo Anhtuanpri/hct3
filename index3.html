@@ -83,47 +83,47 @@
     }
 
     #controls {
-      text-align: center;
-      margin-top: 10px;
-      padding: 15px 20px;
-    }
-
-    #controls input, #controls select, #controls button {
-      font-size: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
     }
 
     #controls input, #controls select {
       padding: 10px 12px;
-      width: 260px;
+      width: 200px;
+      font-size: 16px;
       border-radius: 6px;
       border: 1px solid rgba(255,255,255,0.3);
       background: rgba(255,255,255,0.15);
       backdrop-filter: blur(8px);
       color: white;
-      margin: 5px 0;
     }
 
     #controls button {
       padding: 10px 20px;
+      font-size: 16px;
       background: rgba(255,255,255,0.1);
       color: white;
       border: 1px solid rgba(255,255,255,0.3);
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 0 8px rgba(255,255,255,0.2);
       backdrop-filter: blur(8px);
-      margin: 5px;
+      box-shadow: 0 0 8px rgba(255,255,255,0.2);
     }
 
     #history {
       margin-top: 20px;
-      max-width: 500px;
-      padding: 15px;
+      width: 100%;
+      max-width: 800px;
+      padding: 20px 30px;
       color: white;
-      height: auto;
-      max-height: 250px;
+      max-height: 300px;
       overflow-y: auto;
+      box-sizing: border-box;
     }
 
     #history h3 {
@@ -133,13 +133,11 @@
 
     #history ul {
       padding-left: 20px;
-      margin: 0;
-      list-style: disc;
     }
 
     #history ul li {
+      font-size: 17px;
       margin-bottom: 6px;
-      font-size: 15px;
     }
 
     .popup {
@@ -151,6 +149,24 @@
       justify-content: center;
       align-items: center;
       z-index: 9999;
+    }
+
+    .popup-content {
+      padding: 30px;
+      text-align: center;
+      color: white;
+      max-width: 90%;
+    }
+
+    .popup-content button {
+      padding: 10px 20px;
+      background: gold;
+      color: black;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
     }
 
     .popup-content.glass {
@@ -225,13 +241,13 @@
 
   <div id="controls" class="glass">
     <input type="text" id="rewardInput" placeholder="Tên phần thưởng..." />
-    <button onclick="addBox()">➕ Thêm Ô</button><br>
+    <button onclick="addBox()">➕ Thêm Ô</button>
     <input type="text" id="playerInput" placeholder="ID người tham gia..." />
     <button onclick="addPlayer()">➕ Thêm Người</button>
-    <button onclick="removePlayer()">❌ Xóa Người</button><br>
+    <button onclick="removePlayer()">❌ Xóa Người</button>
     <select id="playerSelect">
       <option disabled selected>-- Chọn người chơi --</option>
-    </select><br>
+    </select>
     <button onclick="shuffleBoxes()">🔀 Xáo trộn</button>
     <button onclick="startSpin()">🎯 Quay</button>
   </div>
@@ -245,13 +261,15 @@
     <a href="index.html">⬅️ Quay về</a>
   </div>
 
+  <!-- Welcome popup -->
   <div id="welcomePopup" class="popup">
     <div class="popup-content glass">
       <h2>✨ Chào mừng đến với RD May mắn - TUANONLY ✨</h2>
-      <button onclick="document.getElementById('welcomePopup').style.display='none'">Bắt đầu</button>
+      <button onclick="closeWelcome()">Bắt đầu</button>
     </div>
   </div>
 
+  <!-- Result popup -->
   <div id="resultPopup" class="popup" style="display:none;">
     <div class="popup-content glass">
       <h2>🎉 KẾT QUẢ 🎉</h2>
@@ -354,6 +372,10 @@
       resultPopup.style.display = "none";
     }
 
+    function closeWelcome() {
+      document.getElementById("welcomePopup").style.display = "none";
+    }
+
     function triggerFireworks(callback) {
       fireworksCanvas.width = window.innerWidth;
       fireworksCanvas.height = window.innerHeight;
@@ -397,5 +419,60 @@
       animate();
     }
   </script>
+  <script>
+  // Chặn F12, Ctrl+Shift+I, Ctrl+U, Chuột phải
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
+      (e.ctrlKey && e.key.toUpperCase() === 'U')
+    ) {
+      e.preventDefault();
+    }
+  });
+
+  // Chặn mở DevTools qua resize cửa sổ (chiều cao console mở ra)
+  let checkDevTools = setInterval(() => {
+    if (
+      window.outerHeight - window.innerHeight > 200 ||
+      window.outerWidth - window.innerWidth > 200
+    ) {
+      document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:50px;'>🚫 Không được phép mở DevTools!</h1>";
+      clearInterval(checkDevTools);
+    }
+  }, 1000);
+
+  // Chặn kéo/thả ảnh, lưu ảnh
+  document.addEventListener('dragstart', e => e.preventDefault());
+  document.addEventListener('mousedown', e => {
+    if (e.target.tagName === 'IMG') {
+      e.preventDefault();
+    }
+  });
+
+  // Chặn bôi đen, copy, cut
+  document.addEventListener('selectstart', e => {
+    const tag = e.target.tagName;
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+      e.preventDefault();
+    }
+  });
+
+  document.addEventListener('copy', e => e.preventDefault());
+  document.addEventListener('cut', e => e.preventDefault());
+
+  // Chặn kéo chuột (bôi đen)
+  document.addEventListener('mousedown', e => {
+    const tag = e.target.tagName;
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+      e.preventDefault();
+    }
+  });
+
+  // Ngăn ảnh bị tải khi kéo
+  const imgs = document.querySelectorAll('img');
+  imgs.forEach(img => img.setAttribute('draggable', 'false'));
+</script>
 </body>
 </html>
