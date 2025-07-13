@@ -15,6 +15,22 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    body.dark-mode {
+      background: #121212 !important;
+      color: #f1f1f1;
+    }
+
+    .dark-mode .card,
+    .dark-mode #answerBox,
+    .dark-mode .qa-item,
+    .dark-mode .send-question,
+    .dark-mode .marquee-container,
+    .dark-mode .footer-marquee {
+      background: rgba(30, 30, 30, 0.8) !important;
+      color: #e0e0e0;
     }
 
     .overlay {
@@ -138,15 +154,6 @@
 
     .hidden { display: none; }
 
-    .suggest {
-      margin-top: 25px;
-      text-align: left;
-    }
-
-    .suggest li strong.highlight {
-      color: #d32f2f;
-    }
-
     .next-button-container {
       margin-top: 20px;
       text-align: center;
@@ -164,21 +171,17 @@
       margin: 10px 5px;
     }
 
+    .suggest {
+      margin-top: 25px;
+      text-align: left;
+    }
+
     .send-question {
       margin-top: 30px;
       padding: 20px;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.45);
       backdrop-filter: blur(12px);
-    }
-
-    .qa-item {
-      background: #fff;
-      border: 3px solid transparent;
-      border-image: linear-gradient(45deg, #0ff, #f0f, #0f0) 1;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 15px;
     }
 
     .avatar-wrapper {
@@ -217,60 +220,76 @@
       user-select: auto;
     }
 
-    /* 🎵 Nút âm thanh */
-    #toggleAudio {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      font-size: 28px;
-      z-index: 9999;
-      background: rgba(255,255,255,0.5);
-      border: none;
-      border-radius: 50%;
-      padding: 10px;
-      cursor: pointer;
-    }
+    /* 🎵 Nút âm thanh + chế độ */
+#toggleAudio, #toggleTheme {
+  position: fixed;
+  top: 16px;
+  font-size: 26px;
+  z-index: 9999;
+  background: none; /* ❌ Xoá nền trắng */
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  color: white;
+  text-shadow: 0 0 6px #000;
+  transition: transform 0.2s ease;
+}
 
-    /* 🪧 Thông báo âm thanh */
-    #audioStatus {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.75);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 14px;
-      display: none;
-      z-index: 9999;
-    }
+#toggleAudio:hover, #toggleTheme:hover {
+  transform: scale(1.2);
+}
+
+#toggleAudio {
+  right: 16px; /* Nút âm thanh góc phải */
+}
+
+#toggleTheme {
+  left: 16px; /* Nút chế độ tối/sáng góc trái */
+}
+
+#audioStatus, #themeStatus {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  display: none;
+  z-index: 9999;
+  }
+#toggleTheme:hover,
+#toggleAudio:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+    #themeStatus { top: 120px; }
   </style>
 </head>
 <body>
   <div class="overlay"></div>
 
-  <!-- 🔊 Nút Âm Thanh -->
+  <!-- 🔘 Hai nút cố định -->
+  <button id="toggleTheme" onclick="toggleTheme()">🌙</button>
   <button id="toggleAudio" onclick="toggleAudio()">🔊</button>
+  <div id="themeStatus"></div>
   <div id="audioStatus"></div>
   <audio id="bgAudio" autoplay loop>
     <source src="1234.mp3" type="audio/mpeg" />
-    Trình duyệt không hỗ trợ âm thanh.
   </audio>
 
-  <!-- Nội dung chính -->
+  <!-- Nội dung tiếp theo (avatar, tìm kiếm, gợi ý...) -->
   <div class="marquee-container">
     <div class="marquee">🌸 Nhập từ khóa hoặc câu hỏi để tra cứu nhanh trong thế giới tu tiên! 🌸</div>
   </div>
 
   <div class="card">
-    <!-- Avatar -->
-    <div style="display: flex; flex-direction: column; align-items: center;">
-      <div class="avatar-wrapper">
-        <img src="https://i.postimg.cc/YS6RwWf9/6801332576069.gif" alt="Avatar">
-        <img src="https://i.postimg.cc/25mVbbvg/khung-vip-197.png" alt="Khung viền">
-      </div>
-      <h1 class="masked-text">Huyen Cuu Thien</h1>
+    <div class="avatar-wrapper">
+      <img src="https://i.postimg.cc/YS6RwWf9/6801332576069.gif" alt="Avatar">
+      <img src="https://i.postimg.cc/25mVbbvg/khung-vip-197.png" alt="Khung viền">
     </div>
+    <h1 class="masked-text">Huyen Cuu Thien</h1>
 
     <div class="glow-input">
       <input type="text" id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..." />
@@ -314,7 +333,7 @@
     <marquee>📢 Dùng thanh tìm kiếm để tra cứu nhanh câu hỏi - Sử dụng từ khóa là đủ! 📢</marquee>
   </div>
 
-  <!-- SCRIPT -->
+  <!-- ✅ SCRIPT -->
   <script>
     const qaList = [
   { "question": "Ai là huynh đệ và cũng là người thầy mà Vương Lâm trong Tiên Nghịch kính trọng nhất?", "answer": "Tư Đồ Nam." },
@@ -819,8 +838,7 @@
   { "question": "Cha của Lâm Động là ai?", "answer": "Lâm Khiếu." },
   { "question": "Tỉnh Cửu đến đâu tu luyện cùng thư đồng?", "answer": "Thanh Sơn Tông." },
   { "question": "Người bạn thuở nhỏ của Trương Tiểu Phàm trong Tru Tiên là ai?", "answer": " Lâm Khinh Vũ. " }
- 
-     ];
+ ]; // Dữ liệu câu hỏi ở đây
 
     function normalize(str) {
       return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -881,26 +899,9 @@
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     }
 
-    // 🔒 Chống copy/devtools
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('keydown', e => {
-      if (
-        e.key === "F12" ||
-        (e.ctrlKey && ["u", "s", "c", "i", "j", "p"].includes(e.key.toLowerCase())) ||
-        (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key.toUpperCase()))
-      ) {
-        e.preventDefault();
-      }
-    });
-    document.addEventListener('copy', e => e.preventDefault());
-    document.addEventListener('dragstart', e => e.preventDefault());
-
-    // 🔊 Âm thanh và Popup
-    const bgAudio = document.getElementById("bgAudio");
-    const toggleBtn = document.getElementById("toggleAudio");
-    const audioStatus = document.getElementById("audioStatus");
-
     function toggleAudio() {
+      const bgAudio = document.getElementById("bgAudio");
+      const toggleBtn = document.getElementById("toggleAudio");
       if (bgAudio.paused) {
         bgAudio.play();
         toggleBtn.innerHTML = "🔊";
@@ -913,12 +914,48 @@
     }
 
     function showAudioStatus(message) {
+      const audioStatus = document.getElementById("audioStatus");
       audioStatus.textContent = message;
       audioStatus.style.display = "block";
       setTimeout(() => {
         audioStatus.style.display = "none";
       }, 2000);
     }
+
+    function toggleTheme() {
+      const body = document.body;
+      const themeBtn = document.getElementById("toggleTheme");
+      const themeStatus = document.getElementById("themeStatus");
+
+      body.classList.toggle("dark-mode");
+
+      if (body.classList.contains("dark-mode")) {
+        themeBtn.innerHTML = "☀️";
+        themeStatus.textContent = "🌙 Đã bật chế độ tối";
+      } else {
+        themeBtn.innerHTML = "🌙";
+        themeStatus.textContent = "☀️ Đã bật chế độ sáng";
+      }
+
+      themeStatus.style.display = "block";
+      setTimeout(() => {
+        themeStatus.style.display = "none";
+      }, 2000);
+    }
+
+    // Chống devtools
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && ["u", "s", "c", "i", "j", "p"].includes(e.key.toLowerCase())) ||
+        (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key.toUpperCase()))
+      ) {
+        e.preventDefault();
+      }
+    });
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
   </script>
 </body>
 </html>
