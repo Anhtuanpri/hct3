@@ -259,9 +259,33 @@
   display: none;
   z-index: 9999;
   }
+#toggleTheme,
+#toggleAudio {
+  position: fixed;
+  top: 20px;
+  font-size: 28px;
+  z-index: 99999;
+  background: none; /* ❌ Xoá nền trắng */
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  color: white;
+  backdrop-filter: blur(4px);
+  transition: transform 0.3s, background 0.3s;
+}
+
+#toggleTheme {
+  left: 20px; /* Góc trái */
+}
+
+#toggleAudio {
+  right: 20px; /* Góc phải */
+}
+
 #toggleTheme:hover,
 #toggleAudio:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   transform: scale(1.1);
 }
     #themeStatus { top: 120px; }
