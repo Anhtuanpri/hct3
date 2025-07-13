@@ -216,16 +216,54 @@
       pointer-events: auto;
       user-select: auto;
     }
+
+    /* 🎵 Nút âm thanh */
+    #toggleAudio {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 28px;
+      z-index: 9999;
+      background: rgba(255,255,255,0.5);
+      border: none;
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    /* 🪧 Thông báo âm thanh */
+    #audioStatus {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.75);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
   <div class="overlay"></div>
 
+  <!-- 🔊 Nút Âm Thanh -->
+  <button id="toggleAudio" onclick="toggleAudio()">🔊</button>
+  <div id="audioStatus"></div>
+  <audio id="bgAudio" autoplay loop>
+    <source src="1234.mp3" type="audio/mpeg" />
+    Trình duyệt không hỗ trợ âm thanh.
+  </audio>
+
+  <!-- Nội dung chính -->
   <div class="marquee-container">
     <div class="marquee">🌸 Nhập từ khóa hoặc câu hỏi để tra cứu nhanh trong thế giới tu tiên! 🌸</div>
   </div>
 
   <div class="card">
+    <!-- Avatar -->
     <div style="display: flex; flex-direction: column; align-items: center;">
       <div class="avatar-wrapper">
         <img src="https://i.postimg.cc/YS6RwWf9/6801332576069.gif" alt="Avatar">
@@ -276,6 +314,7 @@
     <marquee>📢 Dùng thanh tìm kiếm để tra cứu nhanh câu hỏi - Sử dụng từ khóa là đủ! 📢</marquee>
   </div>
 
+  <!-- SCRIPT -->
   <script>
     const qaList = [
   { "question": "Ai là huynh đệ và cũng là người thầy mà Vương Lâm trong Tiên Nghịch kính trọng nhất?", "answer": "Tư Đồ Nam." },
@@ -855,7 +894,31 @@
     });
     document.addEventListener('copy', e => e.preventDefault());
     document.addEventListener('dragstart', e => e.preventDefault());
-    document.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
+
+    // 🔊 Âm thanh và Popup
+    const bgAudio = document.getElementById("bgAudio");
+    const toggleBtn = document.getElementById("toggleAudio");
+    const audioStatus = document.getElementById("audioStatus");
+
+    function toggleAudio() {
+      if (bgAudio.paused) {
+        bgAudio.play();
+        toggleBtn.innerHTML = "🔊";
+        showAudioStatus("🔊 Âm thanh đã bật");
+      } else {
+        bgAudio.pause();
+        toggleBtn.innerHTML = "🔇";
+        showAudioStatus("🔇 Âm thanh đã tắt");
+      }
+    }
+
+    function showAudioStatus(message) {
+      audioStatus.textContent = message;
+      audioStatus.style.display = "block";
+      setTimeout(() => {
+        audioStatus.style.display = "none";
+      }, 2000);
+    }
   </script>
 </body>
 </html>
