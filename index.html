@@ -29,7 +29,7 @@
     .dark-mode .send-question,
     .dark-mode .marquee-container,
     .dark-mode .footer-marquee {
-      background: rgba(30, 30, 30, 0.8) !important;
+      background: rgba(30, 30, 30, 0.6) !important;
       color: #e0e0e0;
     }
 
@@ -37,21 +37,21 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
       z-index: -1;
     }
 
     .marquee-container, .footer-marquee {
       width: 100%;
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.15);
       color: #8e24aa;
       padding: 10px 0;
       font-weight: bold;
       overflow: hidden;
       z-index: 10;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(10px) saturate(160%);
     }
 
     .footer-marquee {
@@ -74,7 +74,9 @@
 
     .card {
       margin-top: 20px;
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
       padding: 30px;
       border-radius: 16px;
       border: 4px solid;
@@ -116,7 +118,8 @@
       font-size: 16px;
       position: relative;
       z-index: 2;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
       color: #000;
       box-sizing: border-box;
     }
@@ -141,7 +144,8 @@
     #answerBox {
       margin-top: 20px;
       padding: 15px;
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(8px);
       border: 3px dashed #00eaff;
       border-radius: 10px;
       animation: glow 1s infinite alternate;
@@ -180,8 +184,9 @@
       margin-top: 30px;
       padding: 20px;
       border-radius: 12px;
-      background: rgba(255, 255, 255, 0.45);
-      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
     }
 
     .avatar-wrapper {
@@ -220,81 +225,55 @@
       user-select: auto;
     }
 
-    /* 🎵 Nút âm thanh + chế độ */
-#toggleAudio, #toggleTheme {
-  position: fixed;
-  top: 16px;
-  font-size: 26px;
-  z-index: 9999;
-  background: none; /* ❌ Xoá nền trắng */
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  color: white;
-  text-shadow: 0 0 6px #000;
-  transition: transform 0.2s ease;
-}
+    #toggleAudio, #toggleTheme {
+      position: fixed;
+      top: 20px;
+      font-size: 28px;
+      z-index: 99999;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+      color: white;
+      backdrop-filter: blur(6px);
+      transition: transform 0.3s, background 0.3s;
+    }
 
-#toggleAudio:hover, #toggleTheme:hover {
-  transform: scale(1.2);
-}
+    #toggleTheme {
+      left: 20px;
+    }
 
-#toggleAudio {
-  right: 16px; /* Nút âm thanh góc phải */
-}
+    #toggleAudio {
+      right: 20px;
+    }
 
-#toggleTheme {
-  left: 16px; /* Nút chế độ tối/sáng góc trái */
-}
+    #toggleTheme:hover,
+    #toggleAudio:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
 
-#audioStatus, #themeStatus {
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.75);
-  color: white;
-  padding: 10px 15px;
-  border-radius: 8px;
-  font-size: 14px;
-  display: none;
-  z-index: 9999;
-  }
-#toggleTheme,
-#toggleAudio {
-  position: fixed;
-  top: 20px;
-  font-size: 28px;
-  z-index: 99999;
-  background: none; /* ❌ Xoá nền trắng */
-  border: none;
-  border-radius: 50%;
-  padding: 10px;
-  cursor: pointer;
-  color: white;
-  backdrop-filter: blur(4px);
-  transition: transform 0.3s, background 0.3s;
-}
+    #audioStatus, #themeStatus {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.75);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      z-index: 9999;
+    }
 
-#toggleTheme {
-  left: 20px; /* Góc trái */
-}
-
-#toggleAudio {
-  right: 20px; /* Góc phải */
-}
-
-#toggleTheme:hover,
-#toggleAudio:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: scale(1.1);
-}
     #themeStatus { top: 120px; }
   </style>
 </head>
 <body>
   <div class="overlay"></div>
 
-  <!-- 🔘 Hai nút cố định -->
+  <!-- 🔘 Nút cố định -->
   <button id="toggleTheme" onclick="toggleTheme()">🌙</button>
   <button id="toggleAudio" onclick="toggleAudio()">🔊</button>
   <div id="themeStatus"></div>
@@ -303,7 +282,6 @@
     <source src="1234.mp3" type="audio/mpeg" />
   </audio>
 
-  <!-- Nội dung tiếp theo (avatar, tìm kiếm, gợi ý...) -->
   <div class="marquee-container">
     <div class="marquee">🌸 Nhập từ khóa hoặc câu hỏi để tra cứu nhanh trong thế giới tu tiên! 🌸</div>
   </div>
@@ -357,7 +335,6 @@
     <marquee>📢 Dùng thanh tìm kiếm để tra cứu nhanh câu hỏi - Sử dụng từ khóa là đủ! 📢</marquee>
   </div>
 
-  <!-- ✅ SCRIPT -->
   <script>
     const qaList = [
   { "question": "Ai là huynh đệ và cũng là người thầy mà Vương Lâm trong Tiên Nghịch kính trọng nhất?", "answer": "Tư Đồ Nam." },
@@ -861,8 +838,7 @@
   { "question": "Ông nội của Lâm Động tên là gì?", "answer": "Lâm Chấn Thiên." },
   { "question": "Cha của Lâm Động là ai?", "answer": "Lâm Khiếu." },
   { "question": "Tỉnh Cửu đến đâu tu luyện cùng thư đồng?", "answer": "Thanh Sơn Tông." },
-  { "question": "Người bạn thuở nhỏ của Trương Tiểu Phàm trong Tru Tiên là ai?", "answer": " Lâm Khinh Vũ. " }
- ]; // Dữ liệu câu hỏi ở đây
+  ];
 
     function normalize(str) {
       return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
