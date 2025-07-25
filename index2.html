@@ -5,37 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chat Cộng Đồng</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
   <div class="chat-container">
     <div class="chat-header">
-      <h2>💬 Chat Cộng Đồng</h2>
-      <button class="clear-btn" onclick="clearMessages()">🧹</button>
+      <span>💬 Chat Cộng Đồng</span>
+      <button id="clearChat" title="Xoá tất cả">🧹</button>
     </div>
-
     <div class="chat-messages" id="chatMessages"></div>
 
     <div class="chat-reply" id="replyBox" style="display: none;">
-      <span id="replyToText"></span>
+      Đang trả lời: <span id="replyText"></span>
       <button onclick="cancelReply()">❌</button>
     </div>
 
     <div class="chat-input">
-      <div class="input-tools">
-        <input type="file" id="imageInput" accept="image/*" hidden />
-        <button onclick="document.getElementById('imageInput').click()">🖼️</button>
-        <button onclick="toggleEmojiPicker()">😊</button>
-      </div>
-      <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
-      <button onclick="sendMessage()">📤</button>
+      <input type="file" id="imageInput" accept="image/*" style="display: none" />
+      <button onclick="document.getElementById('imageInput').click()">🖼️</button>
+      <button onclick="toggleEmojiPicker()">😊</button>
+      <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." />
+      <button onclick="sendMessage()">📨</button>
     </div>
 
     <div class="emoji-picker" id="emojiPicker" style="display: none;"></div>
   </div>
 
-  <!-- Firebase & Script -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
