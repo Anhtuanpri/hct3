@@ -2,39 +2,35 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Chat App - Dark UI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Ẩn Danh</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-  <div class="chat-container">
-    <div class="chat-header">
-      <span>💬 Cộng đồng</span>
-      <button onclick="clearMessages()">🧹</button>
-    </div>
+  <div id="chat-app">
+    <header>
+      <h2>💬 Chat Ẩn Danh</h2>
+    </header>
 
-    <div class="chat-messages" id="chatMessages"></div>
+    <main id="chat-box"></main>
 
-    <div class="chat-input-area">
-      <label for="imageInput" class="icon-button">🖼️</label>
-      <input type="file" id="imageInput" accept="image/*" hidden>
-      <button class="icon-button" onclick="insertEmoji()">😊</button>
-
-      <input type="text" id="messageInput" placeholder="Viết tin nhắn của bạn">
+    <footer>
+      <div class="tools">
+        <label for="imageUpload" title="Gửi ảnh">🖼️</label>
+        <input type="file" id="imageUpload" accept="image/*" hidden>
+        <button onclick="toggleEmojiPicker()">😊</button>
+      </div>
+      <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
       <button onclick="sendMessage()">📤</button>
-    </div>
+    </footer>
   </div>
 
-  <div class="popup" id="namePopup">
-    <div class="popup-content">
-      <h3>Nhập tên hiển thị</h3>
-      <input type="text" id="nameInput" placeholder="Ẩn danh">
-      <button onclick="saveName()">Lưu</button>
-    </div>
+  <!-- Emoji Picker -->
+  <div id="emojiPicker" style="display:none;">
+    😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😍 😘 😗
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
