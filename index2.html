@@ -1,242 +1,46 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trang Chat - Glassmorphism</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #1f1c2c, #928dab);
-      background-size: cover;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #chat-app {
-      width: 400px;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      backdrop-filter: blur(16px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-      position: relative;
-    }
-    #chat-header {
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    #messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .message {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 10px;
-      border-radius: 12px;
-      color: gold;
-      position: relative;
-    }
-    .message .name {
-      font-weight: bold;
-      margin-bottom: 4px;
-      display: block;
-    }
-    .message .time {
-      font-size: 0.75rem;
-      color: #ccc;
-      margin-top: 4px;
-    }
-    .message .actions {
-      position: absolute;
-      right: 8px;
-      bottom: -20px;
-      display: none;
-      background: rgba(0,0,0,0.6);
-      border-radius: 8px;
-      padding: 4px 8px;
-    }
-    .message:hover .actions {
-      display: flex;
-      gap: 6px;
-    }
-    .avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-right: 8px;
-    }
-    #chat-input {
-      padding: 10px;
-      background: rgba(255,255,255,0.15);
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    #chat-input input {
-      flex: 1;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 12px;
-      outline: none;
-    }
-    #chat-input button {
-      background: transparent;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-    #name-popup {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0,0,0,0.6);
-      z-index: 1000;
-    }
-    #name-popup input {
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      margin-top: 10px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat Room</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
-  <div id="chat-app">
-    <div id="chat-header">
-      💬 Chat
-      <button onclick="clearMessages()">🧹</button>
-    </div>
-    <div id="messages"></div>
-    <div id="chat-input">
-      <input type="file" id="imgUpload" accept="image/*" style="display:none" onchange="sendImage(event)">
-      <button onclick="document.getElementById('imgUpload').click()">🖼️</button>
-      <button onclick="insertEmoji()">😊</button>
-      <input type="text" id="msgInput" placeholder="Nhập tin nhắn...">
-      <button onclick="sendMessage()">📤</button>
-    </div>
+
+<div class="chat-wrapper">
+  <div class="chat-header">
+    <span>💬 Chat cộng đồng</span>
+    <button onclick="clearMessages()">🧹</button>
   </div>
 
-  <div id="name-popup">
-    <div style="background:#fff;padding:20px;border-radius:10px;text-align:center;">
-      <h3>Nhập tên của bạn</h3>
-      <input type="text" id="nameInput" placeholder="Ẩn danh">
-      <br>
-      <button onclick="saveName()">OK</button>
-    </div>
+  <div class="chat-messages" id="chatMessages"></div>
+
+  <div class="chat-input-area">
+    <input type="file" id="imageUpload" accept="image/*" hidden>
+    <button class="icon-btn" onclick="document.getElementById('imageUpload').click()">🖼️</button>
+    <button class="icon-btn" onclick="toggleEmojiPanel()">😊</button>
+    <input type="text" id="messageInput" placeholder="Viết tin nhắn của bạn"/>
+    <button onclick="sendMessage()">📤</button>
   </div>
+</div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",
-      authDomain: "sample-firebase-ai-app-2a091.firebaseapp.com",
-      databaseURL: "https://sample-firebase-ai-app-2a091-default-rtdb.firebaseio.com",
-      projectId: "sample-firebase-ai-app-2a091",
-      storageBucket: "sample-firebase-ai-app-2a091.appspot.com",
-      messagingSenderId: "94515253749",
-      appId: "1:94515253749:web:86594f2222889c6472d0bc"
-    };
+<!-- Emoji Panel -->
+<div class="emoji-panel" id="emojiPanel" style="display: none;">
+  😀 😁 😂 🤣 😍 😎 😢 😡 ❤️ 👍 👎 🔥 💯 💬
+</div>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const msgRef = db.ref("messages");
+<!-- Popup Nhập Tên -->
+<div id="namePopup" class="popup" style="display:none;">
+  <div class="popup-content">
+    <p>Nhập tên hiển thị:</p>
+    <input type="text" id="nameInput" placeholder="Ẩn danh...">
+    <button onclick="saveName()">Lưu</button>
+  </div>
+</div>
 
-    let userName = localStorage.getItem("chat-name");
-    if (!userName) {
-      document.getElementById("name-popup").style.display = "flex";
-    }
-
-    function saveName() {
-      const name = document.getElementById("nameInput").value.trim();
-      userName = name || "Ẩn danh";
-      localStorage.setItem("chat-name", userName);
-      document.getElementById("name-popup").style.display = "none";
-    }
-
-    function sendMessage() {
-      const input = document.getElementById("msgInput");
-      const text = input.value.trim();
-      if (!text) return;
-      const msg = {
-        name: userName,
-        text: text,
-        time: new Date().toISOString(),
-        avatar: "https://i.imgur.com/6VBx3io.png"
-      };
-      msgRef.push(msg);
-      input.value = "";
-    }
-
-    function sendImage(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const msg = {
-          name: userName,
-          text: "<img src='" + e.target.result + "' style='max-width:100%;border-radius:10px;'>",
-          time: new Date().toISOString(),
-          avatar: "https://i.imgur.com/6VBx3io.png"
-        };
-        msgRef.push(msg);
-      }
-      reader.readAsDataURL(file);
-    }
-
-    function clearMessages() {
-      if (confirm("Xoá toàn bộ tin nhắn?")) {
-        msgRef.remove();
-      }
-    }
-
-    function insertEmoji() {
-      const input = document.getElementById("msgInput");
-      input.value += "😊";
-    }
-
-    msgRef.on("value", snapshot => {
-      const messages = document.getElementById("messages");
-      messages.innerHTML = "";
-      snapshot.forEach(child => {
-        const msg = child.val();
-        const div = document.createElement("div");
-        div.className = "message";
-        div.innerHTML = \`
-          <div style="display:flex;align-items:center;">
-            <img src="\${msg.avatar}" class="avatar">
-            <div>
-              <span class="name">\${msg.name}</span>
-              <div>\${msg.text}</div>
-              <div class="time">\${new Date(msg.time).toLocaleString()}</div>
-            </div>
-          </div>
-        \`;
-        messages.appendChild(div);
-      });
-      messages.scrollTop = messages.scrollHeight;
-    });
-  </script>
+<script src="chat.js"></script>
 </body>
 </html>
