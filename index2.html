@@ -3,436 +3,538 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VẤN ĐÁP - Huyền Cửu Thiên</title>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <title>Chat Glass UI - Realtime</title>
+  <!-- Font và Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e0f7fa, #fff3e0);
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 500px;
+      height: 90vh;
       display: flex;
       flex-direction: column;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      background: rgba(255,255,255,0.08);
+      padding: 12px;
+      border-radius: 12px;
+      position: relative;
+    }
+
+    .message.self {
+      background: rgba(255, 255, 255, 0.12);
+      align-self: flex-end;
+    }
+
+    .meta {
+      font-size: 12px;
+      opacity: 0.6;
+      margin-bottom: 4px;
+    }
+
+    .chat-footer {
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    #messageInput {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .btn {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #fff;
+    }
+
+    .popup {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
       align-items: center;
-      color: #333;
+      z-index: 999;
     }
 
-    .header {
+    .popup-content {
+      background: #222;
       padding: 20px;
-      background: #00acc1;
-      color: white;
-      width: 100%;
-      text-align: center;
-      font-size: 24px;
-      font-family: 'Pacifico', cursive;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-
-    .container {
-      margin-top: 30px;
-      width: 90%;
-      max-width: 800px;
-      background: white;
-      padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 14px;
       border-radius: 10px;
-      border: 2px solid #00acc1;
-      font-size: 16px;
-    }
-
-    #answerBox {
-      margin-top: 20px;
-      padding: 15px;
-      border-left: 6px solid #00acc1;
-      background: #e1f5fe;
-      border-radius: 10px;
-    }
-
-    .hidden { display: none; }
-
-    #notificationBox {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f1f8e9;
-      border-left: 6px solid #8bc34a;
-      border-radius: 10px;
-      font-weight: bold;
-      color: #33691e;
-    }
-
-    .back-link {
-      margin-top: 40px;
       text-align: center;
     }
 
-    .back-link a {
-      color: #00796b;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 16px;
-      padding: 10px 20px;
-      border: 2px solid #00796b;
+    .popup-content input {
+      padding: 8px;
+      width: 100%;
+      margin-top: 10px;
       border-radius: 8px;
+      border: none;
     }
 
-    .back-link a:hover {
-      background: #00796b;
+    .popup-content button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #00aaff;
       color: white;
+      cursor: pointer;
+    }
+
+    .chat-actions {
+      position: relative;
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .action-menu {
+      display: none;
+      position: absolute;
+      bottom: 28px;
+      right: 0;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .action-menu button {
+      background: none;
+      border: none;
+      color: white;
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 5px 0;
+      cursor: pointer;
+    }
+
+    .liked {
+      color: red;
     }
   </style>
 </head>
 <body>
-  <div class="header">📘 VẤN ĐÁP - Huyền Cửu Thiên</div>
-  <div class="container">
-    <input type="text" id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..." />
-    <div id="answerBox" class="hidden"></div>
-    <div id="notificationBox">
-      ✅ Đã cập nhật thành công <span id="qaCount"> <b> <big> 0 </big> </b> </span> câu hỏi!
+<div class="chat-container">
+  <div class="messages" id="messages"></div>
+    <div class="chat-footer">
+    <div class="input-group">
+      <button class="btn" onclick="triggerImageUpload()">🖼️</button>
+      <button class="btn" onclick="insertEmoji()">😊</button>
+      <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." />
+      <button class="btn" onclick="sendMessage()">📤</button>
     </div>
+    <input type="file" id="imageUpload" accept="image/*" style="display:none" />
   </div>
+</div>
 
-  <div class="back-link">
-    <a href="index.html">⬅️ QUAY LẠI TRANG SỰ KIÊN</a>
+<!-- Popup Nhập Tên -->
+<div class="popup" id="namePopup">
+  <div class="popup-content">
+    <h3>Nhập tên hiển thị của bạn:</h3>
+    <input type="text" id="nameInput" placeholder="VD: Ẩn danh" />
+    <button onclick="saveName()">Lưu</button>
   </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+  // Cấu hình Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",
+    authDomain: "sample-firebase-ai-app-2a091.firebaseapp.com",
+    databaseURL: "https://sample-firebase-ai-app-2a091-default-rtdb.firebaseio.com",
+    projectId: "sample-firebase-ai-app-2a091",
+    storageBucket: "sample-firebase-ai-app-2a091.appspot.com",
+    messagingSenderId: "94515253749",
+    appId: "1:94515253749:web:86594f2222889c6472d0bc"
+  };
 
-  <script>
-    const qaList = [
-  { "question": "Đâu là nhân vật chính trong phim Bách Luyện Thành Thần ?", "answer": "La Chinh." },
-  { "question": "Nhiếp Phong là nhân vật chính trong phim hoạt hình trung quốc nào ?", "answer": "Chân Võ Đỉnh Phong." },
-  { "question": "Lạc Ly trong Đại Chúa Tể là nhân vật trong Tộc nào ?", "answer": "Lạc Thần Tộc." },
-  { "question": "Hoắc Vũ Hạo là hậu nhân của ai trong Sử Lai Khắc ?", "answer": "Đới Mộc Bạch." },
-  { "question": "Nhân vật chính của Đấu La Đại Lục là ai ?", "answer": "Đường Tam." },
-  { "question": "Chủ nhân đời trước của Vẫn Lạc Tâm Viêm trong Đấu Phá Thương Khung là ai ?", "answer": "Diệu Thiên Hỏa." },
-  { "question": "Nhân vật nào sau đây được mệnh danh là Vua Lỳ Đòn trong Đấu Phá Thương Khung ?", "answer": "Phượng Thanh Nhi." },
-  { "question": "Cơ Tử Nguyệt là nhân vật trong các bộ hoạt hình trung quốc nào sau đây ?", "answer": "Già Thiên." },
-  { "question": "Diệp Phàm là nhân vật chính trong bộ hoạt hình trung quốc nào ?", "answer": "Già Thiên." },
-  { "question": "Thánh nữ nào trong Già Thiên bị nhân vật chính Diệp Phàm lấy mất cái áo lót ?", "answer": "Diêu Hi." },
-  { "question": "Danh xưng Tàn Thi Bại Thuế là của nhân vật nào trong Hoạ Giang Hồ Chi Bất Lương Nhân ?", "answer": "Hàng Thần." },
-  { "question": "Lý Tinh Vân là một nhân vật trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Họa Giang Hồ Chi Bất Lương Nhân." },
-  { "question": "Lý Tinh Vân trong Họa Giang Hồ Chi Bất Lương Nhân sử dụng vũ khí nào sau đây ?", "answer": "Long Tuyền Kiếm." },
-  { "question": "Ninh Diêu là một nhân vật trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Kiếm Lai." },
-  { "question": "Nhân vật nào luôn bất bại trong phim Hoạt Hình Trung Quốc, được ví như One-Punch Man ?", "answer": "Từ Dương." },
-  { "question": "Ngụy Anh (Ngụy Vô Tiện) là nhân vật trong bộ hhtq nào sau đây ?", "answer": "Ma Đạo Tổ Sư." },
-  { "question": "Đàm Vân là nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Nghịch Thiên Chí Tôn." },
-  { "question": "Vân Triệt là tên nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Nghịch Thiên Tà Thần." },
-  { "question": "Bạch Tiểu Thuần là nhân vật chính trong bộ hoạt hình Trung Quốc nào ?", "answer": "Nhất Niệm Vĩnh Hằng." },
-  { "question": "Công pháp nào sau đây là của Hàn Lập trong Phàm Nhân Tu Tiên ?", "answer": "Tất cả đáp án trên." },
-  { "question": "Hàn Lâp trong Phàm Nhân Tu Tiên gia nhập môn phái nào đầu tiên ?", "answer": "Thất Huyền Môn." },
-  { "question": "Hàn Lập trong Phàm Nhân Tu Tiên đến Thất Huyền Môn bái ai làm thầy ?", "answer": "Mặc Đại Phu." },
-  { "question": "Hàn Lập trong Phàm Nhân Tu Tiên từng cứu ai mà bị hấp thụ tu vi giảm xuống Luyện Khí Kỳ ?", "answer": "Nam Cung Uyển." },
-  { "question": "Man Hồ Tử trong phim Phàm Nhân Tu Tiên tu luyện công pháp nào ?", "answer": "Thác Thiên Ma Công." },
-  { "question": "Trong Phàm Nhân Tu Tiên ai bị luyện thành khôi lỗi Khúc Hồn ?", "answer": "Trương Thiết." },
-  { "question": "Nhân vật chính Lý Trường Thọ trong Sư Huynh A Sư Huynh đã tỏ tình với ai ?", "answer": "Vân Tiêu." },
-  { "question": "Nhân vật chính của Thần Ấn Vương Tọa là ai ?", "answer": "Long Hạo Thần." },
-  { "question": "Y Lai Khắc Tư là một nhân vật trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Cả 1 và 2." },
-  { "question": "Ai là nhân vật chính trong bộ phim hoạt hình trung quốc Thần Mộ ?", "answer": "Thần Nam." },
-  { "question": "Hoang Thiên Đế là nhân vật chính trong bộ phim hoạt hình trung quốc nổi tiếng nào ?", "answer": "Thế Giới Hoàn Mỹ." },
-  { "question": "Diễm Linh Cơ là nhân vật trong phim hoạt hình trung quốc nào ?", "answer": "Thiên Hành Cửu Ca." },
-  { "question": "Bách Lý Đông Quân là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Thiếu Niên Bạch Mã Tuý Xuân Phong." },
-  { "question": "Triệu Ngọc Chân là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Thiếu Niên Bạch Mã Tuý Xuân Phong." },
-  { "question": "Nhân vật chính trong Thương Nguyên đồ là ai ?", "answer": "Mạnh Xuyên." },
-  { "question": "Trong bộ Tiên Nghịch, nhân vật chính Vương Lâm khi ở quê nhà còn có tên khác là gì ?", "answer": "Thiết Trụ." },
-  { "question": "Trong Tiên Nghịch, Vương Lâm nhận được truyền thừa gì ở Cổ Thần Chi Địa ?", "answer": "Ký ức." },
-  { "question": "Tần Vũ trong Tinh Thần Biến được tặng pháp bảo siêu cấp vip pro nào để tu luyện nhanh chóng ?", "answer": "Khương Lan Tháp." },
-  { "question": "Lâm Thất Dạ là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Trảm Thần." },
-  { "question": "Nhân vật Bách Lý Đồ Minh xuất hiện trong phim hoạt hình nào dưới đây ?", "answer": "Trảm Thần Chi Phàm Trần Thần Vực." },
-  { "question": "Trương Tiểu Phàm trong Tru Tiên từng được nhận vào môn phái nào ?", "answer": "Thanh Vân Môn." },
-  { "question": "Tần Nam là nhân vật chính trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Tuyệt Thế Chiến Hồn." },
-  { "question": "Lâm Phong là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vạn Giới Độc Tôn." },
-  { "question": "Phương Hàn là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vĩnh Sinh." },
-  { "question": "Phương Hàn trong Vĩnh Sinh nhận được Giao Phục Hoàng Tuyền Đồ từ ai ?", "answer": "Bạch Hải Thiện." },
-  { "question": "Mục Vân là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vô Thượng Thần Đế." },
-  { "question": "Nghịch Thiên Nhi Hành là một nhân vật trong bộ phim hh3d nào sau đây ?", "answer": "Vũ Canh Kỷ." },
-  { "question": "Vũ Canh là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vũ Canh Kỷ." },
-  { "question": "Nhân vật chính trong Yêu Thần Ký tên là gì ?", "answer": "Nhiếp Ly." },
-  { "question": "Bạch Nguyệt Khôi là tên nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Linh Lung." },
-  { "question": "Tỉnh Cửu là nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Đại Đạo Triều Thiên." },
-  { "question": "Tiêu Thần là nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Trường Sinh Giới." },
-  { "question": "Tần Mục là nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Mục Thần Ký." },
-  { "question": "Nhân vật chính trong Man Hoang Tiên Giới là ai ?", "answer": "Lục Hàng Chi." },
-  { "question": "Nhân vật chính trong Quân Tử Vô Tật là ai ?", "answer": "Dao Cơ." },
-  { "question": "Nhân vật chính trong Đấu Chiến Thiên Hạ là ai ?", "answer": "Đại Phong." },
-  { "question": "Nhân vật chính trong Ta Có Thể Giác Ngộ Vô Hạn là ai ?", "answer": "Tiêu Vân." },
-  { "question": "Mục Trần trong Đại Chúa Tể liên kết Huyết Mạch với ?", "answer": "Cửu U Tước." },
-  { "question": "Kính Huyền trong Quyến Tư Lượng là hậu duệ của tộc nào ?", "answer": "Thần Tộc." },
-  { "question": "Lý Trường Thọ trong Sư Huynh A Sư Huynh xuyên không về Hồng Hoang bái sư ở đâu ?", "answer": "Độ Tiên Môn." },
-  { "question": "Bộ phim nào sau đây thuộc tiểu thuyết của tác giả Thiên Tằm Thổ Đậu ?", "answer": "Tất cả đáp án trên." },
-  { "question": "Ai là huynh đệ và cũng là người thầy mà Vương Lâm trong Tiên Nghịch kính trọng nhất ?", "answer": "Tư Đồ Nam." },
-  { "question": "Tần Vũ trong Tinh Thần Biến khiếm khuyết đan điền nhờ đâu mới có thể tu luyện ?", "answer": "Lưu Tinh Lệ." },
-  { "question": "Sư phụ mà Diệp Thần yêu trong Tiên Võ Đế Tôn là ai ?", "answer": "Sở Huyên Nhi." },
-  { "question": "Bộ phim Thiên Bảo Phục Yêu Lục lấy bối cảnh thời kỳ nào ?", "answer": "Đường." },
-  { "question": "Ai là người đứng đầu Vũ Hồn Điện ?", "answer": "Bỉ Bỉ Đông." },
-  { "question": "Đâu là tuyệt kỹ số 1 Hạo Thiên Tông mà Đường Hạo dạy cho con trai trong Đấu La Đại Lục ?", "answer": "Đại Tu Di Chùy." },
-  { "question": "Độc Cô Bác trong Đấu La Đại Lục có vũ hồn gì ?", "answer": "Bích Lân Xà." },
-  { "question": "Tại sao Đường Tam bị Đường Môn truy sát ở tập đầu phim Đấu La Đại Lục ?", "answer": "Học trộm tuyệt học bổn môn." },
-  { "question": "Trong Đấu La Đại Lục, ai là người thầy của Đường Tam ?", "answer": "Đại Sư." },
-  { "question": "Trong Đấu La Đại Lục, Đường Hạo là gì của Đường Tam ?", "answer": "Cha." },
-  { "question": "Các cấp bậc nào sau đây thuộc phim Đấu Phá Thương Khung ?", "answer": "Đấu Tông." },
-  { "question": "Công pháp gì giúp Tiêu Viêm trong Đấu Phá Thương Khung hấp thụ nhiều loại dị hỏa ?", "answer": "Phần Quyết." },
-  { "question": "Đại ca của Tiêu Viêm trong Đấu Phá Thương Khung tên gì ?", "answer": "Tiêu Đỉnh." },
-  { "question": "Dược Trần trong Đấu Phá Thương Khung đã từng bị đồ đệ nào phản bội ?", "answer": "Hàn Phong." },
-  { "question": "Nhị ca của Tiêu Viêm trong Đấu Phá Thương Khung tên gì ?", "answer": "Tiêu Lệ." },
-  { "question": "Phượng Thanh Nhi trong Đấu Phá Thương Khung thuộc chủng tộc nào ?", "answer": "Thiên Yêu Hoàng Tộc." },
-  { "question": "Thế lực nào là đối thủ lớn nhất của Tiêu Viêm trong Đấu Phá Thương Khung ?", "answer": "Hồn Điện." },
-  { "question": "Thiên Hoả Tôn Giả trong Đấu Phá Thương Khung dùng thi thể của ai để hồi sinh ?", "answer": "Vân Sơn." },
-  { "question": "Tiêu Viêm trong Đấu Phá Thương Khung đã Hẹn Ước 3 Năm với ai ?", "answer": "Nạp Lan Yên Nhiên." },
-  { "question": "Tiêu Viêm trong Đấu Phá Thương Khung sử dụng loại vũ khí nào sau đây ?", "answer": "Thước." },
-  { "question": "Tiêu Viêm trong Đấu Phá Thương Khung thuộc gia tộc nào ?", "answer": "Tiêu gia." },
-  { "question": "Trong bộ Đấu Phá Thương Khung, Tiêu Viêm tìm đến ai để cứu Dược Lão ?", "answer": "Phong Tôn Giả." },
-  { "question": "Tử Nghiên trong Đấu Phá Thương Khung thuộc chủng tộc nào ?", "answer": "Thái Hư Cổ Long." },
-  { "question": "Vũ khí mà Tiêu Viêm trong Đấu Phá Thương Khung luôn mang bên mình có tên gọi là gì ?", "answer": "Huyền Trọng Xích." },
-  { "question": "Cổ Hà trong Đấu Phá Thương Khung lúc xuất hiện ở Vân Lam Tông là luyện dược sư mấy phẩm ?", "answer": "Thất Phẩm." },
-  { "question": "Tình đầu của Diệp Phàm trong Già Thiên là ai ?", "answer": "Lý Tiểu Mạn." },
-  { "question": "Trước khi đến Linh Khê Tông, Bạch Tiểu Thuần trong Nhất Niệm Vĩnh Hằng ở đâu ?", "answer": "Mạo Nhi Sơn Thôn." },
-  { "question": "Đấu Sát Toàn Viên Kiếm là một kỹ năng trong bộ phim hoạt hình trung quốc nào ?", "answer": "Thần Ấn Vương Tọa." },
-  { "question": "Đâu là Thái Cổ Thập Hung trong phim Thế Giới Hoàn Mỹ ?", "answer": "Tất cả đáp án trên." },
-  { "question": "Diệp Thần trong Tiên Võ Đế Tôn gia nhập Tông Môn nào đầu tiên ?", "answer": "Chính Dương Tông." },
-  { "question": "Mối tình đầu của Diệp Thần trong Tiên Võ Đế Tôn là ai ?", "answer": "Cơ Ngưng Sương." },
-  { "question": "Tiêu Viêm đã lập nên thế lực nào khi ở Học Viện Già Nam ?", "answer": "Bàn Môn." },
-  { "question": "Trong Già Thiên, thể chất Diệp Phàm là thể chất gì ?", "answer": "Hoang Cổ Thánh Thể." },
-  { "question": "Em trai ruột của Thạch Hạo trong Thế Giới Hoàn Mỹ là ai ?", "answer": "Tần Hạo." },
-  { "question": "Mẹ của Thạch Hạo trong Thế Giới Hoàn Mỹ tên là gì ?", "answer": "Tần Di Ninh." },
-  { "question": "Mục đích tu luyện của Vương Lâm trong Tiên Nghịch theo diễn biến phim hiện tại là gì ?", "answer": "Báo thù." },
-  { "question": "Nguyên Tôn: Thú cưng Thôn Thôn sinh ra có sức mạnh ngang cảnh giới nào ?", "answer": "Thái Sơ Cảnh." },
-  { "question": "Sư phụ của Lý Trường Thọ là ai ?", "answer": "Tề Nguyên." },
-  { "question": "Sư Phụ thứ 2 của Lý Trường Thọ trong phim ?", "answer": "Thái Thanh Thánh Nhân." },
-  { "question": "Mẫu thân của La Phong trong Thôn Phệ Tinh Không tên là gì ?", "answer": "Cung Tâm Lan." },
-  { "question": "Thần Thông Bí Cảnh xuất hiện trong bộ phim hoạt hình nào dưới đây ?", "answer": "Vĩnh Sinh." },
-  { "question": "Bách Lý Đông Quân là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Thiếu Niên Bạch Mã Tuý Xuân Phong." },
-  { "question": "Nữ chính cũng là vợ Đông Bá Tuyết Ưng trong Tuyết Ưng Lĩnh Chủ là ai sau đây ?", "answer": "Dư Tĩnh Thu." },
-  { "question": "Lâm Động trong Vũ Động Càn Khôn học được Linh Võ Học nào khi vào bia cổ Đại Hoang ?", "answer": "Đại Hoang Tù Thiên Chỉ." },
-  { "question": "Lâm Động trong Vũ Động Càn Khôn luyện hóa Tổ Phù nào đầu tiên ?", "answer": "Thôn Phệ Tổ Phù." },
-  { "question": "Lâm Động trong Vũ Động Càn Khôn sử dụng vũ khí loại nào sau đây ?", "answer": "Thương." },
-  { "question": "Ông nội của Lâm Động trong Vũ Động Càn Khôn là ai ?", "answer": "Lâm Chấn Thiên." },
-  { "question": "Phụ thân của Lâm Động trong Vũ Động Càn Khôn là ai ?", "answer": "Lâm Khiếu." },
-  { "question": "Trong phim Đại Đạo Triều Thiên, Tỉnh Cửu đã cùng thư đồng đến đâu tu luyện ?", "answer": "Thanh Sơn Tông." },
-  { "question": "Sư phụ mà Diệp Thần yêu trong Tiên Võ Đế Tôn là ai ?", "answer": "Sở Huyên Nhi." },
-  { "question": "Nhân vật chính trong Yêu Thần Ký tên là gì ?", "answer": "Nhiếp Ly." },
-  { "question": "Ai là nhân vật chính trong bộ phim hoạt hình trung quốc Thần Mộ ?", "answer": "Thần Nam." },
-  { "question": "Hoang Thiên Đế là nhân vật chính trong bộ phim hoạt hình trung quốc nổi tiếng nào ?", "answer": "Thế Giới Hoàn Mỹ." },
-  { "question": "Diễm Linh Cơ là nhân vật trong phim hoạt hình trung quốc nào ?", "answer": "Thiên Hành Cửu Ca." },
-  { "question": "Triệu Ngọc Chân là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Thiếu Niên Bạch Mã Tuý Xuân Phong." },
-  { "question": "Nhân vật chính trong Thương Nguyên Đồ là ai ?", "answer": "Mạnh Xuyên." },
-  { "question": "Trong bộ Tiên Nghịch, nhân vật chính Vương Lâm khi ở quê nhà còn có tên khác là gì ?", "answer": "Thiết Trụ." },
-  { "question": "Trong Tiên Nghịch, Vương Lâm nhận được truyền thừa gì ở Cổ Thần Chi Địa ?", "answer": "Ký ức." },
-  { "question": "Tần Vũ trong Tinh Thần Biến được tặng pháp bảo siêu cấp vip pro nào để tu luyện nhanh chóng ?", "answer": "Khương Lan Tháp." },
-  { "question": "Lâm Thất Dạ là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Trảm Thần." },
-  { "question": "Nhân vật Bách Lý Đồ Minh xuất hiện trong phim hoạt hình nào dưới đây ?", "answer": "Trảm Thần Chi Phàm Trần Thần Vực." },
-  { "question": "Trương Tiểu Phàm trong Tru Tiên từng được nhận vào môn phái nào ?", "answer": "Thanh Vân Môn." },
-  { "question": "Tần Nam là nhân vật chính trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Tuyệt Thế Chiến Hồn." },
-  { "question": "Lâm Phong là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vạn Giới Độc Tôn." },
-  { "question": "Phương Hàn là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vĩnh Sinh." },
-  { "question": "Phương Hàn trong Vĩnh Sinh nhận được Giao Phục Hoàng Tuyền Đồ từ ai ?", "answer": "Bạch Hải Thiện." },
-  { "question": "Mục Vân là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vô Thượng Thần Đế." },
-  { "question": "Nghịch Thiên Nhi Hành là một nhân vật trong bộ phim hh3d nào sau đây ?", "answer": "Vũ Canh Kỷ." },
-  { "question": "Vũ Canh là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vũ Canh Kỷ." },
-  { "question": "Bạch Nguyệt Khôi là tên nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Linh Lung." },
-  { "question": "Tỉnh Cửu là nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Đại Đạo Triều Thiên." },
-  { "question": "Ai là mẹ của Đường Tam ?", "answer": "A Ngân." },
-  { "question": "Đâu là nhân vật chính trong phim Bách Luyện Thành Thần ?", "answer": "La Chinh." },
-  { "question": "Nhiếp Phong là nhân vật chính trong phim hoạt hình trung quốc nào ?", "answer": "Chân Võ Đỉnh Phong." },
-  { "question": "Lạc Ly trong Đại Chúa Tể là nhân vật trong Tộc nào ?", "answer": "Lạc Thần Tộc." },
-  { "question": "Hoắc Vũ Hạo là hậu nhân của ai trong Sử Lai Khắc ?", "answer": "Đới Mộc Bạch." },
-  { "question": "Chủ nhân đời trước của Vẫn Lạc Tâm Viêm trong Đấu Phá Thương Khung là ai ?", "answer": "Diệu Thiên Hỏa." },
-  { "question": "Nhân vật nào sau đây được mệnh danh là Vua Lỳ Đòn trong Đấu Phá Thương Khung ?", "answer": "Phượng Thanh Nhi." },
-  { "question": "Cơ Tử Nguyệt là nhân vật trong các bộ hoạt hình trung quốc nào sau đây ?", "answer": "Già Thiên." },
-  { "question": "Diệp Phàm là nhân vật chính trong bộ hoạt hình trung quốc nào ?", "answer": "Già Thiên." },
-  { "question": "Thánh nữ nào trong Già Thiên bị nhân vật chính Diệp Phàm lấy mất cái áo lót ?", "answer": "Diêu Hi." },
-  { "question": "Danh xưng Tàn Thi Bại Thuế là của nhân vật nào trong Hoạ Giang Hồ Chi Bất Lương Nhân ?", "answer": "Hàng Thần." },
-  { "question": "Lý Tinh Vân là một nhân vật trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Họa Giang Hồ Chi Bất Lương Nhân." },
-  { "question": "Lý Tinh Vân trong Họa Giang Hồ Chi Bất Lương Nhân sử dụng vũ khí nào sau đây ?", "answer": "Long Tuyền Kiếm." },
-  { "question": "Ninh Diêu là một nhân vật trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Kiếm Lai." },
-  { "question": "Nhân vật nào luôn bất bại trong phim Hoạt Hình Trung Quốc, được ví như One-Punch Man ?", "answer": "Từ Dương." },
-  { "question": "Ngụy Anh (Ngụy Vô Tiện) là nhân vật trong bộ hhtq nào sau đây ?", "answer": "Ma Đạo Tổ Sư." },
-  { "question": "Đàm Vân là nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Nghịch Thiên Chí Tôn." },
-  { "question": "Vân Triệt là tên nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Nghịch Thiên Tà Thần." },
-  { "question": "Bạch Tiểu Thuần là nhân vật chính trong bộ hoạt hình Trung Quốc nào ?", "answer": "Nhất Niệm Vĩnh Hằng." },
-  { "question": "Công pháp nào sau đây là của Hàn Lập trong Phàm Nhân Tu Tiên ?", "answer": "Tất cả đáp án trên." },
-  { "question": "Hàn Lập trong Phàm Nhân Tu Tiên gia nhập môn phái nào đầu tiên ?", "answer": "Thất Huyền Môn." },
-  { "question": "Hàn Lập trong Phàm Nhân Tu Tiên đến Thất Huyền Môn bái ai làm thầy ?", "answer": "Mặc Đại Phu." },
-  { "question": "Hàn Lập trong Phàm Nhân Tu Tiên từng cứu ai mà bị hấp thụ tu vi giảm xuống Luyện Khí Kỳ ?", "answer": "Nam Cung Uyển." },
-  { "question": "Man Hồ Tử trong phim Phàm Nhân Tu Tiên tu luyện công pháp nào ?", "answer": "Thác Thiên Ma Công." },
-  { "question": "Trong Phàm Nhân Tu Tiên ai bị luyện thành khôi lỗi Khúc Hồn ?", "answer": "Trương Thiết." },
-  { "question": "Nhân vật chính Lý Trường Thọ trong Sư Huynh A Sư Huynh đã tỏ tình với ai ?", "answer": "Vân Tiêu." },
-  { "question": "Nhân vật chính của Thần Ấn Vương Tọa là ai ?", "answer": "Long Hạo Thần." },
-  { "question": "Y Lai Khắc Tư là một nhân vật trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Cả 1 và 2." },
-  { "question": "Thế Giới Hoàn Mỹ lấy bối cảnh ở đâu ?", "answer": "Thái Cổ Thập Hung." },
-  { "question": "Diễm Linh Cơ là nhân vật trong phim hoạt hình trung quốc nào ?", "answer": "Thiên Hành Cửu Ca." },
-  { "question": "Bách Lý Đông Quân là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Thiếu Niên Bạch Mã Tuý Xuân Phong." },
-  { "question": "Triệu Ngọc Chân là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Thiếu Niên Bạch Mã Tuý Xuân Phong." },
-  { "question": "Nhân vật chính trong Thương Nguyên Đồ là ai ?", "answer": "Mạnh Xuyên." },
-  { "question": "Trong bộ Tiên Nghịch, nhân vật chính Vương Lâm khi ở quê nhà còn có tên khác là gì ?", "answer": "Thiết Trụ." },
-  { "question": "Trong Tiên Nghịch, Vương Lâm nhận được truyền thừa gì ở Cổ Thần Chi Địa ?", "answer": "Ký ức." },
-  { "question": "Tần Vũ trong Tinh Thần Biến được tặng pháp bảo siêu cấp vip pro nào để tu luyện nhanh chóng ?", "answer": "Khương Lan Tháp." },
-  { "question": "Lâm Thất Dạ là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Trảm Thần." },
-  { "question": "Nhân vật Bách Lý Đồ Minh xuất hiện trong phim hoạt hình nào dưới đây ?", "answer": "Trảm Thần Chi Phàm Trần Thần Vực." },
-  { "question": "Trương Tiểu Phàm trong Tru Tiên từng được nhận vào môn phái nào ?", "answer": "Thanh Vân Môn." },
-  { "question": "Tần Nam là nhân vật chính trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Tuyệt Thế Chiến Hồn." },
-  { "question": "Lâm Phong là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vạn Giới Độc Tôn." },
-  { "question": "Phương Hàn là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vĩnh Sinh." },
-  { "question": "Phương Hàn trong Vĩnh Sinh nhận được Giao Phục Hoàng Tuyền Đồ từ ai ?", "answer": "Bạch Hải Thiện." },
-  { "question": "Mục Vân là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vô Thượng Thần Đế." },
-  { "question": "Nghịch Thiên Nhi Hành là một nhân vật trong bộ phim hh3d nào sau đây ?", "answer": "Vũ Canh Kỷ." },
-  { "question": "Vũ Canh là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Vũ Canh Kỷ." },
-  { "question": "Nhân vật chính trong Yêu Thần Ký tên là gì ?", "answer": "Nhiếp Ly." },
-  { "question": "Bạch Nguyệt Khôi là tên nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Linh Lung." },
-  { "question": "Tỉnh Cửu là nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Đại Đạo Triều Thiên." },
-  { "question": "Tiêu Thần là nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Trường Sinh Giới." },
-  { "question": "Tần Mục là nhân vật chính trong bộ phim hoạt hình trung quốc nào sau đây ?", "answer": "Mục Thần Ký." },
-  { "question": "Nhân vật chính trong Man Hoang Tiên Giới là ai ?", "answer": "Lục Hàng Chi." },
-  { "question": "Nhân vật chính trong Quân Tử Vô Tật là ai ?", "answer": "Dao Cơ." },
-  { "question": "Nhân vật chính trong Đấu Chiến Thiên Hạ là ai ?", "answer": "Đại Phong." },
-  { "question": "Nhân vật chính trong Ta Có Thể Giác Ngộ Vô Hạn là ai ?", "answer": "Tiêu Vân." },
-  { "question": "Thú cưng Thôn Thôn trong Nguyên Tôn sinh ra có sức mạnh ngang cảnh giới nào ?", "answer": "Thái Sơ Cảnh." },
-  { "question": "Lý Trường Thọ trong Sư Huynh A Sư Huynh xuyên không về Hồng Hoang bái sư ở đâu ?", "answer": "Độ Tiên Môn." },
-  { "question": "Sư phụ của Lý Trường Thọ là ai ?", "answer": "Tề Nguyên." },
-  { "question": "Sư Phụ thứ 2 của Lý Trường Thọ trong phim ?", "answer": "Thái Thanh Thánh Nhân." },
-  { "question": "Bộ phim nào sau đây thuộc tiểu thuyết của tác giả Thiên Tằm Thổ Đậu ?", "answer": "Tất cả đáp án trên." },
-  { "question": "Mẫu thân của La Phong trong Thôn Phệ Tinh Không tên là gì ?", "answer": "Cung Tâm Lan." },
-  { "question": "Thần Thông Bí Cảnh xuất hiện trong bộ phim hoạt hình nào dưới đây ?", "answer": "Vĩnh Sinh." },
-  { "question": "Bộ phim Thiên Bảo Phục Yêu Lục lấy bối cảnh thời kỳ nào ?", "answer": "Đường." },
-  { "question": "Tình đầu của Diệp Phàm trong Già Thiên là ai ?", "answer": "Lý Tiểu Mạn." },
-  { "question": "Trước khi đến Linh Khê Tông, Bạch Tiểu Thuần trong Nhất Niệm Vĩnh Hằng ở đâu ?", "answer": "Mạo Nhi Sơn Thôn." },
-  { "question": "Đấu Sát Toàn Viên Kiếm là một kỹ năng trong bộ phim hoạt hình trung quốc nào ?", "answer": "Thần Ấn Vương Tọa." },
-  { "question": "Đâu là Thái Cổ Thập Hung trong phim Thế Giới Hoàn Mỹ ?", "answer": "Tất cả đáp án trên." },
-  { "question": "Em trai ruột của Thạch Hạo trong Thế Giới Hoàn Mỹ là ai ?", "answer": "Tần Hạo." },
-  { "question": "Mẹ của Thạch Hạo trong Thế Giới Hoàn Mỹ tên là gì ?", "answer": "Tần Di Ninh." },
-  { "question": "Mục đích tu luyện của Vương Lâm trong Tiên Nghịch theo diễn biến phim hiện tại là gì ?", "answer": "Báo thù." },
-  { "question": "Tần Vũ trong Tinh Thần Biến khiếm khuyết đan điền nhờ đâu mới có thể tu luyện ?", "answer": "Lưu Tinh Lệ." },
-  { "question": "Nhân vật chính trong Ta Có Thể Giác Ngộ Vô Hạn là ai ?", "answer": "Tiêu Vân." },
-  { "question": "Bách Lý Đông Quân là nhân vật trong bộ hoạt hình trung quốc nào sau đây ?", "answer": "Thiếu Niên Bạch Mã Tuý Xuân Phong." },
-  { "question": "Nữ chính cũng là vợ Đông Bá Tuyết Ưng trong Tuyết Ưng Lĩnh Chủ là ai sau đây ?", "answer": "Dư Tĩnh Thu." },
-  { "question": "Lâm Động trong Vũ Động Càn Khôn học được Linh Võ Học nào khi vào bia cổ Đại Hoang ?", "answer": "Đại Hoang Tù Thiên Chỉ." },
-  { "question": "Lâm Động trong Vũ Động Càn Khôn luyện hóa Tổ Phù nào đầu tiên ?", "answer": "Thôn Phệ Tổ Phù." },
-  { "question": "Lâm Động trong Vũ Động Càn Khôn sử dụng vũ khí loại nào sau đây ?", "answer": "Thương." },
-  { "question": "Ông nội của Lâm Động trong Vũ Động Càn Khôn là ai ?", "answer": "Lâm Chấn Thiên." },
-  { "question": "Phụ thân của Lâm Động trong Vũ Động Càn Khôn là ai ?", "answer": "Lâm Khiếu." },
-  { "question": "Trong phim Đại Đạo Triều Thiên, Tỉnh Cửu đã cùng thư đồng đến đâu tu luyện ?", "answer": "Thanh Sơn Tông." },
-  { "question": "Tiêu Viêm đã lập nên thế lực nào khi ở Học Viện Già Nam ?", "answer": "Bàn Môn." },
-  { "question": "Trong Già Thiên, thể chất Diệp Phàm là thể chất gì ?", "answer": "Hoang Cổ Thánh Thể." },
-  { "question": "Diệp Thần trong Tiên Võ Đế Tôn gia nhập Tông Môn nào đầu tiên ?", "answer": "Chính Dương Tông." },
-  { "question": "Mối tình đầu của Diệp Thần trong Tiên Võ Đế Tôn là ai ?", "answer": "Cơ Ngưng Sương." },
-  { "question": "Sư phụ mà Diệp Thần yêu trong Tiên Võ Đế Tôn là ai ?", "answer": "Sở Huyên Nhi." },
-  { "question": "Ai là mẹ của Đường Tam?", "answer": "A Ngân." },
-  { "question": "Ai là người đứng đầu Vũ Hồn Điện ?", "answer": "Bỉ Bỉ Đông." },
-  { "question": "Đâu là tuyệt kỹ số 1 Hạo Thiên Tông mà Đường Hạo dạy cho con trai trong Đấu La Đại Lục ?", "answer": "Đại Tu Di Chùy." },
-  { "question": "Độc Cô Bác trong Đấu La Đại Lục có vũ hồn gì ?", "answer": "Bích Lân Xà." },
-  { "question": "Nhân vật chính của Đấu La Đại Lục là ai ?", "answer": "Đường Tam." },
-  { "question": "Tại sao Đường Tam bị Đường Môn truy sát ở tập đầu phim Đấu La Đại Lục ?", "answer": "Học trộm tuyệt học bổn môn." },
-  { "question": "Trong Đấu La Đại Lục, ai là người thầy của Đường Tam ?", "answer": "Đại Sư." },
-  { "question": "Trong Đấu La Đại Lục, Đường Hạo là gì của Đường Tam ?", "answer": "Cha." },
-  { "question": "Các cấp bậc nào sau đây thuộc phim Đấu Phá Thương Khung ?", "answer": "Đấu Tông." },
-  { "question": "Chủ nhân đời trước của Vẫn Lạc Tâm Viêm trong Đấu Phá Thương Khung là ai ?", "answer": "Diệu Thiên Hỏa." },
-  { "question": "Công pháp gì giúp Tiêu Viêm trong Đấu Phá Thương Khung hấp thụ nhiều loại dị hỏa ?", "answer": "Phần Quyết." },
-  { "question": "Đại ca của Tiêu Viêm trong Đấu Phá Thương Khung tên gì ?", "answer": "Tiêu Đỉnh." },
-  { "question": "Dược Trần trong Đấu Phá Thương Khung đã từng bị đồ đệ nào phản bội ?", "answer": "Hàn Phong." },
-  { "question": "Nhân vật nào sau đây được mệnh danh là Vua Lỳ Đòn trong Đấu Phá Thương Khung ?", "answer": "Phượng Thanh Nhi." },
-  { "question": "Nhị ca của Tiêu Viêm trong Đấu Phá Thương Khung tên gì ?", "answer": "Tiêu Lệ." },
-  { "question": "Phượng Thanh Nhi trong Đấu Phá Thương Khung thuộc chủng tộc nào ?", "answer": "Thiên Yêu Hoàng Tộc." },
-  { "question": "Thế lực nào là đối thủ lớn nhất của Tiêu Viêm trong Đấu Phá Thương Khung ?", "answer": "Hồn Điện." },
-  { "question": "Thiên Hỏa Tôn Giả trong Đấu Phá Thương Khung dùng thi thể của ai để hồi sinh ?", "answer": "Vân Sơn." },
-  { "question": "Tiêu Viêm trong Đấu Phá Thương Khung đã Hẹn Ước 3 Năm với ai ?", "answer": "Nạp Lan Yên Nhiên." },
-  { "question": "Tiêu Viêm trong Đấu Phá Thương Khung sử dụng loại vũ khí nào sau đây ?", "answer": "Thước." },
-  { "question": "Tiêu Viêm trong Đấu Phá Thương Khung thuộc gia tộc nào ?", "answer": "Tiêu gia." },
-  { "question": "Trong bộ Đấu Phá Thương Khung, Tiêu Viêm tìm đến ai để cứu Dược Lão ?", "answer": "Phong Tôn Giả." },
-  { "question": "Tử Nghiên trong Đấu Phá Thương Khung thuộc chủng tộc nào ?", "answer": "Thái Hư Cổ Long." },
-  { "question": "Vũ khí mà Tiêu Viêm trong Đấu Phá Thương Khung luôn mang bên mình có tên gọi là gì ?", "answer": "Huyền Trọng Xích." },
-  { "question": "Cổ Hà trong Đấu Phá Thương Khung lúc xuất hiện ở Vân Lam Tông là luyện dược sư mấy phẩm ?", "answer": "Thất Phẩm." },
-  { "question": "Tình đầu của Diệp Phàm trong Già Thiên là ai ?", "answer": "Lý Tiểu Mạn." },
-  { "question": "Trước khi đến Linh Khê Tông, Bạch Tiểu Thuần trong Nhất Niệm Vĩnh Hằng ở đâu ?", "answer": "Mạo Nhi Sơn Thôn." },
-  { "question": "Đấu Sát Toàn Viên Kiếm là một kỹ năng trong bộ phim hoạt hình trung quốc nào ?", "answer": "Thần Ấn Vương Tọa." },
-  { "question": "Người em trai ruột của Thạch Hạo trong Thế Giới Hoàn Mỹ là ai?", "answer": "Tần Hạo." },
-  { "question": "Người mẹ của Thạch Hạo trong Thế Giới Hoàn Mỹ tên là gì?", "answer": "Tần Di Ninh." },
-  { "question": "Ai là người sáng lập Bàn Môn trong Đấu Phá Thương Khung?", "answer": "Tiêu Viêm." },
-  { "question": "Diệp Phàm trong Già Thiên có thể chất gì?", "answer": "Hoang Cổ Thánh Thể." },
-  { "question": "Diệp Thần trong Tiên Võ Đế Tôn là đệ tử của tông môn nào đầu tiên?", "answer": "Chính Dương Tông." },
-  { "question": "Ai là mối tình đầu của Diệp Thần trong Tiên Võ Đế Tôn?", "answer": "Cơ Ngưng Sương." },
-  { "question": "Ai là sư phụ mà Diệp Thần yêu trong Tiên Võ Đế Tôn?", "answer": "Sở Huyên Nhi." },
-  { "question": "Ai là mẹ ruột của Đường Tam trong Đấu La Đại Lục?", "answer": "A Ngân." },
-  { "question": "Bỉ Bỉ Đông giữ chức vụ gì trong Vũ Hồn Điện?", "answer": "Người đứng đầu." },
-  { "question": "Tuyệt kỹ số 1 của Hạo Thiên Tông là gì?", "answer": "Đại Tu Di Chùy." },
-  { "question": "Vũ hồn của Độc Cô Bác trong Đấu La Đại Lục là gì?", "answer": "Bích Lân Xà." },
-  { "question": "Đường Tam là nhân vật chính của bộ phim nào?", "answer": "Đấu La Đại Lục." },
-  { "question": "Tại sao Đường Tam bị truy sát ở đầu phim Đấu La Đại Lục?", "answer": "Học trộm tuyệt học bổn môn." },
-  { "question": "Người thầy của Đường Tam trong Đấu La Đại Lục là ai?", "answer": "Đại Sư." },
-  { "question": "Cha ruột của Đường Tam là ai?", "answer": "Đường Hạo." },
-  { "question": "Cấp bậc Đấu Tông xuất hiện trong bộ phim nào?", "answer": "Đấu Phá Thương Khung." },
-  { "question": "Ai là chủ nhân đời trước của Vẫn Lạc Tâm Viêm?", "answer": "Diệu Thiên Hỏa." },
-  { "question": "Pháp quyết nào giúp Tiêu Viêm hấp thụ dị hỏa?", "answer": "Phần Quyết." },
-  { "question": "Tiêu Đỉnh là ai đối với Tiêu Viêm?", "answer": "Đại ca." },
-  { "question": "Ai là đồ đệ phản bội Dược Trần trong Đấu Phá Thương Khung?", "answer": "Hàn Phong." },
-  { "question": "Ai được mệnh danh là Vua Lỳ Đòn trong Đấu Phá Thương Khung?", "answer": "Phượng Thanh Nhi." },
-  { "question": "Tiêu Lệ là ai trong gia tộc Tiêu?", "answer": "Nhị ca của Tiêu Viêm." },
-  { "question": "Phượng Thanh Nhi thuộc tộc nào?", "answer": "Thiên Yêu Hoàng Tộc." },
-  { "question": "Thế lực nào là kẻ thù lớn nhất của Tiêu Viêm?", "answer": "Hồn Điện." },
-  { "question": "Thiên Hỏa Tôn Giả dùng thi thể ai để hồi sinh?", "answer": "Vân Sơn." },
-  { "question": "Tiêu Viêm đã Hẹn Ước 3 Năm với ai?", "answer": "Nạp Lan Yên Nhiên." },
-  { "question": "Tiêu Viêm sử dụng loại vũ khí nào?", "answer": "Thước." },
-  { "question": "Tiêu Viêm thuộc gia tộc nào?", "answer": "Tiêu gia." },
-  { "question": "Ai giúp Tiêu Viêm cứu Dược Lão?", "answer": "Phong Tôn Giả." },
-  { "question": "Tử Nghiên thuộc chủng tộc nào?", "answer": "Thái Hư Cổ Long." },
-  { "question": "Vũ khí mà Tiêu Viêm luôn mang theo tên gì?", "answer": "Huyền Trọng Xích." },
-  { "question": "Cổ Hà là luyện dược sư mấy phẩm khi xuất hiện ở Vân Lam Tông?", "answer": "Thất Phẩm." },
-  { "question": "Tình đầu của Diệp Phàm trong Già Thiên là ai?", "answer": "Lý Tiểu Mạn." },
-  { "question": "Bạch Tiểu Thuần sống ở đâu trước khi vào Linh Khê Tông?", "answer": "Mạo Nhi Sơn Thôn." },
-  { "question": "Kỹ năng Đấu Sát Toàn Viên Kiếm thuộc phim nào?", "answer": "Thần Ấn Vương Tọa." },
-  { "question": "Thú cưng Thôn Thôn trong Nguyên Tôn có sức mạnh ngang với cảnh giới nào?", "answer": "Thái Sơ Cảnh." },
-  { "question": "Sư phụ đầu tiên của Lý Trường Thọ trong Sư Huynh A Sư Huynh là ai?", "answer": "Tề Nguyên." },
-  { "question": "Sư phụ thứ hai của Lý Trường Thọ là ai?", "answer": "Thái Thanh Thánh Nhân." },
-  { "question": "Tên mẫu thân của La Phong trong Thôn Phệ Tinh Không là gì?", "answer": "Cung Tâm Lan." },
-  { "question": "Thần Thông Bí Cảnh xuất hiện trong bộ phim nào?", "answer": "Vĩnh Sinh." },
-  { "question": "Thiên Bảo Phục Yêu Lục lấy bối cảnh thời đại nào?", "answer": "Đường." },
-  { "question": "Bách Lý Đông Quân xuất hiện trong bộ phim nào?", "answer": "Thiếu Niên Bạch Mã Tuý Xuân Phong." },
-  { "question": "Vợ của Đông Bá Tuyết Ưng là ai?", "answer": "Dư Tĩnh Thu." },
-  { "question": "Lâm Động học được Linh Võ Học gì từ bia cổ Đại Hoang?", "answer": "Đại Hoang Tù Thiên Chỉ." },
-  { "question": "Tổ Phù đầu tiên Lâm Động luyện hóa là gì?", "answer": "Thôn Phệ Tổ Phù." },
-  { "question": "Vũ khí chính của Lâm Động là gì?", "answer": "Thương." },
-  { "question": "Ông nội của Lâm Động tên là gì?", "answer": "Lâm Chấn Thiên." },
-  { "question": "Cha của Lâm Động là ai?", "answer": "Lâm Khiếu." },
-  { "question": "Tỉnh Cửu đến đâu tu luyện cùng thư đồng?", "answer": "Thanh Sơn Tông." },
-  { "question": "Người bạn thuở nhỏ của Trương Tiểu Phàm trong Tru Tiên là ai?", "answer": " Lâm Khinh Vũ. " }
- 
-    ];
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const messagesRef = db.ref("messages");
 
-    // Cập nhật số lượng câu hỏi
-    document.getElementById("qaCount").textContent = qaList.length;
+  let userName = localStorage.getItem("chatName");
 
-    function normalize(str) {
-      return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (!userName) {
+    document.getElementById("namePopup").style.display = "flex";
+  }
+
+  function saveName() {
+    const input = document.getElementById("nameInput").value.trim();
+    userName = input || "Ẩn danh";
+    localStorage.setItem("chatName", userName);
+    document.getElementById("namePopup").style.display = "none";
+  }
+
+  function insertEmoji() {
+    const input = document.getElementById("messageInput");
+    input.value += "😊";
+    input.focus();
+  }
+
+  function triggerImageUpload() {
+    document.getElementById("imageUpload").click();
+  }
+
+  document.getElementById("imageUpload").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        sendMessage(e.target.result, true);
+      };
+      reader.readAsDataURL(file);
     }
+  });
 
-    function search() {
-      const input = normalize(document.getElementById("searchBox").value.trim());
-      const box = document.getElementById("answerBox");
+  function sendMessage(content = null, isImage = false) {
+    const text = content || document.getElementById("messageInput").value.trim();
+    if (!text) return;
+    const msg = {
+      name: userName,
+      content: text,
+      isImage: isImage,
+      time: Date.now(),
+      liked: false
+    };
+    messagesRef.push(msg);
+    document.getElementById("messageInput").value = "";
+  }
 
-      if (!input) {
-        box.innerHTML = "";
-        box.classList.add("hidden");
-        return;
-      }
+  function formatTime(timestamp) {
+    const date = new Date(timestamp);
+    return `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+  }
+</script>
+<script>
+  const chatBox = document.querySelector(".chat-box");
 
-      const results = qaList.filter(q =>
-        normalize(q.question).includes(input)
-      );
+  messagesRef.on("value", (snapshot) => {
+    chatBox.innerHTML = "";
+    snapshot.forEach((child) => {
+      const msg = child.val();
+      const key = child.key;
 
-      if (results.length > 0) {
-        box.classList.remove("hidden");
-        box.innerHTML = results.map(q =>
-          `<p><strong>❓ ${q.question}</strong><br/>💡 ${q.answer}</p>`
-        ).join("<hr/>");
-      } else {
-        box.classList.remove("hidden");
-        box.innerHTML = `❌ Không tìm thấy kết quả cho: "<strong>${input}</strong>"`;
-      }
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "message";
+
+      msgDiv.innerHTML = `
+        <img src="https://i.ibb.co/ZYW3VTp/avatar.png" class="avatar">
+        <div class="message-content">
+          <div class="sender-name">${msg.name}</div>
+          ${msg.isImage
+            ? `<img src="${msg.content}" class="chat-image" />`
+            : `<div class="message-text">${msg.content}</div>`}
+          <div class="message-time">${formatTime(msg.time)}</div>
+        </div>
+        <div class="message-actions">
+          <button class="action-btn" onclick="toggleOptions(this)">⋯</button>
+          <div class="options-menu">
+            <button onclick="editMessage('${key}', '${msg.content}', ${msg.isImage})">📝</button>
+            <button onclick="deleteMessage('${key}')">🗑️</button>
+            <button onclick="likeMessage('${key}')">${msg.liked ? "💔" : "❤️"}</button>
+          </div>
+        </div>
+      `;
+      chatBox.appendChild(msgDiv);
+    });
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+
+  function toggleOptions(btn) {
+    const menu = btn.nextElementSibling;
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  }
+
+  function editMessage(key, oldText, isImage) {
+    if (isImage) {
+      alert("Không thể sửa ảnh.");
+      return;
     }
+    const newText = prompt("Chỉnh sửa tin nhắn:", oldText);
+    if (newText !== null && newText.trim() !== "") {
+      messagesRef.child(key).update({ content: newText });
+    }
+  }
 
-    document.getElementById("searchBox").addEventListener("input", search);
-  </script>
+  function deleteMessage(key) {
+    if (confirm("Xoá tin nhắn này?")) {
+      messagesRef.child(key).remove();
+    }
+  }
+
+  function likeMessage(key) {
+    messagesRef.child(key).once("value", (snap) => {
+      const liked = snap.val().liked || false;
+      messagesRef.child(key).update({ liked: !liked });
+    });
+  }
+</script>
+  <style>
+  * {
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+  }
+
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .chat-wrapper {
+    width: 400px;
+    max-height: 90vh;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .chat-header {
+    padding: 16px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chat-box {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+  }
+
+  .message {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    position: relative;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+  }
+
+  .message-content {
+    background: rgba(255, 255, 255, 0.12);
+    padding: 10px 14px;
+    border-radius: 12px;
+    color: gold;
+    max-width: 75%;
+    position: relative;
+  }
+
+  .message-text {
+    word-wrap: break-word;
+  }
+
+  .message-time {
+    font-size: 11px;
+    color: #ccc;
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  .sender-name {
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #fff;
+  }
+
+  .chat-image {
+    max-width: 180px;
+    border-radius: 8px;
+  }
+
+  .chat-footer {
+    padding: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .input-group {
+    display: flex;
+    gap: 6px;
+  }
+
+  .input-group input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    outline: none;
+  }
+
+  .btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    padding: 8px 10px;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  /* Menu ⋯ */
+  .message-actions {
+    position: absolute;
+    right: 0;
+    bottom: -4px;
+  }
+
+  .action-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .options-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    padding: 4px 6px;
+    bottom: 24px;
+    z-index: 10;
+  }
+
+  .options-menu button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    padding: 4px;
+    cursor: pointer;
+  }
+
+  .options-menu button:hover {
+    color: gold;
+  }
+
+  /* Popup nhập tên */
+  .popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 10, 0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+
+  .popup-content {
+    background: #222;
+    padding: 20px;
+    border-radius: 10px;
+    color: #fff;
+    text-align: center;
+    min-width: 300px;
+  }
+
+  .popup-content input {
+    padding: 10px;
+    width: 90%;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: none;
+  }
+
+  .popup-content button {
+    padding: 10px 16px;
+    background: gold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #000;
+  }
+
+  .popup-content button:hover {
+    background: orange;
+  }
+</style>
 </body>
 </html>
