@@ -1,540 +1,242 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat Glass UI - Realtime</title>
-  <!-- Font và Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang Chat - Glassmorphism</title>
   <style>
     * {
       box-sizing: border-box;
     }
-
     body {
       margin: 0;
-      padding: 0;
-      font-family: 'Quicksand', sans-serif;
-      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      background-size: cover;
       height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-
-    .chat-container {
-      width: 100%;
-      max-width: 500px;
-      height: 90vh;
+    #chat-app {
+      width: 400px;
+      max-height: 90vh;
       display: flex;
       flex-direction: column;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 20px;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
       overflow: hidden;
+      position: relative;
     }
-
-    .messages {
+    #chat-header {
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #messages {
       flex: 1;
       overflow-y: auto;
-      padding: 10px 15px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
     }
-
     .message {
-      background: rgba(255,255,255,0.08);
-      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
       border-radius: 12px;
+      color: gold;
       position: relative;
     }
-
-    .message.self {
-      background: rgba(255, 255, 255, 0.12);
-      align-self: flex-end;
-    }
-
-    .meta {
-      font-size: 12px;
-      opacity: 0.6;
+    .message .name {
+      font-weight: bold;
       margin-bottom: 4px;
+      display: block;
     }
-
-    .chat-footer {
+    .message .time {
+      font-size: 0.75rem;
+      color: #ccc;
+      margin-top: 4px;
+    }
+    .message .actions {
+      position: absolute;
+      right: 8px;
+      bottom: -20px;
+      display: none;
+      background: rgba(0,0,0,0.6);
+      border-radius: 8px;
+      padding: 4px 8px;
+    }
+    .message:hover .actions {
       display: flex;
-      flex-direction: column;
+      gap: 6px;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 8px;
+    }
+    #chat-input {
       padding: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(0, 0, 0, 0.2);
-    }
-
-    .input-group {
+      background: rgba(255,255,255,0.15);
       display: flex;
-      gap: 10px;
+      gap: 8px;
+      align-items: center;
     }
-
-    #messageInput {
+    #chat-input input {
       flex: 1;
-      padding: 10px;
-      border-radius: 10px;
+      padding: 8px 12px;
       border: none;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
+      border-radius: 12px;
+      outline: none;
     }
-
-    .btn {
+    #chat-input button {
       background: transparent;
       border: none;
-      font-size: 20px;
+      font-size: 1.2rem;
       cursor: pointer;
-      color: #fff;
     }
-
-    .popup {
+    #name-popup {
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
+      top: 0; left: 0; right: 0; bottom: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 999;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
     }
-
-    .popup-content {
-      background: #222;
-      padding: 20px;
+    #name-popup input {
+      padding: 10px;
       border-radius: 10px;
-      text-align: center;
-    }
-
-    .popup-content input {
-      padding: 8px;
-      width: 100%;
+      border: none;
       margin-top: 10px;
-      border-radius: 8px;
-      border: none;
-    }
-
-    .popup-content button {
-      margin-top: 15px;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #00aaff;
-      color: white;
-      cursor: pointer;
-    }
-
-    .chat-actions {
-      position: relative;
-      margin-top: 5px;
-      text-align: right;
-    }
-
-    .menu-toggle {
-      background: none;
-      border: none;
-      color: #ccc;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .action-menu {
-      display: none;
-      position: absolute;
-      bottom: 28px;
-      right: 0;
-      background: rgba(0, 0, 0, 0.9);
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .action-menu button {
-      background: none;
-      border: none;
-      color: white;
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 5px 0;
-      cursor: pointer;
-    }
-
-    .liked {
-      color: red;
     }
   </style>
 </head>
 <body>
-<div class="chat-container">
-  <div class="messages" id="messages"></div>
-    <div class="chat-footer">
-    <div class="input-group">
-      <button class="btn" onclick="triggerImageUpload()">🖼️</button>
-      <button class="btn" onclick="insertEmoji()">😊</button>
-      <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." />
-      <button class="btn" onclick="sendMessage()">📤</button>
+  <div id="chat-app">
+    <div id="chat-header">
+      💬 Chat
+      <button onclick="clearMessages()">🧹</button>
     </div>
-    <input type="file" id="imageUpload" accept="image/*" style="display:none" />
+    <div id="messages"></div>
+    <div id="chat-input">
+      <input type="file" id="imgUpload" accept="image/*" style="display:none" onchange="sendImage(event)">
+      <button onclick="document.getElementById('imgUpload').click()">🖼️</button>
+      <button onclick="insertEmoji()">😊</button>
+      <input type="text" id="msgInput" placeholder="Nhập tin nhắn...">
+      <button onclick="sendMessage()">📤</button>
+    </div>
   </div>
-</div>
 
-<!-- Popup Nhập Tên -->
-<div class="popup" id="namePopup">
-  <div class="popup-content">
-    <h3>Nhập tên hiển thị của bạn:</h3>
-    <input type="text" id="nameInput" placeholder="VD: Ẩn danh" />
-    <button onclick="saveName()">Lưu</button>
+  <div id="name-popup">
+    <div style="background:#fff;padding:20px;border-radius:10px;text-align:center;">
+      <h3>Nhập tên của bạn</h3>
+      <input type="text" id="nameInput" placeholder="Ẩn danh">
+      <br>
+      <button onclick="saveName()">OK</button>
+    </div>
   </div>
-</div>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script>
-  // Cấu hình Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",
-    authDomain: "sample-firebase-ai-app-2a091.firebaseapp.com",
-    databaseURL: "https://sample-firebase-ai-app-2a091-default-rtdb.firebaseio.com",
-    projectId: "sample-firebase-ai-app-2a091",
-    storageBucket: "sample-firebase-ai-app-2a091.appspot.com",
-    messagingSenderId: "94515253749",
-    appId: "1:94515253749:web:86594f2222889c6472d0bc"
-  };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const messagesRef = db.ref("messages");
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",
+      authDomain: "sample-firebase-ai-app-2a091.firebaseapp.com",
+      databaseURL: "https://sample-firebase-ai-app-2a091-default-rtdb.firebaseio.com",
+      projectId: "sample-firebase-ai-app-2a091",
+      storageBucket: "sample-firebase-ai-app-2a091.appspot.com",
+      messagingSenderId: "94515253749",
+      appId: "1:94515253749:web:86594f2222889c6472d0bc"
+    };
 
-  let userName = localStorage.getItem("chatName");
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const msgRef = db.ref("messages");
 
-  if (!userName) {
-    document.getElementById("namePopup").style.display = "flex";
-  }
+    let userName = localStorage.getItem("chat-name");
+    if (!userName) {
+      document.getElementById("name-popup").style.display = "flex";
+    }
 
-  function saveName() {
-    const input = document.getElementById("nameInput").value.trim();
-    userName = input || "Ẩn danh";
-    localStorage.setItem("chatName", userName);
-    document.getElementById("namePopup").style.display = "none";
-  }
+    function saveName() {
+      const name = document.getElementById("nameInput").value.trim();
+      userName = name || "Ẩn danh";
+      localStorage.setItem("chat-name", userName);
+      document.getElementById("name-popup").style.display = "none";
+    }
 
-  function insertEmoji() {
-    const input = document.getElementById("messageInput");
-    input.value += "😊";
-    input.focus();
-  }
-
-  function triggerImageUpload() {
-    document.getElementById("imageUpload").click();
-  }
-
-  document.getElementById("imageUpload").addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        sendMessage(e.target.result, true);
+    function sendMessage() {
+      const input = document.getElementById("msgInput");
+      const text = input.value.trim();
+      if (!text) return;
+      const msg = {
+        name: userName,
+        text: text,
+        time: new Date().toISOString(),
+        avatar: "https://i.imgur.com/6VBx3io.png"
       };
+      msgRef.push(msg);
+      input.value = "";
+    }
+
+    function sendImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const msg = {
+          name: userName,
+          text: "<img src='" + e.target.result + "' style='max-width:100%;border-radius:10px;'>",
+          time: new Date().toISOString(),
+          avatar: "https://i.imgur.com/6VBx3io.png"
+        };
+        msgRef.push(msg);
+      }
       reader.readAsDataURL(file);
     }
-  });
 
-  function sendMessage(content = null, isImage = false) {
-    const text = content || document.getElementById("messageInput").value.trim();
-    if (!text) return;
-    const msg = {
-      name: userName,
-      content: text,
-      isImage: isImage,
-      time: Date.now(),
-      liked: false
-    };
-    messagesRef.push(msg);
-    document.getElementById("messageInput").value = "";
-  }
+    function clearMessages() {
+      if (confirm("Xoá toàn bộ tin nhắn?")) {
+        msgRef.remove();
+      }
+    }
 
-  function formatTime(timestamp) {
-    const date = new Date(timestamp);
-    return `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
-  }
-</script>
-<script>
-  const chatBox = document.querySelector(".chat-box");
+    function insertEmoji() {
+      const input = document.getElementById("msgInput");
+      input.value += "😊";
+    }
 
-  messagesRef.on("value", (snapshot) => {
-    chatBox.innerHTML = "";
-    snapshot.forEach((child) => {
-      const msg = child.val();
-      const key = child.key;
-
-      const msgDiv = document.createElement("div");
-      msgDiv.className = "message";
-
-      msgDiv.innerHTML = `
-        <img src="https://i.ibb.co/ZYW3VTp/avatar.png" class="avatar">
-        <div class="message-content">
-          <div class="sender-name">${msg.name}</div>
-          ${msg.isImage
-            ? `<img src="${msg.content}" class="chat-image" />`
-            : `<div class="message-text">${msg.content}</div>`}
-          <div class="message-time">${formatTime(msg.time)}</div>
-        </div>
-        <div class="message-actions">
-          <button class="action-btn" onclick="toggleOptions(this)">⋯</button>
-          <div class="options-menu">
-            <button onclick="editMessage('${key}', '${msg.content}', ${msg.isImage})">📝</button>
-            <button onclick="deleteMessage('${key}')">🗑️</button>
-            <button onclick="likeMessage('${key}')">${msg.liked ? "💔" : "❤️"}</button>
+    msgRef.on("value", snapshot => {
+      const messages = document.getElementById("messages");
+      messages.innerHTML = "";
+      snapshot.forEach(child => {
+        const msg = child.val();
+        const div = document.createElement("div");
+        div.className = "message";
+        div.innerHTML = \`
+          <div style="display:flex;align-items:center;">
+            <img src="\${msg.avatar}" class="avatar">
+            <div>
+              <span class="name">\${msg.name}</span>
+              <div>\${msg.text}</div>
+              <div class="time">\${new Date(msg.time).toLocaleString()}</div>
+            </div>
           </div>
-        </div>
-      `;
-      chatBox.appendChild(msgDiv);
+        \`;
+        messages.appendChild(div);
+      });
+      messages.scrollTop = messages.scrollHeight;
     });
-    chatBox.scrollTop = chatBox.scrollHeight;
-  });
-
-  function toggleOptions(btn) {
-    const menu = btn.nextElementSibling;
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-  }
-
-  function editMessage(key, oldText, isImage) {
-    if (isImage) {
-      alert("Không thể sửa ảnh.");
-      return;
-    }
-    const newText = prompt("Chỉnh sửa tin nhắn:", oldText);
-    if (newText !== null && newText.trim() !== "") {
-      messagesRef.child(key).update({ content: newText });
-    }
-  }
-
-  function deleteMessage(key) {
-    if (confirm("Xoá tin nhắn này?")) {
-      messagesRef.child(key).remove();
-    }
-  }
-
-  function likeMessage(key) {
-    messagesRef.child(key).once("value", (snap) => {
-      const liked = snap.val().liked || false;
-      messagesRef.child(key).update({ liked: !liked });
-    });
-  }
-</script>
-  <style>
-  * {
-    box-sizing: border-box;
-    font-family: "Segoe UI", sans-serif;
-  }
-
-  body {
-    margin: 0;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .chat-wrapper {
-    width: 400px;
-    max-height: 90vh;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .chat-header {
-    padding: 16px;
-    font-size: 20px;
-    font-weight: bold;
-    color: #fff;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .chat-box {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-  }
-
-  .message {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 14px;
-    position: relative;
-  }
-
-  .avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    margin-right: 10px;
-    object-fit: cover;
-  }
-
-  .message-content {
-    background: rgba(255, 255, 255, 0.12);
-    padding: 10px 14px;
-    border-radius: 12px;
-    color: gold;
-    max-width: 75%;
-    position: relative;
-  }
-
-  .message-text {
-    word-wrap: break-word;
-  }
-
-  .message-time {
-    font-size: 11px;
-    color: #ccc;
-    margin-top: 4px;
-    text-align: right;
-  }
-
-  .sender-name {
-    font-weight: bold;
-    margin-bottom: 6px;
-    color: #fff;
-  }
-
-  .chat-image {
-    max-width: 180px;
-    border-radius: 8px;
-  }
-
-  .chat-footer {
-    padding: 12px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .input-group {
-    display: flex;
-    gap: 6px;
-  }
-
-  .input-group input[type="text"] {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    outline: none;
-  }
-
-  .btn {
-    background: rgba(255, 255, 255, 0.15);
-    border: none;
-    padding: 8px 10px;
-    border-radius: 10px;
-    color: #fff;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .btn:hover {
-    background: rgba(255, 255, 255, 0.25);
-  }
-
-  /* Menu ⋯ */
-  .message-actions {
-    position: absolute;
-    right: 0;
-    bottom: -4px;
-  }
-
-  .action-btn {
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 18px;
-    cursor: pointer;
-  }
-
-  .options-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 8px;
-    padding: 4px 6px;
-    bottom: 24px;
-    z-index: 10;
-  }
-
-  .options-menu button {
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 16px;
-    padding: 4px;
-    cursor: pointer;
-  }
-
-  .options-menu button:hover {
-    color: gold;
-  }
-
-  /* Popup nhập tên */
-  .popup {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(10, 10, 10, 0.6);
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-  }
-
-  .popup-content {
-    background: #222;
-    padding: 20px;
-    border-radius: 10px;
-    color: #fff;
-    text-align: center;
-    min-width: 300px;
-  }
-
-  .popup-content input {
-    padding: 10px;
-    width: 90%;
-    margin: 10px 0;
-    border-radius: 6px;
-    border: none;
-  }
-
-  .popup-content button {
-    padding: 10px 16px;
-    background: gold;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    color: #000;
-  }
-
-  .popup-content button:hover {
-    background: orange;
-  }
-</style>
+  </script>
 </body>
 </html>
