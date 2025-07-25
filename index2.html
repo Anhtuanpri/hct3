@@ -1,41 +1,41 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat Ẩn Danh</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat Cộng Đồng</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="chat-container">
-    <header>💬 Chat Ẩn Danh</header>
-    <ul id="messageList"></ul>
-    <div class="input-container">
-      <button id="imageBtn">🖼️</button>
-      <button id="emojiBtn">😊</button>
-      <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." />
-      <button id="sendBtn">📤</button>
+    <div class="chat-header">
+      <h2>💬 Chat Cộng Đồng</h2>
+      <button class="clear-btn" onclick="clearMessages()">🧹</button>
     </div>
-    <div id="emojiPicker" class="hidden"></div>
+
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <div class="chat-reply" id="replyBox" style="display: none;">
+      <span id="replyToText"></span>
+      <button onclick="cancelReply()">❌</button>
+    </div>
+
+    <div class="chat-input">
+      <div class="input-tools">
+        <input type="file" id="imageInput" accept="image/*" hidden />
+        <button onclick="document.getElementById('imageInput').click()">🖼️</button>
+        <button onclick="toggleEmojiPicker()">😊</button>
+      </div>
+      <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
+      <button onclick="sendMessage()">📤</button>
+    </div>
+
+    <div class="emoji-picker" id="emojiPicker" style="display: none;"></div>
   </div>
 
-  <template id="messageTemplate">
-    <li class="message-item">
-      <div class="message-content">
-        <div class="message-text"></div>
-        <div class="message-actions">
-          <button class="reply-btn">↩️</button>
-          <button class="edit-btn">✏️</button>
-          <button class="delete-btn">❌</button>
-        </div>
-        <div class="timestamp"></div>
-      </div>
-    </li>
-  </template>
-
-  <input type="file" id="imageInput" accept="image/*" style="display: none" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script src="script.js"></script>
+  <!-- Firebase & Script -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
