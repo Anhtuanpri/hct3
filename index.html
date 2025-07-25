@@ -957,65 +957,52 @@
     document.addEventListener('copy', e => e.preventDefault());
     document.addEventListener('dragstart', e => e.preventDefault());
   </script>
-  <!-- Bình luận -->
-<div id="commentSection" style="width: 100%; max-width: 700px; margin: 40px auto; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px;">
-  <h3 style="color: #fff; text-align:center;">💬 Bình luận</h3>
-  <div id="comments" style="margin-top: 20px;"></div>
-  <textarea id="commentInput" placeholder="Nhập bình luận..." rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: #000; margin-top: 10px;"></textarea>
-  <button onclick="postComment()" style="margin-top: 10px; padding: 10px 20px; background: linear-gradient(to right, #00c6ff, #0072ff); color: white; border: none; border-radius: 8px;">Gửi bình luận</button>
-</div>
+ </style>
 
-<!-- Firebase SDK & bình luận logic -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  <!-- Nút mở chat -->
+  <div id="chat-toggle" onclick="toggleChat()">💬</div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",
-    authDomain: "sample-firebase-ai-app-2a091.firebaseapp.com",
-    projectId: "sample-firebase-ai-app-2a091",
-    storageBucket: "sample-firebase-ai-app-2a091.appspot.com",
-    messagingSenderId: "94515253749",
-    appId: "1:94515253749:web:86594f2222889c6472d0bc",
-    databaseURL: "https://sample-firebase-ai-app-2a091-default-rtdb.asia-southeast1.firebasedatabase.app"
-  };
+  <!-- Hộp chat -->
+  <div id="chat-box">
+    <div class="chat-header">
+      <span>📢 Trò chuyện</span>
+      <button onclick="clearChat()" style="background:none;border:none;color:white;font-size:16px;">🧹</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg"><span class="sender">CHÂN TIÊN:</span><span class="text"> 👋</span></div>
+      <div class="msg"><span class="sender">CHÂN THẦN:</span><span class="text">XIN CHÀO 😄</span></div>
+      <div class="msg"><span class="sender">ĐẤU ĐẾ:</span><span class="text">CÙNG NHAU THỬ VẬN MAY NHÉ?</span></div>
+      <div class="msg"><span class="sender">THIÊN THẦN:</span><span class="text">🧧!</span></div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." />
+      <button onclick="sendChat()">Gửi</button>
+    </div>
+  </div>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const commentRef = ref(db, "comments");
-
-  function postComment() {
-    const input = document.getElementById("commentInput");
-    const content = input.value.trim();
-    if (content === "") return;
-    push(commentRef, {
-      text: content,
-      timestamp: Date.now()
-    });
-    input.value = "";
-  }
-
-  function formatTime(ms) {
-    const date = new Date(ms);
-    return date.toLocaleString("vi-VN");
-  }
-
-  onValue(commentRef, (snapshot) => {
-    const container = document.getElementById("comments");
-    container.innerHTML = "";
-    const data = snapshot.val();
-    if (!data) {
-      container.innerHTML = "<p style='color:white;'>Chưa có bình luận nào.</p>";
-      return;
+  <!-- Script xử lý trò chuyện -->
+  <script>
+    function toggleChat() {
+      const box = document.getElementById("chat-box");
+      box.style.display = (box.style.display === "flex") ? "none" : "flex";
     }
-    const entries = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
-    entries.forEach((item) => {
-      const div = document.createElement("div");
-      div.style = "margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 10px; color: black;";
-      div.innerHTML = `<div style="font-size: 14px; color: #555;"><i>${formatTime(item.timestamp)}</i></div><div>${item.text}</div>`;
-      container.appendChild(div);
-    });
-  });
-</script>
+
+    function sendChat() {
+      const input = document.getElementById("chatInput");
+      const msg = input.value.trim();
+      if (!msg) return;
+      const chatArea = document.getElementById("chatMessages");
+      const newMsg = document.createElement("div");
+      newMsg.className = "msg";
+      newMsg.innerHTML = `<span class="sender">Bạn:</span><span class="text">${msg}</span>`;
+      chatArea.appendChild(newMsg);
+      input.value = "";
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function clearChat() {
+      document.getElementById("chatMessages").innerHTML = "";
+    }
+  </script>
 </body>
 </html>
