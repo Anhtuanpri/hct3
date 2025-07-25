@@ -1,46 +1,40 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat Room</title>
-  <link rel="stylesheet" href="style.css"/>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <meta charset="UTF-8">
+  <title>Chat App - Dark UI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <span>💬 Cộng đồng</span>
+      <button onclick="clearMessages()">🧹</button>
+    </div>
 
-<div class="chat-wrapper">
-  <div class="chat-header">
-    <span>💬 Chat cộng đồng</span>
-    <button onclick="clearMessages()">🧹</button>
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <div class="chat-input-area">
+      <label for="imageInput" class="icon-button">🖼️</label>
+      <input type="file" id="imageInput" accept="image/*" hidden>
+      <button class="icon-button" onclick="insertEmoji()">😊</button>
+
+      <input type="text" id="messageInput" placeholder="Viết tin nhắn của bạn">
+      <button onclick="sendMessage()">📤</button>
+    </div>
   </div>
 
-  <div class="chat-messages" id="chatMessages"></div>
-
-  <div class="chat-input-area">
-    <input type="file" id="imageUpload" accept="image/*" hidden>
-    <button class="icon-btn" onclick="document.getElementById('imageUpload').click()">🖼️</button>
-    <button class="icon-btn" onclick="toggleEmojiPanel()">😊</button>
-    <input type="text" id="messageInput" placeholder="Viết tin nhắn của bạn"/>
-    <button onclick="sendMessage()">📤</button>
+  <div class="popup" id="namePopup">
+    <div class="popup-content">
+      <h3>Nhập tên hiển thị</h3>
+      <input type="text" id="nameInput" placeholder="Ẩn danh">
+      <button onclick="saveName()">Lưu</button>
+    </div>
   </div>
-</div>
 
-<!-- Emoji Panel -->
-<div class="emoji-panel" id="emojiPanel" style="display: none;">
-  😀 😁 😂 🤣 😍 😎 😢 😡 ❤️ 👍 👎 🔥 💯 💬
-</div>
-
-<!-- Popup Nhập Tên -->
-<div id="namePopup" class="popup" style="display:none;">
-  <div class="popup-content">
-    <p>Nhập tên hiển thị:</p>
-    <input type="text" id="nameInput" placeholder="Ẩn danh...">
-    <button onclick="saveName()">Lưu</button>
-  </div>
-</div>
-
-<script src="chat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
