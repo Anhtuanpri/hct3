@@ -10,118 +10,119 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const chatBox = document.getElementById("chat-messages");
+const messagesRef = db.ref("messages");
+
 const messageInput = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+const messagesUl = document.getElementById("messages");
 const imageInput = document.getElementById("imageInput");
-
-let user = "Ẩn danh";
-
-function sendMessage() {
-  const text = messageInput.value.trim();
-  if (!text && !imageInput.files[0]) return;
-
-  const message = {
-    name: user,
-    text: text || "",
-    time: Date.now(),
-    image: ""
-  };
-
-  if (imageInput.files[0]) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      message.image = reader.result;
-      db.ref("messages").push(message);
-    };
-    reader.readAsDataURL(imageInput.files[0]);
-  } else {
-    db.ref("messages").push(message);
-  }
-
-  messageInput.value = "";
-  imageInput.value = "";
-}
-
-function renderMessage(id, msg) {
-  const div = document.createElement("div");
-  div.className = "message" + (msg.name === user ? " sent" : " received");
-  div.innerHTML = `<b>${msg.name}:</b> ${msg.text}`;
-
-  if (msg.image) {
-    const img = document.createElement("img");
-    img.src = msg.image;
-    div.appendChild(img);
-  }
-
-  if (msg.name === user) {
-    const opt = document.createElement("div");
-    opt.className = "options";
-    const angelBtn = document.createElement("button");
-    angelBtn.innerText = "👼";
-    angelBtn.classList.add("emoji-btn");
-    const actions = document.createElement("div");
-    actions.className = "actions";
-    actions.innerHTML = `
-      <button onclick="editMessage('${id}', '${msg.text.replace(/'/g, "\\'")}')">✏️</button>
-      <button onclick="deleteMessage('${id}')">❌</button>
-    `;
-    angelBtn.onclick = () => {
-      actions.classList.toggle("show");
-    };
-    opt.appendChild(angelBtn);
-    opt.appendChild(actions);
-    div.appendChild(opt);
-  }
-
-  chatBox.appendChild(div);
-}
-
-function editMessage(id, oldText) {
-  const newText = prompt("Sửa tin nhắn:", oldText);
-  if (newText !== null) {
-    db.ref("messages/" + id).update({ text: newText });
-  }
-}
-
-function deleteMessage(id) {
-  db.ref("messages/" + id).remove();
-}
-
-function clearChat() {
-  if (confirm("Xoá toàn bộ tin nhắn?")) {
-    db.ref("messages").remove();
-  }
-}
-
-db.ref("messages").on("value", snapshot => {
-  chatBox.innerHTML = "";
-  snapshot.forEach(child => {
-    renderMessage(child.key, child.val());
-  });
-  chatBox.scrollTop = chatBox.scrollHeight;
-});
-
+const emojiToggle = document.getElementById("emojiToggle");
 const emojiPicker = document.getElementById("emojiPicker");
-const emojiBtn = document.getElementById("emojiBtn");
+const clearBtn = document.getElementById("clearBtn");
 
-const emojis = ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","😍","😘","😗","😙","😚","😋","😛","😜","😝"];
+const username = "Ẩn danh";
 
-emojiBtn.addEventListener("click", () => {
-  emojiPicker.style.display = emojiPicker.style.display === "none" ? "flex" : "none";
+sendBtn.onclick = () => {
+  const text = messageInput.value.trim();
+  if (text !== "") {
+    messagesRef.push({
+      name: username,
+      text,
+      time: Date.now()
+    });
+    messageInput.value = "";
+  }
+};
+
+messageInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") sendBtn.click();
 });
 
-emojis.forEach(e => {
-  const span = document.createElement("span");
-  span.textContent = e;
-  span.onclick = () => {
-    messageInput.value += e;
-    emojiPicker.style.display = "none";
+imageInput.onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    messagesRef.push({
+      name: username,
+      image: reader.result,
+      time: Date.now()
+    });
   };
-  emojiPicker.appendChild(span);
-});
+  reader.readAsDataURL(file);
+};
+
+emojiToggle.onclick = () => {
+  emojiPicker.classList.toggle("hidden");
+};
 
 document.addEventListener("click", (e) => {
-  if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
-    emojiPicker.style.display = "none";
+  if (!emojiPicker.contains(e.target) && e.target !== emojiToggle) {
+    emojiPicker.classList.add("hidden");
   }
 });
+
+emojiPicker.innerHTML = "😀😃😄😁😆😅😂🤣😊😇🙂🙃😉😍😘😗😙😚🤔😐😑😶🙄😏😣😥😮😯😪😫".split("").map(e => `<span>${e}</span>`).join("");
+emojiPicker.onclick = (e) => {
+  if (e.target.tagName === "SPAN") {
+    messageInput.value += e.target.textContent;
+  }
+};
+
+messagesRef.on("child_added", (snapshot) => {
+  const msg = snapshot.val();
+  const li = document.createElement("li");
+  li.className = "message sent";
+  
+  if (msg.text) {
+    li.innerHTML = `
+      <div>${msg.text}</div>
+      ${msg.image ? `<img class="message-img" src="${msg.image}" />` : ""}
+      <div class="meta">${msg.name} • ${new Date(msg.time).toLocaleTimeString()}</div>
+      <div class="action-icon">👼</div>
+      <div class="actions">
+        <button onclick="editMessage('${snapshot.key}', '${msg.text}')">✏️ Sửa</button>
+        <button onclick="deleteMessage('${snapshot.key}')">🗑️ Thu hồi</button>
+      </div>
+    `;
+  } else if (msg.image) {
+    li.innerHTML = `
+      <img class="message-img" src="${msg.image}" />
+      <div class="meta">${msg.name} • ${new Date(msg.time).toLocaleTimeString()}</div>
+      <div class="action-icon">👼</div>
+      <div class="actions">
+        <button onclick="deleteMessage('${snapshot.key}')">🗑️ Thu hồi</button>
+      </div>
+    `;
+  }
+
+  li.querySelector(".action-icon")?.addEventListener("click", () => {
+    li.querySelector(".actions").style.display = "block";
+  });
+
+  messagesUl.appendChild(li);
+  messagesUl.scrollTop = messagesUl.scrollHeight;
+});
+
+function deleteMessage(key) {
+  messagesRef.child(key).remove();
+}
+
+function editMessage(key, oldText) {
+  const newText = prompt("Chỉnh sửa tin nhắn:", oldText);
+  if (newText && newText !== oldText) {
+    messagesRef.child(key).update({ text: newText });
+  }
+}
+
+messagesRef.on("child_removed", (snapshot) => {
+  const msgEl = document.querySelector(`[data-id="${snapshot.key}"]`);
+  if (msgEl) msgEl.remove();
+});
+
+clearBtn.onclick = () => {
+  if (confirm("Xóa toàn bộ tin nhắn?")) {
+    messagesRef.remove();
+    messagesUl.innerHTML = "";
+  }
+};
