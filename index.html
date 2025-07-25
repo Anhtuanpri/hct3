@@ -1031,30 +1031,41 @@
 <style>
   #chat-toggle {
     position: fixed;
-    bottom: 20px;
+    bottom: 60px; /* nâng lên 2cm (~40px) */
     right: 20px;
-    font-size: 30px;
+    font-size: 32px;
     cursor: pointer;
     z-index: 9999;
     user-select: none;
+    color: white;
+    transition: transform 0.2s ease;
   }
 
   #chat-box {
     display: none;
+    opacity: 0;
+    transform: translateY(20px);
     position: fixed;
-    bottom: 80px;
+    bottom: 120px;
     right: 20px;
     width: 340px;
-    max-height: 450px;
-    background: rgba(255, 255, 255, 0.2);
+    height: 480px;
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(12px);
     border-radius: 15px;
     overflow: hidden;
     z-index: 9998;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     display: flex;
     flex-direction: column;
     border: 1px solid rgba(255,255,255,0.3);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  #chat-box.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
   }
 
   #chat-messages {
@@ -1089,10 +1100,10 @@
     font-size: 16px;
   }
 
-  /* Scrollbar đẹp */
   #chat-messages::-webkit-scrollbar {
     width: 6px;
   }
+
   #chat-messages::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.3);
     border-radius: 3px;
@@ -1110,14 +1121,21 @@
 </div>
 
 <script>
-  function toggleChat() {
-    const box = document.getElementById("chat-box");
-    box.style.display = box.style.display === "none" ? "flex" : "none";
-  }
-
+  const toggleBtn = document.getElementById("chat-toggle");
+  const chatBox = document.getElementById("chat-box");
   const input = document.getElementById("chat-input");
   const messages = document.getElementById("chat-messages");
   const sendBtn = document.getElementById("send-btn");
+
+  function toggleChat() {
+    if (chatBox.classList.contains("show")) {
+      chatBox.classList.remove("show");
+      setTimeout(() => chatBox.style.display = "none", 300);
+    } else {
+      chatBox.style.display = "flex";
+      setTimeout(() => chatBox.classList.add("show"), 10);
+    }
+  }
 
   sendBtn.addEventListener("click", sendMessage);
   input.addEventListener("keydown", function (e) {
