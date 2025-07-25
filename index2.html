@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Chat Messenger Style</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Cộng Đồng</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
-  <div class="chat-container">
-    <div class="chat-header">
-      <h2>💬 Chat cộng đồng</h2>
-      <div class="chat-actions">
-        <button onclick="clearChat()">🧹</button>
-      </div>
-    </div>
+  <header>
+    <h1>💬 Chat Cộng Đồng</h1>
+    <button id="clearBtn">🧹</button>
+  </header>
 
-    <div id="chat-messages" class="chat-messages"></div>
+  <main id="chat-container">
+    <ul id="messages"></ul>
+  </main>
 
-    <div class="chat-input-area">
-      <input type="file" id="imageInput" accept="image/*" hidden>
-      <button onclick="document.getElementById('imageInput').click()">🖼️</button>
-      <button id="emojiBtn">😊</button>
-      <div id="emojiPicker" class="emoji-picker" style="display:none;"></div>
-      <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
-      <button onclick="sendMessage()">📤</button>
-    </div>
-  </div>
+  <footer>
+    <label for="imageInput" class="icon-btn">🖼️</label>
+    <input type="file" id="imageInput" accept="image/*" hidden />
+    
+    <button id="emojiToggle" class="icon-btn">😊</button>
+    <div id="emojiPicker" class="hidden"></div>
+    
+    <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." />
+    <button id="sendBtn" class="icon-btn">📨</button>
+  </footer>
 
   <script src="script.js"></script>
 </body>
