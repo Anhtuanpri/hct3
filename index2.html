@@ -2,36 +2,35 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat Cộng Đồng</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
-  <div class="chat-container">
-    <div class="chat-header">
-      <span>💬 Chat Cộng Đồng</span>
-      <button id="clearChat" title="Xoá tất cả">🧹</button>
+  <div id="chat-container">
+    <div id="chat-header">
+      💬 Chat Cộng Đồng
+      <button id="clear-chat" title="Xoá toàn bộ">🧹</button>
     </div>
-    <div class="chat-messages" id="chatMessages"></div>
-
-    <div class="chat-reply" id="replyBox" style="display: none;">
-      Đang trả lời: <span id="replyText"></span>
-      <button onclick="cancelReply()">❌</button>
+    <div id="chat-box"></div>
+    <div id="reply-box"></div>
+    <div id="chat-controls">
+      <input type="file" id="image-input" accept="image/*" hidden />
+      <button id="image-btn">🖼️</button>
+      <button id="emoji-btn">😊</button>
+      <input
+        id="message-input"
+        type="text"
+        placeholder="Nhập tin nhắn..."
+        autocomplete="off"
+      />
+      <button id="send-btn">📨</button>
     </div>
-
-    <div class="chat-input">
-      <input type="file" id="imageInput" accept="image/*" style="display: none" />
-      <button onclick="document.getElementById('imageInput').click()">🖼️</button>
-      <button onclick="toggleEmojiPicker()">😊</button>
-      <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." />
-      <button onclick="sendMessage()">📨</button>
-    </div>
-
-    <div class="emoji-picker" id="emojiPicker" style="display: none;"></div>
+    <div id="emoji-picker" class="hidden"></div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
