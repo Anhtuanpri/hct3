@@ -1,3 +1,4 @@
+// === Firebase config ===
 const firebaseConfig = {
   apiKey: "AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",
   authDomain: "sample-firebase-ai-app-2a091.firebaseapp.com",
@@ -8,121 +9,170 @@ const firebaseConfig = {
   appId: "1:94515253749:web:86594f2222889c6472d0bc"
 };
 
+// === Khởi tạo Firebase ===
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const messagesRef = db.ref("messages");
 
-const messageInput = document.getElementById("messageInput");
-const sendBtn = document.getElementById("sendBtn");
-const messagesUl = document.getElementById("messages");
-const imageInput = document.getElementById("imageInput");
-const emojiToggle = document.getElementById("emojiToggle");
-const emojiPicker = document.getElementById("emojiPicker");
-const clearBtn = document.getElementById("clearBtn");
+let username = localStorage.getItem("chatUsername") || "Anonymous";
+let editingKey = null;
 
-const username = "Ẩn danh";
-
-sendBtn.onclick = () => {
-  const text = messageInput.value.trim();
-  if (text !== "") {
-    messagesRef.push({
-      name: username,
+// Gửi tin nhắn
+function sendMessage(text, imageUrl = null) {
+  if (editingKey) {
+    messagesRef.child(editingKey).update({
       text,
-      time: Date.now()
+      imageUrl,
+      edited: true,
     });
-    messageInput.value = "";
+    editingKey = null;
+  } else {
+    const message = {
+      user: username,
+      text,
+      imageUrl,
+      timestamp: Date.now()
+    };
+    messagesRef.push(message);
   }
-};
+  document.getElementById("messageInput").value = "";
+  hideEmojiPicker();
+}
 
-messageInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") sendBtn.click();
+// Hiển thị tin nhắn
+function renderMessage(key, data) {
+  const messageDiv = document.createElement("div");
+  messageDiv.classList.add("message");
+  messageDiv.classList.add(data.user === username ? "sent" : "received");
+
+  const sender = document.createElement("div");
+  sender.style.fontSize = "11px";
+  sender.style.marginBottom = "3px";
+  sender.textContent = data.user;
+
+  const text = document.createElement("div");
+  text.textContent = data.text;
+
+  messageDiv.appendChild(sender);
+  messageDiv.appendChild(text);
+
+  if (data.imageUrl) {
+    const img = document.createElement("img");
+    img.src = data.imageUrl;
+    messageDiv.appendChild(img);
+  }
+
+  // 👼 icon mở menu
+  if (data.user === username) {
+    const optionsToggle = document.createElement("div");
+    optionsToggle.textContent = "👼";
+    optionsToggle.className = "options-toggle";
+
+    const optionsMenu = document.createElement("div");
+    optionsMenu.className = "message-options";
+
+    const recallBtn = document.createElement("button");
+    recallBtn.textContent = "Thu hồi";
+    recallBtn.onclick = () => {
+      messagesRef.child(key).remove();
+    };
+
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Chỉnh sửa";
+    editBtn.onclick = () => {
+      document.getElementById("messageInput").value = data.text;
+      editingKey = key;
+    };
+
+    optionsMenu.appendChild(recallBtn);
+    optionsMenu.appendChild(editBtn);
+
+    optionsToggle.onclick = () => {
+      optionsMenu.style.display = optionsMenu.style.display === "flex" ? "none" : "flex";
+    };
+
+    messageDiv.appendChild(optionsToggle);
+    messageDiv.appendChild(optionsMenu);
+  }
+
+  document.getElementById("messagesContainer").appendChild(messageDiv);
+  scrollToBottom();
+}
+
+// Tự động cuộn xuống dưới
+function scrollToBottom() {
+  const container = document.getElementById("messagesContainer");
+  container.scrollTop = container.scrollHeight;
+}
+
+// Lắng nghe tin nhắn mới
+messagesRef.on("child_added", snapshot => {
+  renderMessage(snapshot.key, snapshot.val());
 });
 
-imageInput.onchange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    messagesRef.push({
-      name: username,
-      image: reader.result,
-      time: Date.now()
+// Tin nhắn bị xóa
+messagesRef.on("child_removed", snapshot => {
+  document.getElementById("messagesContainer").innerHTML = "";
+  messagesRef.once("value", snap => {
+    snap.forEach(child => {
+      renderMessage(child.key, child.val());
     });
+  });
+});
+
+// Tin nhắn được chỉnh sửa
+messagesRef.on("child_changed", snapshot => {
+  document.getElementById("messagesContainer").innerHTML = "";
+  messagesRef.once("value", snap => {
+    snap.forEach(child => {
+      renderMessage(child.key, child.val());
+    });
+  });
+});
+
+// Gửi văn bản
+document.getElementById("sendBtn").onclick = () => {
+  const input = document.getElementById("messageInput");
+  if (input.value.trim()) sendMessage(input.value.trim());
+};
+
+// Gửi ảnh
+document.getElementById("imageInput").addEventListener("change", function () {
+  const file = this.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    sendMessage("", e.target.result);
   };
   reader.readAsDataURL(file);
-};
-
-emojiToggle.onclick = () => {
-  emojiPicker.classList.toggle("hidden");
-};
-
-document.addEventListener("click", (e) => {
-  if (!emojiPicker.contains(e.target) && e.target !== emojiToggle) {
-    emojiPicker.classList.add("hidden");
-  }
 });
 
-emojiPicker.innerHTML = "😀😃😄😁😆😅😂🤣😊😇🙂🙃😉😍😘😗😙😚🤔😐😑😶🙄😏😣😥😮😯😪😫".split("").map(e => `<span>${e}</span>`).join("");
-emojiPicker.onclick = (e) => {
-  if (e.target.tagName === "SPAN") {
-    messageInput.value += e.target.textContent;
-  }
-};
-
-messagesRef.on("child_added", (snapshot) => {
-  const msg = snapshot.val();
-  const li = document.createElement("li");
-  li.className = "message sent";
-  
-  if (msg.text) {
-    li.innerHTML = `
-      <div>${msg.text}</div>
-      ${msg.image ? `<img class="message-img" src="${msg.image}" />` : ""}
-      <div class="meta">${msg.name} • ${new Date(msg.time).toLocaleTimeString()}</div>
-      <div class="action-icon">👼</div>
-      <div class="actions">
-        <button onclick="editMessage('${snapshot.key}', '${msg.text}')">✏️ Sửa</button>
-        <button onclick="deleteMessage('${snapshot.key}')">🗑️ Thu hồi</button>
-      </div>
-    `;
-  } else if (msg.image) {
-    li.innerHTML = `
-      <img class="message-img" src="${msg.image}" />
-      <div class="meta">${msg.name} • ${new Date(msg.time).toLocaleTimeString()}</div>
-      <div class="action-icon">👼</div>
-      <div class="actions">
-        <button onclick="deleteMessage('${snapshot.key}')">🗑️ Thu hồi</button>
-      </div>
-    `;
-  }
-
-  li.querySelector(".action-icon")?.addEventListener("click", () => {
-    li.querySelector(".actions").style.display = "block";
-  });
-
-  messagesUl.appendChild(li);
-  messagesUl.scrollTop = messagesUl.scrollHeight;
-});
-
-function deleteMessage(key) {
-  messagesRef.child(key).remove();
-}
-
-function editMessage(key, oldText) {
-  const newText = prompt("Chỉnh sửa tin nhắn:", oldText);
-  if (newText && newText !== oldText) {
-    messagesRef.child(key).update({ text: newText });
-  }
-}
-
-messagesRef.on("child_removed", (snapshot) => {
-  const msgEl = document.querySelector(`[data-id="${snapshot.key}"]`);
-  if (msgEl) msgEl.remove();
-});
-
-clearBtn.onclick = () => {
-  if (confirm("Xóa toàn bộ tin nhắn?")) {
+// Clear chat
+document.getElementById("clearChatBtn").onclick = () => {
+  if (confirm("Bạn có chắc muốn xóa toàn bộ tin nhắn?")) {
     messagesRef.remove();
-    messagesUl.innerHTML = "";
   }
 };
+
+// Emoji picker
+let pickerVisible = false;
+const picker = new EmojiButton();
+document.getElementById("emojiBtn").addEventListener("click", () => {
+  picker.togglePicker(document.getElementById("emojiBtn"));
+});
+picker.on("emoji", emoji => {
+  document.getElementById("messageInput").value += emoji;
+});
+
+// Đóng picker khi nhấn ngoài
+document.addEventListener("click", function (e) {
+  if (!e.target.closest(".emoji-picker") && !e.target.closest("#emojiBtn")) {
+    hideEmojiPicker();
+  }
+});
+
+function hideEmojiPicker() {
+  const pickerEl = document.querySelector(".emoji-picker");
+  if (pickerEl) pickerEl.remove();
+}
