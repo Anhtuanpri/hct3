@@ -78,28 +78,28 @@ body {
 .chat-input-area {
   display: flex;
   align-items: center;
-  padding: 10px;
-  background-color: #2c2c2e;
+  justify-content: space-between;
+  background-color: #1e1e1e;
+  padding: 10px 8px;
+  border-top: 1px solid #333;
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 500px; /* 👈 Giới hạn chiều ngang */
+  left: 0;
+  right: 0;
   z-index: 999;
-  border-top: 1px solid #444;
-  border-radius: 18px;
+  gap: 6px;
+  height: 60px; /* Tăng chiều cao */
 }
 
 .chat-input-area input[type="text"] {
   flex: 1;
-  margin: 0 8px;
-  padding: 14px 20px;
-  font-size: 18px;
-  height: 52px;         /* 👈 Chiều cao lớn hơn */
-  border-radius: 26px;
+  height: 40px; /* Tăng chiều cao */
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 16px;
   border: none;
-  background: #3a3b3c;
+  outline: none;
+  background-color: #111;
   color: white;
 }
 
