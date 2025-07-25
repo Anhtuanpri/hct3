@@ -2,43 +2,23 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Chat Realtime</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Messenger-style Chat</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
-  <div class="chat-container">
-    <div class="chat-header">
-      <h2>💬 Chat Cộng Đồng</h2>
-      <button onclick="clearMessages()">🧹 Xóa tất cả</button>
-    </div>
-
-    <div class="chat-messages" id="chatMessages"></div>
-
-    <div class="chat-input">
-      <input type="file" id="imageInput" accept="image/*" hidden onchange="sendImage(event)" />
-      <div class="input-tools">
-        <button onclick="document.getElementById('imageInput').click()">🖼️</button>
-        <button onclick="toggleEmojiPicker()">😊</button>
-      </div>
-      <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." autocomplete="off" />
-      <button onclick="sendMessage()">📤</button>
+  <div id="chat-container">
+    <div id="chat-messages"></div>
+    <div id="chat-input">
+      <input type="file" id="imageUpload" accept="image/*" hidden />
+      <button onclick="document.getElementById('imageUpload').click()">🖼️</button>
+      <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." />
+      <button onclick="sendMessage()">📨</button>
     </div>
   </div>
 
-  <!-- Emoji Picker -->
-  <div class="emoji-picker" id="emojiPicker" style="display:none;"></div>
-
-  <!-- Edit Popup -->
-  <div id="editPopup" class="popup">
-    <div class="popup-content">
-      <textarea id="editInput"></textarea>
-      <button onclick="saveEdit()">Lưu</button>
-    </div>
-  </div>
-
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
