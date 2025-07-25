@@ -1,34 +1,29 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Messenger UI</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat App</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
-  <div class="chat-wrapper">
-    <header class="chat-header">
-      <h2>💬 Chat cộng đồng</h2>
-      <button id="clearBtn">🧹</button>
-    </header>
+  <div class="chat-container">
+    <div class="messages" id="messages"></div>
 
-    <div id="chat-box"></div>
+    <div id="emoji-picker" class="hidden"></div>
 
-    <div class="chat-input-area">
-      <div class="tools">
-        <label for="image-upload">🖼️</label>
-        <input type="file" id="image-upload" accept="image/*" hidden>
-        <button id="emoji-btn">😊</button>
-        <div id="emoji-picker" class="hidden"></div>
-      </div>
-      <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
+    <div class="input-area">
+      <input type="file" id="imageInput" accept="image/*" hidden />
+      <button id="imageBtn">🖼️</button>
+      <button id="emojiBtn">😊</button>
+      <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." />
       <button id="sendBtn">📤</button>
+      <button id="clearBtn">🧹</button>
     </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
