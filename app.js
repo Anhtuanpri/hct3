@@ -1,3 +1,4 @@
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",
   authDomain: "sample-firebase-ai-app-2a091.firebaseapp.com",
@@ -7,88 +8,62 @@ const firebaseConfig = {
   messagingSenderId: "94515253749",
   appId: "1:94515253749:web:86594f2222889c6472d0bc"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let userName = localStorage.getItem("chatName");
-const popup = document.getElementById("namePopup");
+const messageInput = document.getElementById("messageInput");
+const chatBox = document.getElementById("chat-box");
+const emojiPicker = document.getElementById("emojiPicker");
+const imageUpload = document.getElementById("imageUpload");
 
-if (!userName) {
-  popup.style.display = "flex";
+function toggleEmojiPicker() {
+  emojiPicker.style.display = emojiPicker.style.display === "none" ? "block" : "none";
 }
 
-function saveName() {
-  const input = document.getElementById("nameInput").value.trim();
-  if (input) {
-    userName = input;
-    localStorage.setItem("chatName", userName);
-    popup.style.display = "none";
+emojiPicker.addEventListener("click", e => {
+  if (e.target.textContent) {
+    messageInput.value += e.target.textContent;
   }
-}
+});
 
-function sendMessage() {
-  const input = document.getElementById("messageInput");
-  const text = input.value.trim();
-  if (!text && !selectedImage) return;
+imageUpload.addEventListener("change", () => {
+  const file = imageUpload.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    sendMessage(reader.result, true);
+  };
+  reader.readAsDataURL(file);
+});
 
-  const msg = {
-    name: userName || "Ẩn danh",
-    text: text,
-    image: selectedImage || null,
+function sendMessage(content, isImage = false) {
+  if (!content && !messageInput.value.trim()) return;
+  const message = {
+    name: "Ẩn danh",
+    text: isImage ? "" : messageInput.value.trim(),
+    image: isImage ? content : null,
     time: Date.now()
   };
-  db.ref("chat").push(msg);
-  input.value = "";
-  selectedImage = null;
+  db.ref("messages").push(message);
+  messageInput.value = "";
+  emojiPicker.style.display = "none";
 }
 
-function clearMessages() {
-  if (confirm("Xóa toàn bộ tin nhắn?")) {
-    db.ref("chat").remove();
-  }
-}
-
-function formatTime(ms) {
-  const date = new Date(ms);
-  return `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
-}
-
-const chatBox = document.getElementById("chatMessages");
-
-db.ref("chat").on("value", snapshot => {
+db.ref("messages").on("value", snapshot => {
   chatBox.innerHTML = "";
   snapshot.forEach(child => {
     const msg = child.val();
     const div = document.createElement("div");
-    div.className = "message";
-    if (msg.name === userName) div.classList.add("you");
+    div.classList.add("message");
 
-    div.innerHTML = `
-      <div class="name">${msg.name}</div>
-      ${msg.image ? `<img src="${msg.image}" style="max-width:100%;border-radius:10px;margin-top:5px;">` : ""}
-      <div class="text">${msg.text}</div>
-      <div class="time">${formatTime(msg.time)}</div>
-    `;
+    let html = `<div class="name">${msg.name}</div>`;
+    if (msg.text) html += `<div class="text">${msg.text}</div>`;
+    if (msg.image) html += `<div class="text"><img src="${msg.image}" style="max-width:100%; border-radius: 10px;"></div>`;
+    html += `<div class="meta">
+               <span>${new Date(msg.time).toLocaleTimeString()}</span>
+             </div>`;
+    div.innerHTML = html;
     chatBox.appendChild(div);
   });
   chatBox.scrollTop = chatBox.scrollHeight;
 });
-
-let selectedImage = null;
-
-document.getElementById("imageInput").addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (file && file.type.startsWith("image/")) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      selectedImage = reader.result;
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
-function insertEmoji() {
-  const input = document.getElementById("messageInput");
-  input.value += "😊";
-}
