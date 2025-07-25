@@ -1028,42 +1028,110 @@
     cursor: pointer;
   }
 </style>
+<style>
+  #chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 30px;
+    cursor: pointer;
+    z-index: 9999;
+    user-select: none;
+  }
+
+  #chat-box {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 340px;
+    max-height: 450px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    border-radius: 15px;
+    overflow: hidden;
+    z-index: 9998;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+
+  #chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    font-size: 14px;
+    color: white;
+  }
+
+  #chat-input-container {
+    display: flex;
+    border-top: 1px solid rgba(255,255,255,0.2);
+  }
+
+  #chat-input {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    background: transparent;
+    color: white;
+    outline: none;
+  }
+
+  #send-btn {
+    background: none;
+    border: none;
+    padding: 0 10px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  /* Scrollbar đẹp */
+  #chat-messages::-webkit-scrollbar {
+    width: 6px;
+  }
+  #chat-messages::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
 </style>
-<div id="chat-toggle">💬</div>
+
+<div id="chat-toggle" onclick="toggleChat()">💬</div>
+
 <div id="chat-box">
-  <div class="chat-header">
-    <span>Trò chuyện</span>
-    <button onclick="clearChat()" style="background:none; border:none; color:white; font-size:16px; cursor:pointer;">🧹</button>
-  </div>
-  <div class="chat-messages" id="chatMessages"></div>
-  <div class="chat-input">
-    <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." />
-    <button onclick="sendChat()">Gửi</button>
+  <div id="chat-messages"></div>
+  <div id="chat-input-container">
+    <input type="text" id="chat-input" placeholder="Nhập tin nhắn..." />
+    <button id="send-btn">➤</button>
   </div>
 </div>
 
 <script>
   function toggleChat() {
     const box = document.getElementById("chat-box");
-    box.style.display = box.style.display === "flex" ? "none" : "flex";
+    box.style.display = box.style.display === "none" ? "flex" : "none";
   }
-  document.getElementById("chat-toggle").addEventListener("click", toggleChat);
 
-  function sendChat() {
-    const input = document.getElementById("chatInput");
-    const msg = input.value.trim();
-    if (!msg) return;
-    const chatArea = document.getElementById("chatMessages");
-    const newMsg = document.createElement("div");
-    newMsg.className = "msg";
-    newMsg.innerHTML = `<span class="sender">Bạn:</span><span class="text">${msg}</span>`;
-    chatArea.appendChild(newMsg);
+  const input = document.getElementById("chat-input");
+  const messages = document.getElementById("chat-messages");
+  const sendBtn = document.getElementById("send-btn");
+
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+    const div = document.createElement("div");
+    div.textContent = "🧑 " + text;
+    messages.appendChild(div);
     input.value = "";
-    chatArea.scrollTop = chatArea.scrollHeight;
-  }
-
-  function clearChat() {
-    document.getElementById("chatMessages").innerHTML = "";
+    messages.scrollTop = messages.scrollHeight;
   }
 </script>
 </body>
