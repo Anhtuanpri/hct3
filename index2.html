@@ -5,30 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat Cộng Đồng</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
   <header>
-    <h2>💬 Chat Cộng Đồng</h2>
-    <button id="clearChatBtn" title="Xoá tất cả tin nhắn">🧹</button>
+    <h1>💬 Chat Cộng Đồng</h1>
+    <button id="clearBtn">🧹</button>
   </header>
 
-  <div id="messagesContainer"></div>
+  <main id="chat-container">
+    <ul id="messages"></ul>
+  </main>
 
-  <!-- Emoji Picker -->
-  <div id="emojiPicker" class="hidden"></div>
-
-  <!-- Message Input -->
-  <div class="chat-input">
-    <label for="imageInput" class="icon-button">🖼️</label>
+  <footer>
+    <label for="imageInput" class="icon-btn">🖼️</label>
     <input type="file" id="imageInput" accept="image/*" hidden />
-    <button id="emojiBtn" class="icon-button">😊</button>
+    
+    <button id="emojiToggle" class="icon-btn">😊</button>
+    <div id="emojiPicker" class="hidden"></div>
+    
     <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." />
-    <button id="sendBtn" class="icon-button">📨</button>
-  </div>
+    <button id="sendBtn" class="icon-btn">📨</button>
+  </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.4/dist/index.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
