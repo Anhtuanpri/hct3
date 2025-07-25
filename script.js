@@ -10,81 +10,118 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+
+const chatBox = document.getElementById("chat-box");
 const messageInput = document.getElementById("messageInput");
-const chatMessages = document.getElementById("chat-messages");
-const imageUpload = document.getElementById("imageUpload");
+const sendBtn = document.getElementById("sendBtn");
+const clearBtn = document.getElementById("clearBtn");
+const emojiBtn = document.getElementById("emoji-btn");
+const emojiPicker = document.getElementById("emoji-picker");
+const imageUpload = document.getElementById("image-upload");
 
-let currentUser = "Ẩn danh";
-let editingId = null;
+let user = "Ẩn danh";
 
-function sendMessage() {
-  const text = messageInput.value.trim();
-  if (!text && !imageUpload.files[0]) return;
-
-  const msg = {
-    sender: currentUser,
-    text,
-    timestamp: Date.now()
+const emojis = ["😀", "😂", "😍", "😎", "🤔", "😢", "👍", "👎", "🔥", "🎉"];
+emojis.forEach(emoji => {
+  const span = document.createElement("span");
+  span.textContent = emoji;
+  span.style.cursor = "pointer";
+  span.onclick = () => {
+    messageInput.value += emoji;
+    emojiPicker.classList.add("hidden");
   };
+  emojiPicker.appendChild(span);
+});
 
-  if (editingId) {
-    db.ref("messages/" + editingId).update(msg);
-    editingId = null;
-  } else {
-    const newMsgRef = db.ref("messages").push();
-    msg.id = newMsgRef.key;
+emojiBtn.onclick = () => {
+  emojiPicker.classList.toggle("hidden");
+};
 
-    if (imageUpload.files[0]) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        msg.image = e.target.result;
-        newMsgRef.set(msg);
+sendBtn.onclick = () => {
+  const text = messageInput.value.trim();
+  if (text) {
+    const message = {
+      sender: user,
+      text,
+      time: Date.now()
+    };
+    db.ref("messages").push(message);
+    messageInput.value = "";
+  }
+};
+
+imageUpload.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const message = {
+        sender: user,
+        image: reader.result,
+        time: Date.now()
       };
-      reader.readAsDataURL(imageUpload.files[0]);
-    } else {
-      newMsgRef.set(msg);
-    }
+      db.ref("messages").push(message);
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+clearBtn.onclick = () => {
+  if (confirm("Xoá toàn bộ tin nhắn?")) {
+    db.ref("messages").remove();
+  }
+};
+
+function renderMessage(id, data) {
+  const div = document.createElement("div");
+  div.classList.add("message");
+  div.classList.add(data.sender === user ? "sent" : "received");
+
+  if (data.text) {
+    div.innerHTML = `<div>${data.text}</div>`;
+  } else if (data.image) {
+    div.innerHTML = `<img src="${data.image}" style="max-width: 100%;">`;
   }
 
-  messageInput.value = "";
-  imageUpload.value = "";
-}
+  if (data.sender === user) {
+    const toolsBtn = document.createElement("button");
+    toolsBtn.className = "tools-btn";
+    toolsBtn.textContent = "👼";
+    toolsBtn.onclick = () => div.classList.toggle("show-tools");
+    div.appendChild(toolsBtn);
 
-function renderMessage(msg) {
-  const div = document.createElement("div");
-  div.className = "message " + (msg.sender === currentUser ? "my-message" : "other-message");
-  div.innerHTML = `
-    ${msg.text ? `<div>${msg.text}</div>` : ""}
-    ${msg.image ? `<img src="${msg.image}" />` : ""}
-    <div class="info">${msg.sender} • ${new Date(msg.timestamp).toLocaleTimeString()}</div>
-    ${msg.sender === currentUser ? `
-      <div class="message-actions">
-        <button onclick="editMessage('${msg.id}', \`${msg.text || ""}\`)">✏️</button>
-        <button onclick="deleteMessage('${msg.id}')">🗑️</button>
-        <button onclick="recallMessage('${msg.id}')">↩️</button>
-      </div>
-    ` : ""}
-  `;
-  chatMessages.appendChild(div);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+    const actionBar = document.createElement("div");
+    actionBar.className = "actions";
 
-function editMessage(id, text) {
-  messageInput.value = text;
-  editingId = id;
-}
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "✏️";
+    editBtn.onclick = () => {
+      const newText = prompt("Chỉnh sửa tin nhắn:", data.text || "");
+      if (newText !== null) {
+        db.ref("messages/" + id).update({ text: newText });
+      }
+    };
 
-function deleteMessage(id) {
-  db.ref("messages/" + id).remove();
-}
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.onclick = () => {
+      if (confirm("Thu hồi tin nhắn này?")) {
+        db.ref("messages/" + id).remove();
+      }
+    };
 
-function recallMessage(id) {
-  db.ref("messages/" + id).update({ text: "Tin nhắn đã được thu hồi", image: null });
+    actionBar.appendChild(editBtn);
+    actionBar.appendChild(deleteBtn);
+    div.appendChild(actionBar);
+  }
+
+  chatBox.appendChild(div);
 }
 
 db.ref("messages").on("value", snapshot => {
-  chatMessages.innerHTML = "";
+  chatBox.innerHTML = "";
   snapshot.forEach(child => {
-    renderMessage(child.val());
+    renderMessage(child.key, child.val());
   });
+  chatBox.scrollTop = chatBox.scrollHeight;
 });
