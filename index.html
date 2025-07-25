@@ -1028,129 +1028,103 @@
     cursor: pointer;
   }
 </style>
+  <!-- Chat Button + Chat Box -->
 <style>
   #chat-toggle {
     position: fixed;
-    bottom: 60px; /* nâng lên 2cm (~40px) */
+    bottom: 80px; /* cao hơn ~2cm */
     right: 20px;
-    font-size: 32px;
-    cursor: pointer;
-    z-index: 9999;
-    user-select: none;
+    background: #4CAF50;
     color: white;
-    transition: transform 0.2s ease;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 50px;
+    font-size: 16px;
+    z-index: 9999;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
   }
 
   #chat-box {
-    display: none;
-    opacity: 0;
-    transform: translateY(20px);
     position: fixed;
-    bottom: 120px;
+    bottom: 140px;
     right: 20px;
-    width: 340px;
-    height: 480px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(12px);
-    border-radius: 15px;
-    overflow: hidden;
-    z-index: 9998;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    display: flex;
+    width: 300px;
+    height: 400px;
+    background: rgba(0,0,0,0.7); /* trong suốt */
+    border-radius: 10px;
+    padding: 10px;
+    display: none;
     flex-direction: column;
-    border: 1px solid rgba(255,255,255,0.3);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-
-  #chat-box.show {
-    display: flex;
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  #chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-    font-size: 14px;
+    z-index: 9998;
+    backdrop-filter: blur(10px);
     color: white;
   }
 
-  #chat-input-container {
-    display: flex;
-    border-top: 1px solid rgba(255,255,255,0.2);
-  }
-
-  #chat-input {
-    flex: 1;
+  #chat-box textarea {
+    width: 100%;
+    height: 80%;
     border: none;
-    padding: 10px;
-    font-size: 14px;
-    background: transparent;
+    resize: none;
+    border-radius: 5px;
+    padding: 5px;
+    background: rgba(255,255,255,0.1);
     color: white;
-    outline: none;
   }
 
-  #send-btn {
-    background: none;
-    border: none;
-    padding: 0 10px;
+  #chat-box button {
+    margin-top: 10px;
+    width: 100%;
+    padding: 6px;
+    background: #2196F3;
     color: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
   }
 
-  #chat-messages::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  #chat-messages::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 3px;
+  #chat-box-close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: transparent;
+    color: #ccc;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
   }
 </style>
 
-<div id="chat-toggle" onclick="toggleChat()">💬</div>
+<button id="chat-toggle">💬 Chat</button>
 
 <div id="chat-box">
-  <div id="chat-messages"></div>
-  <div id="chat-input-container">
-    <input type="text" id="chat-input" placeholder="Nhập tin nhắn..." />
-    <button id="send-btn">➤</button>
-  </div>
+  <button id="chat-box-close">×</button>
+  <textarea placeholder="Nhập tin nhắn..."></textarea>
+  <button>Gửi</button>
 </div>
-
-<script>
-  const toggleBtn = document.getElementById("chat-toggle");
+  <script>
+  const chatToggle = document.getElementById("chat-toggle");
   const chatBox = document.getElementById("chat-box");
-  const input = document.getElementById("chat-input");
-  const messages = document.getElementById("chat-messages");
-  const sendBtn = document.getElementById("send-btn");
+  const chatClose = document.getElementById("chat-box-close");
 
-  function toggleChat() {
-    if (chatBox.classList.contains("show")) {
-      chatBox.classList.remove("show");
-      setTimeout(() => chatBox.style.display = "none", 300);
-    } else {
-      chatBox.style.display = "flex";
-      setTimeout(() => chatBox.classList.add("show"), 10);
-    }
-  }
-
-  sendBtn.addEventListener("click", sendMessage);
-  input.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") sendMessage();
+  chatToggle.addEventListener("click", () => {
+    // Mở/mở lại khung chat với hiệu ứng mượt
+    chatBox.style.display = "flex";
+    chatBox.style.opacity = 0;
+    setTimeout(() => {
+      chatBox.style.transition = "opacity 0.3s ease";
+      chatBox.style.opacity = 1;
+    }, 10);
   });
 
-  function sendMessage() {
-    const text = input.value.trim();
-    if (!text) return;
-    const div = document.createElement("div");
-    div.textContent = "🧑 " + text;
-    messages.appendChild(div);
-    input.value = "";
-    messages.scrollTop = messages.scrollHeight;
-  }
+  chatClose.addEventListener("click", () => {
+    // Tắt khung chat mượt mà
+    chatBox.style.transition = "opacity 0.3s ease";
+    chatBox.style.opacity = 0;
+    setTimeout(() => {
+      chatBox.style.display = "none";
+    }, 300);
+  });
 </script>
 </body>
 </html>
