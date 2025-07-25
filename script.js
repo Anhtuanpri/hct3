@@ -1,4 +1,3 @@
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",
   authDomain: "sample-firebase-ai-app-2a091.firebaseapp.com",
@@ -11,136 +10,118 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
+const chatBox = document.getElementById("chat-messages");
 const messageInput = document.getElementById("messageInput");
-const sendBtn = document.getElementById("sendBtn");
-const messages = document.getElementById("messages");
 const imageInput = document.getElementById("imageInput");
-const imageBtn = document.getElementById("imageBtn");
-const clearBtn = document.getElementById("clearBtn");
 
+let user = "Ẩn danh";
+
+function sendMessage() {
+  const text = messageInput.value.trim();
+  if (!text && !imageInput.files[0]) return;
+
+  const message = {
+    name: user,
+    text: text || "",
+    time: Date.now(),
+    image: ""
+  };
+
+  if (imageInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      message.image = reader.result;
+      db.ref("messages").push(message);
+    };
+    reader.readAsDataURL(imageInput.files[0]);
+  } else {
+    db.ref("messages").push(message);
+  }
+
+  messageInput.value = "";
+  imageInput.value = "";
+}
+
+function renderMessage(id, msg) {
+  const div = document.createElement("div");
+  div.className = "message" + (msg.name === user ? " sent" : " received");
+  div.innerHTML = `<b>${msg.name}:</b> ${msg.text}`;
+
+  if (msg.image) {
+    const img = document.createElement("img");
+    img.src = msg.image;
+    div.appendChild(img);
+  }
+
+  if (msg.name === user) {
+    const opt = document.createElement("div");
+    opt.className = "options";
+    const angelBtn = document.createElement("button");
+    angelBtn.innerText = "👼";
+    angelBtn.classList.add("emoji-btn");
+    const actions = document.createElement("div");
+    actions.className = "actions";
+    actions.innerHTML = `
+      <button onclick="editMessage('${id}', '${msg.text.replace(/'/g, "\\'")}')">✏️</button>
+      <button onclick="deleteMessage('${id}')">❌</button>
+    `;
+    angelBtn.onclick = () => {
+      actions.classList.toggle("show");
+    };
+    opt.appendChild(angelBtn);
+    opt.appendChild(actions);
+    div.appendChild(opt);
+  }
+
+  chatBox.appendChild(div);
+}
+
+function editMessage(id, oldText) {
+  const newText = prompt("Sửa tin nhắn:", oldText);
+  if (newText !== null) {
+    db.ref("messages/" + id).update({ text: newText });
+  }
+}
+
+function deleteMessage(id) {
+  db.ref("messages/" + id).remove();
+}
+
+function clearChat() {
+  if (confirm("Xoá toàn bộ tin nhắn?")) {
+    db.ref("messages").remove();
+  }
+}
+
+db.ref("messages").on("value", snapshot => {
+  chatBox.innerHTML = "";
+  snapshot.forEach(child => {
+    renderMessage(child.key, child.val());
+  });
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+const emojiPicker = document.getElementById("emojiPicker");
 const emojiBtn = document.getElementById("emojiBtn");
-const emojiPicker = document.getElementById("emoji-picker");
 
-const emojis = ["😀", "😂", "😍", "🥺", "😎", "😡", "👍", "🎉", "😭", "❤️"];
+const emojis = ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","😍","😘","😗","😙","😚","😋","😛","😜","😝"];
 
-emojis.forEach(emoji => {
+emojiBtn.addEventListener("click", () => {
+  emojiPicker.style.display = emojiPicker.style.display === "none" ? "flex" : "none";
+});
+
+emojis.forEach(e => {
   const span = document.createElement("span");
-  span.textContent = emoji;
-  span.style.cursor = "pointer";
+  span.textContent = e;
   span.onclick = () => {
-    messageInput.value += emoji;
-    emojiPicker.classList.add("hidden");
-    emojiVisible = false;
+    messageInput.value += e;
+    emojiPicker.style.display = "none";
   };
   emojiPicker.appendChild(span);
 });
 
-let emojiVisible = false;
-
-emojiBtn.onclick = (e) => {
-  e.stopPropagation();
-  emojiPicker.classList.toggle("hidden");
-  emojiVisible = !emojiVisible;
-};
-
 document.addEventListener("click", (e) => {
-  if (emojiVisible && !emojiPicker.contains(e.target) && e.target !== emojiBtn) {
-    emojiPicker.classList.add("hidden");
-    emojiVisible = false;
+  if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+    emojiPicker.style.display = "none";
   }
-});
-
-sendBtn.onclick = () => {
-  const text = messageInput.value.trim();
-  if (!text) return;
-
-  const msg = {
-    text,
-    time: Date.now(),
-    sender: "me"
-  };
-
-  db.ref("messages").push(msg);
-  messageInput.value = "";
-};
-
-imageBtn.onclick = () => imageInput.click();
-
-imageInput.onchange = () => {
-  const file = imageInput.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const msg = {
-      image: reader.result,
-      time: Date.now(),
-      sender: "me"
-    };
-    db.ref("messages").push(msg);
-  };
-  reader.readAsDataURL(file);
-};
-
-clearBtn.onclick = () => {
-  if (confirm("Xóa toàn bộ tin nhắn?")) {
-    db.ref("messages").remove();
-  }
-};
-
-db.ref("messages").on("value", (snapshot) => {
-  messages.innerHTML = "";
-  snapshot.forEach((child) => {
-    const msg = child.val();
-    const id = child.key;
-
-    const div = document.createElement("div");
-    div.classList.add("message");
-    div.classList.add(msg.sender === "me" ? "sent" : "received");
-
-    if (msg.text) {
-      div.innerHTML = `<div>${msg.text}</div>`;
-    } else if (msg.image) {
-      div.innerHTML = `<img src="${msg.image}" />`;
-    }
-
-    const meta = document.createElement("div");
-    meta.className = "meta";
-    meta.textContent = new Date(msg.time).toLocaleTimeString();
-    div.appendChild(meta);
-
-    if (msg.sender === "me") {
-      const action = document.createElement("div");
-      action.className = "action-btn";
-      action.textContent = "👼";
-
-      const options = document.createElement("div");
-      options.className = "options";
-
-      const edit = document.createElement("button");
-      edit.textContent = "✏️";
-      edit.onclick = () => {
-        const newText = prompt("Chỉnh sửa tin nhắn:", msg.text || "");
-        if (newText !== null) {
-          db.ref("messages").child(id).update({ text: newText });
-        }
-      };
-
-      const del = document.createElement("button");
-      del.textContent = "🗑️";
-      del.onclick = () => {
-        db.ref("messages").child(id).remove();
-      };
-
-      options.appendChild(edit);
-      options.appendChild(del);
-      div.appendChild(action);
-      div.appendChild(options);
-    }
-
-    messages.appendChild(div);
-  });
-
-  messages.scrollTop = messages.scrollHeight;
 });
