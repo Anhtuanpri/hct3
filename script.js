@@ -1,3 +1,4 @@
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",
   authDomain: "sample-firebase-ai-app-2a091.firebaseapp.com",
@@ -11,17 +12,18 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const chatBox = document.getElementById("chat-box");
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
+const messages = document.getElementById("messages");
+const imageInput = document.getElementById("imageInput");
+const imageBtn = document.getElementById("imageBtn");
 const clearBtn = document.getElementById("clearBtn");
-const emojiBtn = document.getElementById("emoji-btn");
+
+const emojiBtn = document.getElementById("emojiBtn");
 const emojiPicker = document.getElementById("emoji-picker");
-const imageUpload = document.getElementById("image-upload");
 
-let user = "Ẩn danh";
+const emojis = ["😀", "😂", "😍", "🥺", "😎", "😡", "👍", "🎉", "😭", "❤️"];
 
-const emojis = ["😀", "😂", "😍", "😎", "🤔", "😢", "👍", "👎", "🔥", "🎉"];
 emojis.forEach(emoji => {
   const span = document.createElement("span");
   span.textContent = emoji;
@@ -29,99 +31,116 @@ emojis.forEach(emoji => {
   span.onclick = () => {
     messageInput.value += emoji;
     emojiPicker.classList.add("hidden");
+    emojiVisible = false;
   };
   emojiPicker.appendChild(span);
 });
 
-emojiBtn.onclick = () => {
+let emojiVisible = false;
+
+emojiBtn.onclick = (e) => {
+  e.stopPropagation();
   emojiPicker.classList.toggle("hidden");
+  emojiVisible = !emojiVisible;
 };
 
-sendBtn.onclick = () => {
-  const text = messageInput.value.trim();
-  if (text) {
-    const message = {
-      sender: user,
-      text,
-      time: Date.now()
-    };
-    db.ref("messages").push(message);
-    messageInput.value = "";
-  }
-};
-
-imageUpload.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const message = {
-        sender: user,
-        image: reader.result,
-        time: Date.now()
-      };
-      db.ref("messages").push(message);
-    };
-    reader.readAsDataURL(file);
+document.addEventListener("click", (e) => {
+  if (emojiVisible && !emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+    emojiPicker.classList.add("hidden");
+    emojiVisible = false;
   }
 });
 
+sendBtn.onclick = () => {
+  const text = messageInput.value.trim();
+  if (!text) return;
+
+  const msg = {
+    text,
+    time: Date.now(),
+    sender: "me"
+  };
+
+  db.ref("messages").push(msg);
+  messageInput.value = "";
+};
+
+imageBtn.onclick = () => imageInput.click();
+
+imageInput.onchange = () => {
+  const file = imageInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const msg = {
+      image: reader.result,
+      time: Date.now(),
+      sender: "me"
+    };
+    db.ref("messages").push(msg);
+  };
+  reader.readAsDataURL(file);
+};
+
 clearBtn.onclick = () => {
-  if (confirm("Xoá toàn bộ tin nhắn?")) {
+  if (confirm("Xóa toàn bộ tin nhắn?")) {
     db.ref("messages").remove();
   }
 };
 
-function renderMessage(id, data) {
-  const div = document.createElement("div");
-  div.classList.add("message");
-  div.classList.add(data.sender === user ? "sent" : "received");
+db.ref("messages").on("value", (snapshot) => {
+  messages.innerHTML = "";
+  snapshot.forEach((child) => {
+    const msg = child.val();
+    const id = child.key;
 
-  if (data.text) {
-    div.innerHTML = `<div>${data.text}</div>`;
-  } else if (data.image) {
-    div.innerHTML = `<img src="${data.image}" style="max-width: 100%;">`;
-  }
+    const div = document.createElement("div");
+    div.classList.add("message");
+    div.classList.add(msg.sender === "me" ? "sent" : "received");
 
-  if (data.sender === user) {
-    const toolsBtn = document.createElement("button");
-    toolsBtn.className = "tools-btn";
-    toolsBtn.textContent = "👼";
-    toolsBtn.onclick = () => div.classList.toggle("show-tools");
-    div.appendChild(toolsBtn);
+    if (msg.text) {
+      div.innerHTML = `<div>${msg.text}</div>`;
+    } else if (msg.image) {
+      div.innerHTML = `<img src="${msg.image}" />`;
+    }
 
-    const actionBar = document.createElement("div");
-    actionBar.className = "actions";
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = new Date(msg.time).toLocaleTimeString();
+    div.appendChild(meta);
 
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "✏️";
-    editBtn.onclick = () => {
-      const newText = prompt("Chỉnh sửa tin nhắn:", data.text || "");
-      if (newText !== null) {
-        db.ref("messages/" + id).update({ text: newText });
-      }
-    };
+    if (msg.sender === "me") {
+      const action = document.createElement("div");
+      action.className = "action-btn";
+      action.textContent = "👼";
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "🗑️";
-    deleteBtn.onclick = () => {
-      if (confirm("Thu hồi tin nhắn này?")) {
-        db.ref("messages/" + id).remove();
-      }
-    };
+      const options = document.createElement("div");
+      options.className = "options";
 
-    actionBar.appendChild(editBtn);
-    actionBar.appendChild(deleteBtn);
-    div.appendChild(actionBar);
-  }
+      const edit = document.createElement("button");
+      edit.textContent = "✏️";
+      edit.onclick = () => {
+        const newText = prompt("Chỉnh sửa tin nhắn:", msg.text || "");
+        if (newText !== null) {
+          db.ref("messages").child(id).update({ text: newText });
+        }
+      };
 
-  chatBox.appendChild(div);
-}
+      const del = document.createElement("button");
+      del.textContent = "🗑️";
+      del.onclick = () => {
+        db.ref("messages").child(id).remove();
+      };
 
-db.ref("messages").on("value", snapshot => {
-  chatBox.innerHTML = "";
-  snapshot.forEach(child => {
-    renderMessage(child.key, child.val());
+      options.appendChild(edit);
+      options.appendChild(del);
+      div.appendChild(action);
+      div.appendChild(options);
+    }
+
+    messages.appendChild(div);
   });
-  chatBox.scrollTop = chatBox.scrollHeight;
+
+  messages.scrollTop = messages.scrollHeight;
 });
