@@ -1,155 +1,134 @@
-/* ====== Global Styles ====== */
-body {
+* {
   margin: 0;
-  font-family: Arial, sans-serif;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
   background: #111;
-  color: #fff;
+  color: white;
+  font-family: Arial, sans-serif;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
 }
 
 header {
   background: #222;
-  color: #fff;
-  padding: 10px 15px;
-  font-size: 18px;
+  padding: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
-#clearChatBtn {
+header h1 {
+  font-size: 18px;
+}
+#clearBtn {
+  font-size: 18px;
   background: none;
   border: none;
-  font-size: 18px;
-  cursor: pointer;
+  color: white;
 }
 
-/* ====== Chat Container ====== */
-#messagesContainer {
+main#chat-container {
   flex: 1;
   overflow-y: auto;
   padding: 10px;
-  display: flex;
-  flex-direction: column;
 }
 
-/* ====== Message Bubble ====== */
+#messages {
+  list-style: none;
+}
 .message {
-  max-width: 75%;
-  margin: 6px 0;
+  max-width: 80%;
+  margin-bottom: 10px;
   padding: 10px;
   border-radius: 10px;
   position: relative;
-  word-wrap: break-word;
   background: #333;
+  word-wrap: break-word;
 }
-
-.sent {
-  align-self: flex-end;
-  background: #007bff;
+.message.sent {
+  margin-left: auto;
+  background: #0078ff;
 }
-
-.received {
-  align-self: flex-start;
-  background: #444;
+.message .meta {
+  font-size: 11px;
+  color: #ccc;
 }
-
-.message img {
-  max-width: 100%;
-  border-radius: 5px;
-  margin-top: 5px;
-}
-
-/* 👼 Menu Icon */
-.options-toggle {
+.message .action-icon {
+  position: absolute;
+  bottom: 4px;
+  right: 10px;
   font-size: 16px;
   cursor: pointer;
-  position: absolute;
-  right: 5px;
-  bottom: -18px;
 }
-
-/* Menu */
-.message-options {
-  position: absolute;
-  right: 5px;
-  bottom: -45px;
-  background: #222;
-  border: 1px solid #555;
-  padding: 3px 6px;
-  border-radius: 6px;
+.message .actions {
   display: none;
-  flex-direction: column;
-  z-index: 10;
+  position: absolute;
+  bottom: 25px;
+  right: 10px;
+  background: #444;
+  padding: 4px 6px;
+  border-radius: 6px;
 }
-
-.message-options button {
+.message .actions button {
   background: none;
   border: none;
   color: white;
-  font-size: 13px;
-  text-align: left;
+  font-size: 12px;
+  margin: 2px 0;
   cursor: pointer;
-  padding: 3px 6px;
+}
+.message:hover .action-icon {
+  display: inline;
 }
 
-.message-options button:hover {
-  background: #444;
-}
-
-/* ====== Chat Input ====== */
-.chat-input {
-  background: #1c1c1c;
-  padding: 10px;
+footer {
   display: flex;
   align-items: center;
-  gap: 8px;
+  padding: 8px;
+  background: #222;
 }
-
-#messageInput {
+footer input[type="text"] {
   flex: 1;
-  padding: 10px 12px;
-  border-radius: 20px;
+  padding: 10px 14px;
   border: none;
+  border-radius: 20px;
+  margin: 0 8px;
+  font-size: 16px;
   background: #333;
   color: white;
-  font-size: 15px;
 }
-
-.icon-button {
+.icon-btn {
+  font-size: 22px;
   background: none;
   border: none;
-  font-size: 22px;
+  color: white;
   cursor: pointer;
 }
-
-/* ===== Emoji Picker ===== */
 #emojiPicker {
   position: absolute;
   bottom: 60px;
   left: 10px;
-  z-index: 999;
+  background: #333;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 90%;
+  z-index: 100;
 }
-
-/* ===== Utility ===== */
+#emojiPicker span {
+  font-size: 20px;
+  margin: 5px;
+  cursor: pointer;
+}
 .hidden {
-  display: none;
+  display: none !important;
 }
 
-@media (max-width: 600px) {
-  .chat-input {
-    flex-wrap: nowrap;
-    gap: 6px;
-    padding: 8px;
-  }
-
-  #messageInput {
-    font-size: 14px;
-  }
-
-  .message-options {
-    font-size: 12px;
-  }
+img.message-img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-top: 5px;
 }
