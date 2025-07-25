@@ -10,24 +10,24 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const messagesRef = db.ref("messages");
 
-// Tên người gửi mặc định
-const username = "Ẩn danh";
+const userId = Date.now(); // dùng làm user tạm thời
 
-// DOM
-const input = document.getElementById("messageInput");
-const chat = document.getElementById("chatMessages");
+const chatMessages = document.getElementById("chatMessages");
 const emojiPicker = document.getElementById("emojiPicker");
+const messageInput = document.getElementById("messageInput");
+const imageInput = document.getElementById("imageInput");
 
 let replyTo = null;
 
-// Emojis
-const emojis = ["😀", "😁", "😂", "🤣", "😎", "😍", "😢", "😡", "❤️", "👍", "🙏", "💩"];
+// Emoji picker
+const emojis = ["😀","😃","😄","😁","😆","😅","🤣","😂","🙂","🙃","😉","😊","😇","🥰","😍","🤩","😘","😗","😙","😚"];
 emojis.forEach(e => {
   const span = document.createElement("span");
   span.textContent = e;
-  span.onclick = () => input.value += e;
+  span.onclick = () => {
+    messageInput.value += e;
+  };
   emojiPicker.appendChild(span);
 });
 
@@ -35,37 +35,24 @@ function toggleEmojiPicker() {
   emojiPicker.style.display = emojiPicker.style.display === "none" ? "flex" : "none";
 }
 
-// Send Message
 function sendMessage() {
-  const text = input.value.trim();
-  const fileInput = document.getElementById("imageInput");
-  const file = fileInput.files[0];
+  const text = messageInput.value.trim();
+  if (!text && !imageInput.files[0]) return;
 
-  if (!text && !file) return;
-
-  const msg = {
-    sender: username,
-    text: text,
-    time: Date.now(),
-    replyTo: replyTo,
-    likes: 0,
-    image: null
+  const message = {
+    id: Date.now(),
+    sender: "Ẩn danh",
+    text,
+    time: new Date().toLocaleTimeString(),
+    uid: userId,
+    like: 0,
+    reply: replyTo ? replyTo.text : null
   };
 
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      msg.image = e.target.result;
-      messagesRef.push(msg);
-    };
-    reader.readAsDataURL(file);
-  } else {
-    messagesRef.push(msg);
-  }
-
-  input.value = "";
-  fileInput.value = "";
-  cancelReply();
+  db.ref("messages").push(message);
+  messageInput.value = "";
+  replyTo = null;
+  document.getElementById("replyBox").style.display = "none";
 }
 
 function cancelReply() {
@@ -73,101 +60,59 @@ function cancelReply() {
   document.getElementById("replyBox").style.display = "none";
 }
 
-// Listen messages
-messagesRef.on("value", snapshot => {
-  chat.innerHTML = "";
-  snapshot.forEach(child => {
-    const data = child.val();
-    const key = child.key;
-    renderMessage(data, key);
+function renderMessage(id, data) {
+  const msg = document.createElement("div");
+  msg.className = "chat-message " + (data.uid === userId ? "right" : "left");
+  msg.id = id;
+
+  msg.innerHTML = `
+    <div><strong>${data.sender}</strong>${data.reply ? `<br><i>↪ ${data.reply}</i>` : ""}<br>${data.text}</div>
+    <div class="message-meta">${data.time} ❤️ ${data.like}</div>
+    <div class="message-actions">
+      <button onclick="likeMessage('${id}')">❤️</button>
+      <button onclick="deleteMessage('${id}')">🗑️</button>
+      <button onclick="replyMessage('${id}')">↩️</button>
+    </div>
+  `;
+  chatMessages.appendChild(msg);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function likeMessage(id) {
+  const ref = db.ref("messages/" + id);
+  ref.once("value", snap => {
+    if (snap.exists()) {
+      const data = snap.val();
+      ref.update({ like: (data.like || 0) + 1 });
+    }
   });
-  chat.scrollTop = chat.scrollHeight;
+}
+
+function deleteMessage(id) {
+  db.ref("messages/" + id).remove();
+}
+
+function replyMessage(id) {
+  db.ref("messages/" + id).once("value", snap => {
+    if (snap.exists()) {
+      replyTo = { id, text: snap.val().text };
+      document.getElementById("replyBox").style.display = "flex";
+      document.getElementById("replyText").textContent = snap.val().text;
+    }
+  });
+}
+
+db.ref("messages").on("child_added", snap => {
+  renderMessage(snap.key, snap.val());
 });
 
-function renderMessage(data, key) {
-  const div = document.createElement("div");
-  div.className = "message" + (data.sender === username ? " own" : "");
-  
-  const header = document.createElement("div");
-  header.className = "message-header";
-  header.textContent = data.sender;
+db.ref("messages").on("child_removed", snap => {
+  const msg = document.getElementById(snap.key);
+  if (msg) msg.remove();
+});
 
-  if (data.replyTo && data.replyTo.text) {
-    const reply = document.createElement("div");
-    reply.style.fontSize = "12px";
-    reply.style.opacity = 0.7;
-    reply.textContent = "↪ " + data.replyTo.text;
-    div.appendChild(reply);
-  }
-
-  div.appendChild(header);
-
-  if (data.text) {
-    const content = document.createElement("div");
-    content.textContent = data.text;
-    div.appendChild(content);
-  }
-
-  if (data.image) {
-    const img = document.createElement("img");
-    img.src = data.image;
-    img.style.maxWidth = "100%";
-    img.style.marginTop = "6px";
-    div.appendChild(img);
-  }
-
-  const footer = document.createElement("div");
-  footer.className = "message-footer";
-  const time = new Date(data.time).toLocaleTimeString();
-  footer.innerHTML = `<span>${time}</span><span>❤️ ${data.likes || 0}</span>`;
-  div.appendChild(footer);
-
-  // ⋯ menu
-  const options = document.createElement("div");
-  options.className = "message-options";
-  const btn = document.createElement("button");
-  btn.textContent = "⋯";
-  btn.className = "options-btn";
-  btn.onclick = () => popup.style.display = popup.style.display === "block" ? "none" : "block";
-
-  const popup = document.createElement("div");
-  popup.className = "options-popup";
-  
-  if (data.sender === username) {
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "✏️ Chỉnh sửa";
-    editBtn.onclick = () => {
-      input.value = data.text;
-      messagesRef.child(key).remove();
-    };
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "❌ Thu hồi";
-    delBtn.onclick = () => messagesRef.child(key).remove();
-    popup.append(editBtn, delBtn);
-  }
-
-  const likeBtn = document.createElement("button");
-  likeBtn.textContent = "❤️ Thích";
-  likeBtn.onclick = () => {
-    messagesRef.child(key).update({ likes: (data.likes || 0) + 1 });
-  };
-
-  const replyBtn = document.createElement("button");
-  replyBtn.textContent = "↩️ Trả lời";
-  replyBtn.onclick = () => {
-    replyTo = { text: data.text, sender: data.sender };
-    document.getElementById("replyToText").textContent = `Trả lời: ${data.text}`;
-    document.getElementById("replyBox").style.display = "flex";
-  };
-
-  popup.append(likeBtn, replyBtn);
-  options.append(btn, popup);
-  div.appendChild(options);
-  chat.appendChild(div);
-}
-
-function clearMessages() {
+document.getElementById("clearChat").onclick = () => {
   if (confirm("Xoá toàn bộ tin nhắn?")) {
-    messagesRef.remove();
+    db.ref("messages").remove();
   }
-}
+};
