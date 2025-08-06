@@ -1,0 +1,163 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  overflow-x: hidden;
+}
+
+header {
+  text-align: center;
+  padding: 30px 10px 20px;
+}
+
+.title-thu-phap {
+  font-family: 'Brush Script MT', cursive;
+  font-size: 3em;
+  color: #ffe600;
+  text-shadow: 2px 2px 6px rgba(255,255,255,0.3);
+}
+
+.scam-slider {
+  padding: 20px 0;
+  overflow: hidden;
+}
+
+.scrolling-list {
+  display: flex;
+  gap: 20px;
+  padding: 10px;
+  animation: scrollLeft 25s linear infinite;
+}
+
+.scam-item {
+  min-width: 220px;
+  background: #0f0f0f;
+  border: 2px solid #00ffcc;
+  border-radius: 10px;
+  padding: 15px 20px;
+  box-shadow: 0 0 15px #00ffcc;
+  text-align: center;
+  flex-shrink: 0;
+  transition: transform 0.3s;
+}
+
+.scam-item:hover {
+  transform: scale(1.08);
+  background: #1c1c1c;
+}
+
+.scam-item a {
+  color: #ff5555;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.1em;
+  display: block;
+  word-break: break-word;
+}
+
+.action-button {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.action-button button {
+  background-color: #ff4f5a;
+  color: white;
+  padding: 14px 30px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1em;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 79, 90, 0.4);
+  transition: 0.3s ease;
+}
+
+.action-button button:hover {
+  background-color: #e63946;
+}
+
+/* Tìm kiếm */
+.search-section {
+  text-align: center;
+  margin: 20px;
+}
+
+#searchInput {
+  width: 80%;
+  max-width: 400px;
+  padding: 10px 15px;
+  font-size: 1em;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+}
+
+/* Bảng xếp hạng */
+.leaderboard {
+  margin: 30px 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.leaderboard h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ffd700;
+}
+
+.table-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+table th, table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #555;
+}
+
+table th {
+  color: #00ffff;
+}
+
+table td a {
+  color: #ffa500;
+  text-decoration: underline;
+}
+
+/* Scroll animation */
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.9em;
+  background-color: #111;
+  color: #aaa;
+}
+.scam-item .avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  border: 2px solid #00ffcc;
+  box-shadow: 0 0 10px #00ffcc;
+  object-fit: cover;
+}
