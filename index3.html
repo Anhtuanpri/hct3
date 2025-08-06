@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tố Cáo Scam</title>
+  <link rel="stylesheet" href="style2.css" />
+</head>
+<body>
+  <header>
+    <h1 class="title-thu-phap">📜 Danh Sách Tố Cáo Scam</h1>
+  </header>
+
+  <!-- Thanh cuộn ngang -->
+  <section class="scam-slider">
+    <div class="scrolling-list" id="scamList"></div>
+  </section>
+
+  <!-- Nút chuyển trang tố cáo -->
+  <section class="action-button">
+    <button onclick="window.location.href='index2.html'">📤 Gửi Tố Cáo Mới</button>
+  </section>
+
+  <!-- Ô tìm kiếm -->
+  <section class="search-section">
+    <input type="text" id="searchInput" placeholder="🔍 Nhập tên hoặc ID để tra cứu...">
+  </section>
+
+  <!-- Bảng xếp hạng scam -->
+  <section class="leaderboard">
+    <h2>🏆 Bảng Xếp Hạng Scammer</h2>
+    <div class="table-container">
+      <table id="scamTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tên/ID</th>
+            <th>Link Scam</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Tự động thêm từ script.js -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p>⚠️ Cảnh báo cộng đồng – không giao dịch với các đối tượng trên.</p>
+  </footer>
+
+  <script src="script2.js"></script>
+</body>
+</html>
