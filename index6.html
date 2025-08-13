@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quay Rương May Mắn - Tông Môn CỬU THIÊN HUYỀN VỰC</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&family=Ma+Shan+Zheng&display=swap');
+
+        /* Root màu cổ trang */
+        :root {
+            --gold1: #d4a017;
+            --gold2: #b8860b;
+            --brown1: #3c2005;
+            --brown2: #5a2e07;
+            --red1: #a80d0d;
+            --red2: #6b0a0a;
+            --paper: #f5e8c7;
+            --paper-dark: #d9c8a3;
+        }
+
+        /* Reset và body */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: url('https://i.imgur.com/3z7Y0zq.jpg') no-repeat center center fixed; /* Nền giấy gạo */
+            background-size: cover;
+            font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+            color: var(--brown1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 160px 16px 60px;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* Tên tông môn cố định */
+        #tongMonName {
+            font-family: 'Ma Shan Zheng', serif;
+            font-size: 52px;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            text-align: center;
+            color: var(--gold1);
+            text-shadow: 
+                0 0 8px #ffd700cc,
+                0 0 20px #b8860bcc;
+            margin: 0 0 10px 0;
+            cursor: default;
+            user-select: text;
+            z-index: 1000;
+        }
+
+        /* Tiêu đề Quay Rương May Mắn */
+        h1 {
+            font-size: 2.8rem;
+            text-align: center;
+            color: var(--brown2);
+            text-shadow: 0 0 12px #c4af6b88;
+            margin: 0 0 20px 0;
+        }
+
+        /* ===== CONTAINER CHÍNH ===== */
+        .container {
+            background: linear-gradient(135deg, var(--paper), var(--paper-dark));
+            width: 480px;
+            max-width: 95vw;
+            border-radius: 36px;
+            padding: 48px 48px 72px 48px;
+            box-shadow:
+                inset 0 0 24px #a4812580,
+                0 10px 40px rgba(0,0,0,0.3);
+            border: 8px solid var(--gold2);
+            position: relative;
+            user-select: none;
+            margin-top: 0;
+        }
+
+        /* Nhãn input */
+        label {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--brown2);
+            margin: 20px 0 10px 0;
+            display: block;
+            text-shadow: 1px 1px 2px #d9c96aaa;
+            user-select: text;
+        }
+
+        /* Input */
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 20px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            border: 3px solid var(--gold2);
+            background: linear-gradient(145deg, var(--paper) 0%, var(--paper-dark) 100%);
+            box-shadow: inset 0 3px 12px #c9b56e88;
+            color: var(--brown1);
+            transition: all 0.3s ease;
+            letter-spacing: 0.1em;
+            user-select: text;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--gold1);
+            box-shadow:
+                0 0 12px var(--gold1),
+                inset 0 0 18px #ffe85aaa;
+            background: #fff8bf;
+            color: var(--brown2);
+        }
+
+        /* Button phong cách cổ trang */
+        button {
+            width: 100%;
+            margin-top: 30px;
+            padding: 18px 0;
+            font-size: 24px;
+            font-weight: 900;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--gold1), var(--gold2));
+            border: 4px solid var(--brown2);
+            color: #fff9d7;
+            cursor: pointer;
+            box-shadow:
+                0 0 18px var(--gold1),
+                inset 0 -4px 14px var(--brown2);
+            font-family: 'Ma Shan Zheng', serif;
+            letter-spacing: 0.13em;
+            text-shadow: 0 0 6px #a67c00cc;
+            user-select: none;
+            transition: all 0.25s ease;
+        }
+        button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #ffe54c, #cba927);
+            box-shadow:
+                0 0 32px #ffd847,
+                inset 0 -5px 20px #ac871100;
+        }
+        button:disabled {
+            background: #b9a05e99;
+            cursor: not-allowed;
+            box-shadow: none;
+            color: #f2e8a1cc;
+        }
+
+        /* Rương - khung chứa */
+        .chest-container {
+            margin: 40px auto 16px;
+            width: 360px;
+            height: 280px;
+            position: relative;
+            cursor: pointer;
+            border-radius: 40px;
+            box-shadow:
+                0 15px 30px #4a310c99,
+                inset 0 0 90px #bc9e2b99;
+            background:
+                linear-gradient(135deg, #533e06, #7c5b14);
+            border: 8px solid var(--gold2);
+            overflow: visible;
+            user-select: none;
+            transition: box-shadow 0.3s ease;
+        }
+        .chest-container:hover {
+            box-shadow:
+                0 18px 40px #5d3f0fbb,
+                inset 0 0 140px #c1a81d88;
+        }
+
+        /* Hình rương */
+        img.chest {
+            width: 100%;
+            height: 100%;
+            border-radius: 40px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 25px #dab236bb);
+            transition: transform 0.6s cubic-bezier(0.4,0,0.2,1), filter 0.4s ease;
+            user-select: none;
+            box-shadow: inset 0 0 30px #d7b52c99;
+            background: linear-gradient(160deg, #5d4705 30%, #9c7e12 90%);
+            border: 2px solid #b58c18;
+        }
+        img.locked {
+            filter: brightness(0.8) drop-shadow(0 0 20px #a4820aaa);
+            cursor: pointer;
+        }
+        img.opening {
+            animation: chestShake 0.5s ease;
+            filter: brightness(1.3) drop-shadow(0 0 60px #fbe962cc);
+            transform-origin: center bottom;
+        }
+        @keyframes chestShake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            20%, 60% { transform: translateX(-8px) rotate(-5deg); }
+            40%, 80% { transform: translateX(8px) rotate(5deg); }
+        }
+
+        /* Glow ánh sáng vàng */
+        .glow {
+            position: absolute;
+            inset: 14px;
+            border-radius: 40px;
+            pointer-events: none;
+            box-shadow:
+                0 0 90px 40px #fbe962cc,
+                0 0 150px 80px #f4de5599;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 3;
+        }
+        .glow.active {
+            opacity: 1;
+        }
+
+        /* Lịch sử */
+        #historyTitle {
+            margin-top: 54px;
+            font-weight: 900;
+            font-size: 2.1rem;
+            text-align: center;
+            color: var(--brown2);
+            text-shadow: 0 0 12px #c4af6b88;
+            letter-spacing: 0.1em;
+            user-select: text;
+        }
+        #history {
+            max-height: 230px;
+            overflow-y: auto;
+            background: #f9f1cc;
+            border-radius: 26px;
+            padding: 22px 38px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 18px;
+            line-height: 1.4;
+            margin-top: 20px;
+            color: var(--brown1);
+            box-shadow: inset 0 0 28px #f0e4a322;
+            user-select: text;
+            letter-spacing: 0.07em;
+        }
+        #history::-webkit-scrollbar {
+            width: 14px;
+        }
+        #history::-webkit-scrollbar-thumb {
+            background: var(--gold2);
+            border-radius: 20px;
+            border: 4px solid #f2e58fbb;
+        }
+
+        /* Thanh marquee hoa văn */
+        #marqueeWrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(90deg, var(--red2), var(--red1));
+            border-bottom: 4px solid var(--brown2);
+            box-shadow: inset 0 3px 12px #d6c048cc;
+            overflow: hidden;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            font-family: 'Ma Shan Zheng', serif;
+            user-select: none;
+        }
+        #marqueeContent {
+            white-space: nowrap;
+            will-change: transform;
+            font-weight: 900;
+            font-size: 22px;
+            color: #f9f3cf;
+            text-shadow:
+                0 0 6px #87620ecc,
+                0 0 12px #d1ba44cc;
+            padding-left: 100%;
+            animation: marqueeScroll linear infinite;
+            letter-spacing: 0.15em;
+            font-style: italic;
+            font-variant: small-caps;
+        }
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Popup cổ trang */
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 420px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, var(--red2), var(--red1));
+            border: 6px solid var(--gold1);
+            border-radius: 36px;
+            padding: 44px 48px;
+            box-shadow:
+                0 0 36px #f7de51dd,
+                inset 0 0 48px #8f641322;
+            color: #fff2b7;
+            text-align: center;
+            font-weight: 900;
+            font-size: 30px;
+            letter-spacing: 0.15em;
+            user-select: none;
+            transform: translate(-50%, -50%) scale(0.85);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            font-family: 'Ma Shan Zheng', serif;
+            text-shadow:
+                0 0 8px #f6df7ccc,
+                0 0 18px #d6b13bbb;
+            box-sizing: border-box;
+            z-index: 10000;
+        }
+        #popup.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        #popup b {
+            color: var(--gold1);
+            text-shadow: 0 0 6px #fbe85a99;
+            user-select: text;
+        }
+        #popup button {
+            margin-top: 32px;
+            width: 160px;
+            background: linear-gradient(135deg, var(--gold1), var(--gold2));
+            border: 4px solid var(--brown2);
+            box-shadow: 0 0 22px var(--gold1);
+            font-size: 22px;
+            padding: 16px 0;
+            border-radius: 26px;
+            color: #fff9d7;
+            cursor: pointer;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            font-family: 'Ma Shan Zheng', serif;
+            letter-spacing: 0.1em;
+            user-select: none;
+            text-shadow: 0 0 8px #a67c00cc;
+        }
+        #popup button:hover {
+            background: linear-gradient(135deg, #ffe74c, #cba927);
+            box-shadow: 0 0 30px #e8d65a;
+        }
+
+        /* Responsive nhỏ */
+        @media (max-width: 520px) {
+            .container {
+                width: 95vw;
+                padding: 36px 24px 56px 24px;
+            }
+            .chest-container {
+                width: 280px;
+                height: 220px;
+            }
+            h1 {
+                font-size: 2.6rem;
+            }
+            #tongMonName {
+                font-size: 36px;
+            }
+            #popup {
+                width: 90vw;
+            }
+            button {
+                font-size: 20px;
+                padding: 14px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Thanh marquee hoa văn -->
+<div id="marqueeWrapper" aria-live="polite" aria-atomic="true" aria-relevant="additions" role="region" aria-label="Thông báo may mắn trúng thưởng">
+    <div id="marqueeContent">Tông Môn CỬU THIÊN HUYỀN VỰC - </div>
+</div>
+
+<!-- Tên tông môn cố định -->
+<div id="tongMonName">CỬU THIÊN HUYỀN VỰC</div>
+
+<h1>Quay Rương May Mắn</h1>
+
+<div class="container" role="main" aria-label="Game quay rương phong cách cổ trang hoàng gia">
+    <label for="playerId">Nhập ID người chơi:</label>
+    <input type="text" id="playerId" placeholder="Nhập ID người chơi..." autocomplete="off" spellcheck="false" aria-required="true" />
+
+    <label for="maxXu">Số xu tối đa muốn nhận (≥50):</label>
+    <input type="number" id="maxXu" placeholder="Nhập số xu tối đa..." min="50" max="100000" value="1000" aria-required="true" />
+
+    <div class="chest-container" id="chest" role="button" aria-label="Mở rương may mắn" tabindex="0">
+        <img src="https://i.ibb.co/sdZ6RJqB/IMG-5014.png" alt="Rương khóa" class="chest locked" id="chestImg" draggable="false" />
+        <div class="glow" id="glow"></div>
+    </div>
+
+    <button id="btnClearHistory" type="button" aria-label="Xóa lịch sử mở rương">Xóa lịch sử</button>
+    <button id="btnTest300" type="button" aria-label="Test 300 lượt quay rương">Test 300 lượt</button>
+
+    <div id="historyTitle">Lịch sử mở rương</div>
+    <div id="history" aria-live="polite" aria-atomic="true" tabindex="0" role="log" aria-relevant="additions">(Chưa có lượt mở nào)</div>
+</div>
+
+<audio id="openSnd" src="https://www.myinstants.com/media/sounds/chest_open.mp3" preload="auto"></audio>
+
+<!-- Popup cổ trang lớn -->
+<div id="popup" role="alertdialog" aria-modal="true" aria-labelledby="popupTitle" aria-describedby="popupDesc">
+    <div id="popupTitle" style="font-size: 36px; margin-bottom: 20px; text-shadow: 0 0 18px #ffd700cc;">🎉 Chúc mừng Hoàng Thân! 🎉</div>
+    <div id="popupDesc" style="margin-top:6px; font-size: 30px; font-weight: 700;"></div>
+    <button id="popupCloseBtn" aria-label="Đóng thông báo">Đóng</button>
+</div>
+
+<script>
+const chest = document.getElementById('chest');
+const chestImg = document.getElementById('chestImg');
+const glow = document.getElementById('glow');
+const playerIdInput = document.getElementById('playerId');
+const maxXuInput = document.getElementById('maxXu');
+const historyEl = document.getElementById('history');
+const marqueeContent = document.getElementById('marqueeContent');
+const openSnd = document.getElementById('openSnd');
+const popup = document.getElementById('popup');
+const popupDesc = document.getElementById('popupDesc');
+const popupCloseBtn = document.getElementById('popupCloseBtn');
+
+const lockedSrc = "https://i.ibb.co/sdZ6RJqB/IMG-5014.png";
+const openSrc = "https://i.ibb.co/wZ7RDGLB/IMG-5016.png";
+
+let history = JSON.parse(localStorage.getItem('chestHistory')) || [];
+let totalXu = history.reduce((sum, h) => sum + h.xu, 0);
+let opened = false;
+
+function saveHistory() {
+    localStorage.setItem('chestHistory', JSON.stringify(history));
+}
+
+function renderHistory() {
+    if (history.length === 0) {
+        historyEl.textContent = '(Chưa có lượt mở nào)';
+        return;
+    }
+    let html = '';
+    history.forEach((h, i) => {
+        html += `<div><b>${h.id}</b> nhận được <b>${h.xu}</b> xu</div>`;
+    });
+    historyEl.innerHTML = html;
+    historyEl.scrollTop = historyEl.scrollHeight;
+}
+
+function randomXu() {
+    return Math.random() < 0.02 ? 100 : Math.floor(Math.random() * 21) + 20;
+}
+
+function canOpen(id, maxXu) {
+    if (!id) {
+        alert('Vui lòng nhập ID người chơi!');
+        return false;
+    }
+    if (isNaN(maxXu) || maxXu < 50) {
+        alert('Số xu tối đa phải là số từ 50 trở lên!');
+        return false;
+    }
+    if (totalXu >= maxXu) {
+        alert('Bạn đã nhận đủ số xu tối đa rồi!');
+        return false;
+    }
+    return true;
+}
+
+function addMarqueeMsg(msg) {
+    const span = document.createElement('span');
+    span.innerHTML = `Tông Môn CỬU THIÊN HUYỀN VỰC - ${msg} &nbsp; &nbsp; 🌸 &nbsp; &nbsp; `;
+    marqueeContent.appendChild(span);
+    marqueeContent.style.animationDuration = `${marqueeContent.scrollWidth / 100}s`;
+    marqueeContent.style.animationPlayState = 'running';
+}
+
+function resetChest() {
+    chestImg.src = lockedSrc;
+    chestImg.classList.remove('opening');
+    chestImg.classList.add('locked');
+    glow.classList.remove('active');
+    opened = false;
+}
+
+function showPopup(msg) {
+    popupDesc.innerHTML = msg;
+    popup.classList.add('show');
+}
+
+function hidePopup() {
+    popup.classList.remove('show');
+}
+
+chest.addEventListener('click', () => {
+    if (opened) return;
+    const id = playerIdInput.value.trim();
+    const maxXu = parseInt(maxXuInput.value);
+    if (!canOpen(id, maxXu)) return;
+
+    opened = true;
+    chestImg.classList.remove('locked');
+    chestImg.classList.add('opening');
+    openSnd.currentTime = 0;
+    openSnd.play().catch(e => console.error('Lỗi phát âm thanh:', e));
+    glow.classList.add('active');
+
+    setTimeout(() => {
+        const xu = randomXu();
+        if (totalXu + xu > maxXu) {
+            alert(`Chỉ còn ${maxXu - totalXu} xu nữa thôi, không thể nhận thêm!`);
+            resetChest();
+            return;
+        }
+        totalXu += xu;
+
+        chestImg.src = openSrc;
+        chestImg.classList.remove('opening');
+        glow.classList.remove('active');
+
+        history.push({ id, xu });
+        saveHistory();
+        renderHistory();
+
+        addMarqueeMsg(`Hoàng Thân <b>${id}</b> nhận được <b>${xu} xu</b>! Tổng: ${totalXu}/${maxXu}`);
+
+        showPopup(`Hoàng Thân <b>${id}</b> đã nhận <b>${xu} xu</b>!`);
+
+        setTimeout(resetChest, 2000);
+    }, 900);
+});
+
+document.getElementById('btnClearHistory').addEventListener('click', () => {
+    if (confirm('Xóa toàn bộ lịch sử mở rương?')) {
+        history = [];
+        totalXu = 0;
+        saveHistory();
+        renderHistory();
+        marqueeContent.textContent = '';
+        marqueeContent.style.animationDuration = '0s';
+        addMarqueeMsg('Chưa có lượt trúng thưởng nào - Quay ngay để may mắn!');
+    }
+});
+
+document.getElementById('btnTest300').addEventListener('click', () => {
+    const maxXu = parseInt(maxXuInput.value);
+    if (isNaN(maxXu) || maxXu < 50) {
+        alert('Số xu tối đa phải là số từ 50 trở lên!');
+        return;
+    }
+    let testXuTotal = 0;
+    let luckyCount = 0;
+    for (let i = 0; i < 300; i++) {
+        let xu = randomXu();
+        if (testXuTotal + xu > maxXu) xu = maxXu - testXuTotal;
+        testXuTotal += xu;
+        if (xu === 100) luckyCount++;
+        if (testXuTotal >= maxXu) break;
+    }
+    alert(`Test 300 lượt quay:\nTổng xu ≈ ${testXuTotal}\nTrúng 100 xu ${luckyCount} lần.`);
+});
+
+popupCloseBtn.addEventListener('click', hidePopup);
+
+chest.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        chest.click();
+    }
+});
+
+// Khởi tạo lịch sử và marquee
+renderHistory();
+if (history.length === 0) {
+    marqueeContent.textContent = '';
+    addMarqueeMsg('Chưa có lượt trúng thưởng nào - Quay ngay để may mắn!');
+} else {
+    let totalSavedXu = 0;
+    for (const h of history) {
+        totalSavedXu += h.xu;
+        addMarqueeMsg(`Hoàng Thân ${h.id} nhận ${h.xu} xu! Tổng hiện tại: ${totalSavedXu}/${maxXuInput.value}`);
+    }
+    totalXu = totalSavedXu;
+}
+</script>
+
+</body>
+</html>
