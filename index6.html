@@ -77,13 +77,13 @@
             gap: 20px;
         }
 
-        /* Container chính */
+        /* Container chính - mở rộng để bao phủ nền, thêm chữ Hán ở khoảng trống */
         .container {
             background: linear-gradient(135deg, var(--paper), var(--paper-dark));
             width: 100%;
-            max-width: 600px;
+            max-width: 800px; /* Tăng rộng hơn để bao phủ nền */
             border-radius: 36px;
-            padding: 48px;
+            padding: 48px 100px; /* Tăng padding ngang để có khoảng trống cho chữ Hán */
             box-shadow:
                 inset 0 0 24px #a4812580,
                 0 10px 40px rgba(0,0,0,0.3);
@@ -93,11 +93,30 @@
             margin-top: 0;
         }
 
+        /* Chữ Hán trong container chính - đặt ở hai bên khoảng trống, không đè chức năng */
+        .inner-hanzi-left, .inner-hanzi-right {
+            position: absolute;
+            top: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1; /* Đặt sau các chức năng */
+            opacity: 0.6; /* Làm mờ nhẹ để không nổi bật quá */
+        }
+
+        .inner-hanzi-left {
+            left: 20px;
+        }
+
+        .inner-hanzi-right {
+            right: 20px;
+        }
+
         /* Side panels với chữ Hán phát sáng */
         .side-panel {
             background: linear-gradient(135deg, var(--paper-dark), var(--paper));
             width: 100%;
-            max-width: 300px;
+            max-width: 200px; /* Giảm rộng để tập trung vào chữ dọc */
             border-radius: 36px;
             padding: 48px 24px;
             box-shadow:
@@ -131,7 +150,7 @@
 
         .hanzi {
             font-family: 'Ma Shan Zheng', serif;
-            font-size: 2rem;
+            font-size: 2.5rem; /* Tăng size cho font cổ trang */
             color: var(--brown2);
             text-shadow: 0 0 5px #c4af6b88;
             transition: all 0.3s ease;
@@ -154,6 +173,8 @@
             display: block;
             text-shadow: 1px 1px 2px #d9c96aaa;
             user-select: text;
+            position: relative;
+            z-index: 2;
         }
 
         /* Input */
@@ -171,6 +192,8 @@
             transition: all 0.3s ease;
             letter-spacing: 0.1em;
             user-select: text;
+            position: relative;
+            z-index: 2;
         }
         input[type="text"]:focus,
         input[type="number"]:focus {
@@ -203,6 +226,8 @@
             text-shadow: 0 0 6px #a67c00cc;
             user-select: none;
             transition: all 0.25s ease;
+            position: relative;
+            z-index: 2;
         }
         button:hover:not(:disabled) {
             background: linear-gradient(135deg, #ffe54c, #cba927);
@@ -234,6 +259,7 @@
             overflow: visible;
             user-select: none;
             transition: box-shadow 0.3s ease;
+            z-index: 2;
         }
         .chest-container:hover {
             box-shadow:
@@ -296,6 +322,8 @@
             text-shadow: 0 0 12px #c4af6b88;
             letter-spacing: 0.1em;
             user-select: text;
+            position: relative;
+            z-index: 2;
         }
         #history {
             max-height: 230px;
@@ -311,6 +339,8 @@
             box-shadow: inset 0 0 28px #f0e4a322;
             user-select: text;
             letter-spacing: 0.07em;
+            position: relative;
+            z-index: 2;
         }
         #history::-webkit-scrollbar {
             width: 14px;
@@ -432,6 +462,10 @@
             }
             .container {
                 max-width: 95vw;
+                padding: 48px 48px;
+            }
+            .inner-hanzi-left, .inner-hanzi-right {
+                display: none; /* Ẩn chữ Hán nội bộ trên mobile */
             }
         }
 
@@ -473,19 +507,33 @@
 <h1>Quay Rương May Mắn</h1>
 
 <div class="main-wrapper">
-    <!-- Side panel trái: Chữ Hán phát sáng -->
+    <!-- Side panel trái: 7 chữ Hán dọc phát sáng -->
     <div class="side-panel left">
         <h2>九天玄域</h2>
         <div class="hanzi-container">
+            <span class="hanzi">九</span>
             <span class="hanzi">天</span>
-            <span class="hanzi">皇</span>
-            <span class="hanzi">贵</span>
-            <span class="hanzi">胄</span>
+            <span class="hanzi">玄</span>
+            <span class="hanzi">域</span>
+            <span class="hanzi">宝</span>
+            <span class="hanzi">藏</span>
+            <span class="hanzi">运</span>
         </div>
     </div>
 
     <!-- Container chính -->
     <div class="container" role="main" aria-label="Game quay rương phong cách cổ trang hoàng gia">
+        <!-- Chữ Hán nội bộ bên trái -->
+        <div class="inner-hanzi-left hanzi-container">
+            <span class="hanzi">圣</span>
+            <span class="hanzi">贤</span>
+            <span class="hanzi">之</span>
+            <span class="hanzi">地</span>
+            <span class="hanzi">福</span>
+            <span class="hanzi">泽</span>
+            <span class="hanzi">万</span>
+        </div>
+
         <label for="playerId">Nhập ID người chơi:</label>
         <input type="text" id="playerId" placeholder="Nhập ID người chơi..." autocomplete="off" spellcheck="false" aria-required="true" />
 
@@ -503,16 +551,30 @@
 
         <div id="historyTitle">Lịch sử mở rương</div>
         <div id="history" aria-live="polite" aria-atomic="true" tabindex="0" role="log" aria-relevant="additions">(Chưa có lượt mở nào)</div>
-    </div>
 
-    <!-- Side panel phải: Chữ Hán phát sáng -->
-    <div class="side-panel right">
-        <h2>玄域宝藏</h2>
-        <div class="hanzi-container">
-            <span class="hanzi">运</span>
+        <!-- Chữ Hán nội bộ bên phải -->
+        <div class="inner-hanzi-right hanzi-container">
             <span class="hanzi">气</span>
             <span class="hanzi">无</span>
             <span class="hanzi">限</span>
+            <span class="hanzi">皇</span>
+            <span class="hanzi">贵</span>
+            <span class="hanzi">胄</span>
+            <span class="hanzi">荣</span>
+        </div>
+    </div>
+
+    <!-- Side panel phải: 7 chữ Hán dọc phát sáng -->
+    <div class="side-panel right">
+        <h2>玄域宝藏</h2>
+        <div class="hanzi-container">
+            <span class="hanzi">玄</span>
+            <span class="hanzi">域</span>
+            <span class="hanzi">宝</span>
+            <span class="hanzi">藏</span>
+            <span class="hanzi">运</span>
+            <span class="hanzi">气</span>
+            <span class="hanzi">无</span>
         </div>
     </div>
 </div>
@@ -548,7 +610,7 @@ let playedIds = JSON.parse(localStorage.getItem('playedIds')) || new Set();
 let totalXu = history.reduce((sum, h) => sum + h.xu, 0);
 let opened = false;
 
-// Hiệu ứng phát sáng domino cho chữ Hán
+// Hiệu ứng phát sáng domino cho chữ Hán (áp dụng cho tất cả hanzi-container)
 function startHanziGlow() {
     const hanziElements = document.querySelectorAll('.hanzi');
     let index = 0;
@@ -559,7 +621,7 @@ function startHanziGlow() {
             hanziElements[index].classList.add('glow');
             index = (index + 1) % hanziElements.length;
         }
-        setTimeout(glowNext, 1000); // Mỗi chữ sáng lên sau 1 giây
+        setTimeout(glowNext, 800); // Tốc độ nhanh hơn một chút, 0.8 giây mỗi chữ
     }
 
     glowNext();
