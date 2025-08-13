@@ -154,12 +154,12 @@
             color: var(--brown2);
             text-shadow: 0 0 2px #c4af6b88;
             position: relative;
-            transition: color 0.5s ease;
+            transition: color 0.2s ease; /* Tăng tốc độ transition */
         }
 
         .hanzi.glow {
             color: var(--gold1);
-            animation: ledGlow 1.5s infinite;
+            animation: ledGlow 0.6s infinite; /* Tăng tốc độ animation */
         }
 
         @keyframes ledGlow {
@@ -595,17 +595,22 @@ let playedIds = JSON.parse(localStorage.getItem('playedIds')) || new Set();
 let totalXu = history.reduce((sum, h) => sum + h.xu, 0);
 let opened = false;
 
-// Hiệu ứng domino cho mỗi hanzi-container riêng biệt
+// Hiệu ứng domino cho 3-4 chữ cùng lúc
 function startHanziGlow(containerSelector) {
     const hanziElements = document.querySelectorAll(`${containerSelector} .hanzi`);
+    const groupSize = 3; // Số chữ sáng cùng lúc (có thể tăng lên 4 nếu muốn)
     let index = 0;
 
     function glowNext() {
         hanziElements.forEach(el => el.classList.remove('glow'));
         if (hanziElements.length > 0) {
-            hanziElements[index].classList.add('glow');
+            const startIdx = index % hanziElements.length;
+            const endIdx = Math.min(startIdx + groupSize, hanziElements.length);
+            for (let i = startIdx; i < endIdx; i++) {
+                hanziElements[i].classList.add('glow');
+            }
             index = (index + 1) % hanziElements.length;
-            setTimeout(glowNext, 500); // 0.5s mỗi chữ
+            setTimeout(glowNext, 200); // Tăng tốc độ, 0.2s mỗi lần chuyển
         }
     }
 
