@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -29,7 +28,7 @@
         body {
             margin: 0;
             padding: 0;
-            background: url('https://i.ibb.co/tPbyscms/IMG-5035.webp') no-repeat center center fixed; /* Nền giấy gạo */
+            background: url('https://i.ibb.co/tPbyscms/IMG-5035.webp') no-repeat center center fixed;
             background-size: cover;
             font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
             color: var(--brown1);
@@ -68,21 +67,23 @@
             margin: 0 0 20px 0;
         }
 
-        /* ===== CONTAINER CHÍNH ===== */
+        /* Main wrapper bao phủ toàn màn hình */
         .main-wrapper {
             display: flex;
             justify-content: space-between;
             width: 100vw;
             max-width: 100%;
-            padding: 0 5vw;
+            padding: 0 2vw;
+            gap: 20px;
         }
 
+        /* Container chính */
         .container {
             background: linear-gradient(135deg, var(--paper), var(--paper-dark));
-            width: 480px;
-            max-width: 40vw;
+            width: 100%;
+            max-width: 600px;
             border-radius: 36px;
-            padding: 48px 48px 72px 48px;
+            padding: 48px;
             box-shadow:
                 inset 0 0 24px #a4812580,
                 0 10px 40px rgba(0,0,0,0.3);
@@ -92,10 +93,10 @@
             margin-top: 0;
         }
 
-        /* Side panels để lấp khoảng trống trên PC */
+        /* Side panels với chữ Hán phát sáng */
         .side-panel {
             background: linear-gradient(135deg, var(--paper-dark), var(--paper));
-            width: 25vw;
+            width: 100%;
             max-width: 300px;
             border-radius: 36px;
             padding: 48px 24px;
@@ -120,15 +121,28 @@
             text-shadow: 0 0 8px #c4af6b88;
         }
 
-        .side-panel p {
-            margin: 10px 0;
+        /* Chữ Hán phát sáng kiểu domino */
+        .hanzi-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
         }
 
-        .side-panel img.decor {
-            width: 80%;
-            max-width: 200px;
-            margin: 20px 0;
-            filter: drop-shadow(0 0 15px #dab236bb);
+        .hanzi {
+            font-family: 'Ma Shan Zheng', serif;
+            font-size: 2rem;
+            color: var(--brown2);
+            text-shadow: 0 0 5px #c4af6b88;
+            transition: all 0.3s ease;
+        }
+
+        .hanzi.glow {
+            color: var(--gold1);
+            text-shadow:
+                0 0 10px #ffd700cc,
+                0 0 20px #ffd700cc,
+                0 0 30px #ffd700cc;
         }
 
         /* Nhãn input */
@@ -407,10 +421,10 @@
             box-shadow: 0 0 30px #e8d65a;
         }
 
-        /* Responsive nhỏ */
+        /* Responsive */
         @media (max-width: 1024px) {
             .side-panel {
-                display: none; /* Ẩn side panels trên mobile để tránh chật */
+                display: none;
             }
             .main-wrapper {
                 justify-content: center;
@@ -459,13 +473,15 @@
 <h1>Quay Rương May Mắn</h1>
 
 <div class="main-wrapper">
-    <!-- Side panel trái: Trang trí hoặc hướng dẫn -->
+    <!-- Side panel trái: Chữ Hán phát sáng -->
     <div class="side-panel left">
-        <h2>Hướng Dẫn Chơi</h2>
-        <p>Nhập ID người chơi và số xu tối đa.</p>
-        <p>Nhấn vào rương để mở và nhận phần thưởng!</p>
-        <img class="decor" src="https://i.ibb.co/sdZ6RJqB/IMG-5014.png" alt="Rương trang trí" draggable="false" />
-        <p>Mỗi ID chỉ được chơi một lần cho đến khi reset.</p>
+        <h2>九天玄域</h2>
+        <div class="hanzi-container">
+            <span class="hanzi">天</span>
+            <span class="hanzi">皇</span>
+            <span class="hanzi">贵</span>
+            <span class="hanzi">胄</span>
+        </div>
     </div>
 
     <!-- Container chính -->
@@ -489,14 +505,15 @@
         <div id="history" aria-live="polite" aria-atomic="true" tabindex="0" role="log" aria-relevant="additions">(Chưa có lượt mở nào)</div>
     </div>
 
-    <!-- Side panel phải: Trang trí hoặc bảng xếp hạng giả */
+    <!-- Side panel phải: Chữ Hán phát sáng -->
     <div class="side-panel right">
-        <h2>Bảng Xếp Hạng</h2>
-        <p>Hoàng Thân A: 150 xu</p>
-        <p>Hoàng Thân B: 100 xu</p>
-        <p>Hoàng Thân C: 80 xu</p>
-        <img class="decor" src="https://i.ibb.co/wZ7RDGLB/IMG-5016.png" alt="Rương mở trang trí" draggable="false" />
-        <p>Cập nhật sau mỗi lượt quay!</p>
+        <h2>玄域宝藏</h2>
+        <div class="hanzi-container">
+            <span class="hanzi">运</span>
+            <span class="hanzi">气</span>
+            <span class="hanzi">无</span>
+            <span class="hanzi">限</span>
+        </div>
     </div>
 </div>
 
@@ -527,9 +544,26 @@ const lockedSrc = "https://i.ibb.co/sdZ6RJqB/IMG-5014.png";
 const openSrc = "https://i.ibb.co/wZ7RDGLB/IMG-5016.png";
 
 let history = JSON.parse(localStorage.getItem('chestHistory')) || [];
-let playedIds = JSON.parse(localStorage.getItem('playedIds')) || new Set(); // Lưu ID đã chơi để cấm trùng
+let playedIds = JSON.parse(localStorage.getItem('playedIds')) || new Set();
 let totalXu = history.reduce((sum, h) => sum + h.xu, 0);
 let opened = false;
+
+// Hiệu ứng phát sáng domino cho chữ Hán
+function startHanziGlow() {
+    const hanziElements = document.querySelectorAll('.hanzi');
+    let index = 0;
+
+    function glowNext() {
+        hanziElements.forEach(el => el.classList.remove('glow'));
+        if (index < hanziElements.length) {
+            hanziElements[index].classList.add('glow');
+            index = (index + 1) % hanziElements.length;
+        }
+        setTimeout(glowNext, 1000); // Mỗi chữ sáng lên sau 1 giây
+    }
+
+    glowNext();
+}
 
 function saveHistory() {
     localStorage.setItem('chestHistory', JSON.stringify(history));
@@ -625,7 +659,7 @@ chest.addEventListener('click', () => {
         glow.classList.remove('active');
 
         history.push({ id, xu });
-        playedIds.add(id); // Thêm ID vào danh sách đã chơi
+        playedIds.add(id);
         saveHistory();
         renderHistory();
 
@@ -700,6 +734,9 @@ if (history.length === 0) {
     }
     totalXu = totalSavedXu;
 }
+
+// Khởi động hiệu ứng chữ Hán
+startHanziGlow();
 </script>
 
 </body>
