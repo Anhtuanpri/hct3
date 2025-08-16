@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Đua Vịt</title>
+<style>
+  :root{
+    --bg:#0b1220; --panel:#111a2b; --muted:#8ea0c0; --accent:#5ad1ff; --good:#3fe17a; --warn:#ffc04d; --danger:#ff5d73;
+  }
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:#e8f1ff;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+  h1,h2{margin:.2rem 0 .6rem}
+  .app{display:grid;grid-template-columns:360px 1fr;gap:14px;padding:14px}
+  @media (max-width:900px){.app{grid-template-columns:1fr}}
+  .panel,.log,.track{background:var(--panel);border:1px solid #1b2740;border-radius:12px;padding:14px}
+  .track{position:relative;overflow:hidden}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin:.5rem 0}
+  button{
+    background:#213257;border:1px solid #2c4274;color:#e8f1ff;border-radius:10px;padding:.6rem .9rem;font-weight:600;
+    cursor:pointer;transition:transform .06s ease, background .2s
+  }
+  button:active{transform:translateY(1px)}
+  button.primary{background:linear-gradient(180deg,#2d6bff,#204fd6);border-color:#1a43bb}
+  button.ghost{background:transparent}
+  label{display:flex;gap:.5rem;align-items:center;margin:.25rem 0;color:var(--muted)}
+  input,select,textarea{
+    background:#0c1426;border:1px solid #203157;color:#e8f1ff;border-radius:10px;padding:.5rem .6rem;outline:none;width:100%;
+  }
+  textarea{min-height:90px;resize:vertical}
+  .row{display:flex;gap:8px}
+  .row > *{flex:1}
+  table{width:100%;border-collapse:collapse;margin-top:.4rem}
+  th,td{border-bottom:1px dashed #27395e;padding:.35rem .25rem;font-size:.95rem}
+  th{color:#b8c7e6;text-align:left}
+  .badge{display:inline-block;padding:.15rem .5rem;border-radius:999px;font-weight:700;font-size:.75rem}
+  .badge.win{background:rgba(63,225,122,.15);color:var(--good);border:1px solid rgba(63,225,122,.4)}
+  .badge.vip{background:rgba(250,235,0,.15);color:#ffe86a;border:1px solid rgba(250,235,0,.45)}
+  .muted{color:var(--muted)}
+  .tiny{font-size:.85rem}
+  #raceCanvas{width:100%;height:360px;border-radius:10px;display:block;background:linear-gradient(180deg,#0a1323,#0c162a)}
+  #winnerBanner{position:absolute;inset:10px;display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.35);backdrop-filter:blur(4px);border-radius:12px;font-size:1.35rem;font-weight:800}
+  .audio-note{font-size:.85rem;color:var(--muted);margin-top:.4rem}
+  details summary{cursor:pointer;color:#cfe3ff;margin:.25rem 0}
+  .pill{background:#0d1a32;border:1px solid #22345c;color:#cfe3ff;padding:.2rem .5rem;border-radius:999px}
+  .right{float:right}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="panel">
+    <h1>🦆 Đua Vịt</h1>
+    <div class="row">
+      <label style="flex:1.1">Số vịt
+        <input id="numDucks" type="number" min="3" max="8" value="6">
+      </label>
+      <label>Thời gian (s) 10–12
+        <div class="row">
+          <input id="minTime" type="number" min="8" max="20" value="10">
+          <input id="maxTime" type="number" min="9" max="25" value="12">
+        </div>
+      </label>
+    </div>
+
+    <h2 style="margin-top:.8rem">Người chơi (tối đa 30)</h2>
+    <div class="row">
+      <input id="playerName" placeholder="Tên/ID người chơi">
+      <select id="duckSelect"></select>
+      <button id="addPlayerBtn" class="primary">➕ Thêm</button>
+    </div>
+    <details>
+      <summary>Nhập nhanh (mỗi dòng: <b>tên, số_vịt</b>)</summary>
+      <textarea id="bulkInput" placeholder="Ví dụ:
+An, 1
+Bình, 3
+Tún, 2"></textarea>
+      <button id="bulkBtn">📥 Nạp danh sách</button>
+    </details>
+
+    <table id="playersTable">
+      <thead><tr><th>Người chơi</th><th>Chọn vịt</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="tiny muted" id="countInfo"></div>
+
+    <div class="controls">
+      <button id="startBtn" class="primary">🎬 Bắt đầu</button>
+      <button id="clearBtn" class="ghost">🧹 Xoá cược</button>
+      <span class="pill right" id="laneInfo">Làn/đặt cược</span>
+    </div>
+    <div class="audio-note">Lưu ý: Trình duyệt di động yêu cầu **chạm nút** để phát âm thanh. Hãy đặt hai file <b>1.mp3</b> và <b>2.mp3</b> cùng thư mục.</div>
+  </section>
+
+  <section class="track">
+    <canvas id="raceCanvas"></canvas>
+    <div id="winnerBanner" hidden></div>
+  </section>
+</div>
+
+<section class="log">
+  <h2>🧾 Nhật ký người thắng</h2>
+  <div class="tiny muted">Lưu dấu thời gian theo múi giờ Asia/Ho_Chi_Minh.</div>
+  <ul id="logList"></ul>
+</section>
+
+<script>
+(function(){
+  // ========= State =========
+  const TZ = 'Asia/Ho_Chi_Minh';
+  const state = {
+    players: [],   // {name, duck}
+    raceRunning: false,
+    ducks: [],     // runtime ducks
+    obstacles: [], // runtime
+    audio1: null,
+    audio2: null,
+  };
+
+  // ========= Elements =========
+  const numDucksEl = document.getElementById('numDucks');
+  const minTimeEl  = document.getElementById('minTime');
+  const maxTimeEl  = document.getElementById('maxTime');
+  const nameEl     = document.getElementById('playerName');
+  const duckSelEl  = document.getElementById('duckSelect');
+  const addBtn     = document.getElementById('addPlayerBtn');
+  const bulkInput  = document.getElementById('bulkInput');
+  const bulkBtn    = document.getElementById('bulkBtn');
+  const tblBody    = document.querySelector('#playersTable tbody');
+  const countInfo  = document.getElementById('countInfo');
+  const startBtn   = document.getElementById('startBtn');
+  const clearBtn   = document.getElementById('clearBtn');
+  const laneInfo   = document.getElementById('laneInfo');
+  const canvas     = document.getElementById('raceCanvas');
+  const banner     = document.getElementById('winnerBanner');
+  const logList    = document.getElementById('logList');
+
+  // ========= Setup =========
+  function populateDuckOptions(){
+    const n = clamp(parseInt(numDucksEl.value||6),3,8);
+    duckSelEl.innerHTML = '';
+    for(let i=1;i<=n;i++){
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = `Vịt ${i}`;
+      duckSelEl.appendChild(opt);
+    }
+    laneInfo.textContent = `Số vịt: ${n} | Cược theo làn`;
+    redrawPlayersTable();
+  }
+  populateDuckOptions();
+  numDucksEl.addEventListener('change', populateDuckOptions);
+
+  function redrawPlayersTable(){
+    tblBody.innerHTML='';
+    state.players.forEach((p,idx)=>{
+      const tr = document.createElement('tr');
+      const td1 = document.createElement('td'); td1.textContent = p.name;
+      const td2 = document.createElement('td'); td2.textContent = `Vịt ${p.duck}`;
+      const td3 = document.createElement('td');
+      const rm = document.createElement('button'); rm.textContent='X'; rm.title='Xoá'; rm.addEventListener('click',()=>{state.players.splice(idx,1); redrawPlayersTable();});
+      td3.appendChild(rm);
+      tr.append(td1,td2,td3);
+      tblBody.appendChild(tr);
+    });
+    const perDuck = countByDuck();
+    countInfo.textContent = 'Đặt cược: ' + Object.entries(perDuck).map(([d,c])=>`Vịt ${d}: ${c}`).join(' · ');
+  }
+
+  function countByDuck(){
+    const counts={};
+    for(let i=1;i<=parseInt(numDucksEl.value||6);i++) counts[i]=0;
+    state.players.forEach(p=> counts[p.duck]=(counts[p.duck]||0)+1 );
+    return counts;
+  }
+
+  addBtn.addEventListener('click', ()=>{
+    const name = (nameEl.value||'').trim();
+    const duck = parseInt(duckSelEl.value);
+    if(!name) return alert('Nhập tên/ID.');
+    if(state.players.length>=30) return alert('Tối đa 30 người!');
+    if(state.players.some(p=>p.name.toLowerCase()===name.toLowerCase())) return alert('Tên/ID đã có trong danh sách.');
+    state.players.push({name, duck});
+    nameEl.value=''; redrawPlayersTable();
+  });
+
+  bulkBtn.addEventListener('click', ()=>{
+    const lines = (bulkInput.value||'').split(/\r?\n/);
+    for(const line of lines){
+      if(!line.trim()) continue;
+      const m = line.split(',').map(s=>s.trim());
+      if(m.length<2) continue;
+      const name = m[0];
+      const duck = parseInt(m[1],10);
+      if(!name || isNaN(duck)) continue;
+      if(duck<1 || duck>parseInt(numDucksEl.value||6)) continue;
+      if(state.players.length>=30) { alert('Đã đạt tối đa 30 người.'); break; }
+      if(state.players.some(p=>p.name.toLowerCase()===name.toLowerCase())) continue;
+      state.players.push({name, duck});
+    }
+    redrawPlayersTable();
+  });
+
+  clearBtn.addEventListener('click', ()=>{
+    if(state.raceRunning) return;
+    state.players = []; redrawPlayersTable();
+  });
+
+  // ========= Canvas / Render =========
+  let ctx, DPR=1, W=0, H=0;
+  function setupCanvas(){
+    DPR = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+    const cssW = canvas.clientWidth||800;
+    const cssH = canvas.clientHeight||360;
+    W = Math.floor(cssW*DPR); H = Math.floor(cssH*DPR);
+    canvas.width=W; canvas.height=H;
+    ctx = canvas.getContext('2d');
+    drawTrackSkeleton();
+  }
+  window.addEventListener('resize', setupCanvas);
+  setupCanvas();
+
+  function drawTrackSkeleton(){
+    // Background lanes
+    const n = parseInt(numDucksEl.value||6);
+    const laneH = H/(n+0.5);
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<n;i++){
+      const y = (i+1)*laneH;
+      // lane base
+      ctx.fillStyle = i%2? '#0f1b33':'#0d192e';
+      ctx.fillRect(0, y-laneH*0.45, W, laneH*0.9);
+      // lane line
+      ctx.strokeStyle = 'rgba(255,255,255,.06)';
+      ctx.setLineDash([10*DPR,8*DPR]); ctx.lineWidth=2*DPR;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    // Finish line
+    const fx = Math.floor(W*0.88);
+    for(let y=0;y<H;y+=20*DPR){
+      ctx.fillStyle = ((y/20)%2===0)?'#fff':'#000';
+      ctx.fillRect(fx, y, 10*DPR, 10*DPR);
+      ctx.fillRect(fx+10*DPR, y+10*DPR, 10*DPR, 10*DPR);
+    }
+    ctx.fillStyle = '#b8c7e6'; ctx.font = `${14*DPR}px system-ui`; ctx.fillText('FINISH', fx-60*DPR, 18*DPR);
+  }
+
+  // ========= Audio helpers =========
+  function initAudio(){
+    state.audio1 = new Audio('1.mp3'); state.audio1.loop = false;
+    state.audio2 = new Audio('2.mp3'); state.audio2.loop = false;
+  }
+  function playOnce(audio){
+    return new Promise(res=>{
+      try{
+        audio.currentTime = 0;
+        audio.onended = ()=>res();
+        audio.play().catch(()=>res()); // nếu bị chặn autoplay
+      }catch{ res(); }
+    });
+  }
+
+  // ========= Race Simulation =========
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function randi(a,b){ return Math.floor(rand(a,b+1)); }
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+
+  const DUCK_COLORS = ['#ff6b6b','#ffd166','#06d6a0','#4dabf7','#b197fc','#ffa8a8','#74c0fc','#63e6be'];
+  function makeDucks(n, finishX, targetTime){
+    const laneH = H/(n+0.5);
+    const startX = Math.floor(W*0.06);
+    const baseSpeed = (finishX - startX) / targetTime; // px per sec
+    const ducks=[];
+    for(let i=0;i<n;i++){
+      ducks.push({
+        lane: i,
+        x: startX,
+        y: (i+1)*laneH - laneH*0.2,
+        color: DUCK_COLORS[i%DUCK_COLORS.length],
+        base: baseSpeed * rand(0.95,1.05),
+        slowUntil: 0,
+        touched: new Set()
+      });
+    }
+    return ducks;
+  }
+  function makeObstacles(n, finishX){
+    // 2-3 chướng ngại/làn
+    const obs=[];
+    const laneH = H/(n+0.5);
+    for(let i=0;i<n;i++){
+      const k = randi(2,3);
+      for(let j=0;j<k;j++){
+        const x = rand(W*0.22, finishX - 80*DPR);
+        const y = (i+1)*laneH - laneH*0.25;
+        obs.push({lane:i, x, y, w:24*DPR, h:24*DPR, id:`${i}-${j}`});
+      }
+    }
+    return obs;
+  }
+
+  function drawScene(ducks, obstacles, finishX){
+    drawTrackSkeleton();
+    // obstacles
+    for(const o of obstacles){
+      ctx.fillStyle = '#ffb703';
+      ctx.fillRect(o.x, o.y, o.w, o.h);
+      ctx.fillStyle = '#00000050'; ctx.fillRect(o.x, o.y+o.h-5*DPR, o.w, 5*DPR);
+    }
+    // ducks
+    for(const d of ducks){
+      // body
+      ctx.fillStyle = d.color;
+      ctx.beginPath();
+      ctx.ellipse(d.x, d.y, 16*DPR, 12*DPR, 0, 0, Math.PI*2);
+      ctx.fill();
+      // head
+      ctx.beginPath();
+      ctx.arc(d.x+14*DPR, d.y-8*DPR, 8*DPR, 0, Math.PI*2);
+      ctx.fill();
+      // beak
+      ctx.fillStyle = '#ff8c42';
+      ctx.fillRect(d.x+20*DPR, d.y-8*DPR, 10*DPR, 5*DPR);
+      // tiny eye
+      ctx.fillStyle = '#000';
+      ctx.fillRect(d.x+13*DPR, d.y-11*DPR, 2*DPR, 2*DPR);
+    }
+    // finish line already drawn in skeleton
+  }
+
+  function rectsOverlap(ax,ay,aw,ah,bx,by,bw,bh){
+    return ax < bx+bw && ax+aw > bx && ay < by+bh && ay+ah > by;
+  }
+
+  function runRace(){
+    return new Promise(resolve=>{
+      state.raceRunning = true;
+      banner.hidden = true;
+
+      const n = parseInt(numDucksEl.value||6);
+      const finishX = Math.floor(W*0.88);
+      const targetTime = clamp(rand(parseFloat(minTimeEl.value||10), parseFloat(maxTimeEl.value||12)), 6, 60);
+      state.ducks = makeDucks(n, finishX, targetTime);
+      state.obstacles = makeObstacles(n, finishX);
+
+      let last = performance.now();
+      const winner = {lane:-1, t:0};
+
+      function tick(now){
+        const dt = Math.min(0.05, (now - last)/1000); last = now;
+        // update ducks
+        for(const d of state.ducks){
+          // current speed
+          let v = d.base;
+
+          // random small jitter & occasional sprint
+          v *= (0.98 + Math.random()*0.06);
+          if(Math.random()<0.005) v *= 1.35;
+
+          // check obstacle in lane
+          for(const o of state.obstacles){
+            if(o.lane!==d.lane) continue;
+            const touching = rectsOverlap(d.x-16*DPR, d.y-12*DPR, 32*DPR, 24*DPR, o.x, o.y, o.w, o.h);
+            if(touching && !d.touched.has(o.id)){
+              d.touched.add(o.id);
+              d.slowUntil = now + 600; // ms
+            }
+          }
+          if(now < d.slowUntil) v *= 0.45;
+
+          d.x += v * dt;
+          if(d.x >= finishX && winner.lane===-1){
+            winner.lane = d.lane; winner.t = (now - startAt)/1000;
+          }
+        }
+
+        drawScene(state.ducks, state.obstacles, finishX);
+
+        if(winner.lane===-1){
+          raf = requestAnimationFrame(tick);
+        } else {
+          state.raceRunning = false;
+          resolve({winnerLane: winner.lane, time: winner.t});
+        }
+      }
+
+      const startAt = performance.now();
+      let raf = requestAnimationFrame(tick);
+    });
+  }
+
+  // ========= Logging & Rewards =========
+  function logResult(winnerLane, raceTime){
+    const duckNum = winnerLane+1;
+    const winners = state.players.filter(p=>p.duck===duckNum).map(p=>p.name);
+    const payouts = winners.map(name=>({name, xu: randi(10,20)}));
+
+    // Secret reward: 0.01 VIP else if <0.03 then 100 xu; only if team has at least 1 person
+    let secret = null;
+    if(winners.length>0){
+      const r = Math.random();
+      if(r < 0.01) secret = {type:'VIP'};
+      else if(r < 0.03) secret = {type:'100XU'};
+    }
+    let secretWinner = null;
+    if(secret){
+      secretWinner = winners[randi(0, winners.length-1)];
+      // ensure only one secret gift; if 100XU, add on top of their normal payout
+      if(secret.type==='100XU'){
+        const item = payouts.find(x=>x.name===secretWinner);
+        if(item) item.xu += 100;
+      }
+    }
+
+    // show banner
+    banner.innerHTML = `Vịt <span class="badge win">#${duckNum}</span> thắng!`;
+    banner.hidden = false;
+    setTimeout(()=>{banner.hidden=true}, 2400);
+
+    // write log
+    const li = document.createElement('li');
+    const t = new Date().toLocaleString('vi-VN', {timeZone: TZ});
+    li.innerHTML = `
+      <div><b>${t}</b> — Vịt <span class="badge win">#${duckNum}</span> thắng (≈ ${raceTime.toFixed(2)}s)</div>
+      <div class="tiny">
+        Người thắng: ${
+          payouts.length? payouts.map(p=>`${escapeHtml(p.name)} (+${p.xu} xu)`).join(', ')
+                        : '<span class="muted">Không ai đặt đúng.</span>'
+        }
+      </div>
+      ${
+        secret ? `<div class="tiny">
+          Quà bí mật: ${
+            secret.type==='VIP'
+              ? `<span class="badge vip">VIP</span> → ${escapeHtml(secretWinner)}`
+              : `<span class="badge vip">+100 xu</span> → ${escapeHtml(secretWinner)}`
+          }
+        </div>` : `<div class="tiny muted">Quà bí mật: không xuất hiện.</div>`
+      }
+    `;
+    logList.prepend(li);
+  }
+
+  function escapeHtml(s){return s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+  // ========= Start Button =========
+  startBtn.addEventListener('click', async ()=>{
+    if(state.raceRunning) return;
+    const nDucks = parseInt(numDucksEl.value||6);
+    if(nDucks<3 || nDucks>8) return alert('Số vịt 3–8.');
+    if(state.players.length===0) return alert('Chưa có người chơi.');
+    if(state.players.length>30) return alert('Tối đa 30 người.');
+    if(state.players.some(p=>p.duck<1 || p.duck>nDucks)) return alert('Có người đặt vào vịt không tồn tại.');
+
+    // Init audios (fresh every race to guarantee reset behavior)
+    initAudio();
+
+    startBtn.disabled = true; addBtn.disabled = true; clearBtn.disabled = true; bulkBtn.disabled = true;
+
+    // 1) Play 1.mp3 exactly once
+    await playOnce(state.audio1);
+
+    // 2) Immediately start 2.mp3 and the race (2.mp3 will be paused/reset at the end)
+    try{ state.audio2.currentTime=0; state.audio2.play().catch(()=>{});}catch{}
+    const result = await runRace();
+
+    // race done → stop & reset 2.mp3
+    try{ state.audio2.pause(); state.audio2.currentTime=0; }catch{}
+
+    logResult(result.winnerLane, result.time);
+
+    startBtn.disabled = false; addBtn.disabled = false; clearBtn.disabled = false; bulkBtn.disabled = false;
+  });
+
+  // first paint
+  drawTrackSkeleton();
+
+})();
+</script>
+</body>
+</html>
