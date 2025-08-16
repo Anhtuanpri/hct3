@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Đua Vịt v3.1 — scoreboard + boost + export</title>
+<title>Đua Vịt v3.2 — lineup + 30/ngỗng + export</title>
 <style>
   :root{
     --bg:#f6f7fb; --panel:#ffffff; --text:#0f172a; --muted:#6b7280;
@@ -15,7 +15,7 @@
   @media (max-width:1200px){.app{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
   .row{display:flex;gap:8px;flex-wrap:wrap}
-  input,select,textarea{background:#fff;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:.55rem .65rem;outline:none}
+  input,select,textarea{background:#fff;border:1px solid var(--border);color:#0f172a;border-radius:10px;padding:.55rem .65rem;outline:none}
   input,select{flex:1}
   button{background:#1f2937;border:1px solid #111827;color:#fff;border-radius:10px;padding:.6rem .9rem;font-weight:600;cursor:pointer;transition:.15s}
   button.primary{background:linear-gradient(180deg,#3b82f6,#2563eb);border-color:#1d4ed8}
@@ -27,7 +27,7 @@
   .scroll{max-height:240px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:.25rem;background:#fff}
   #raceCanvas{width:100%;height:440px;border-radius:12px;display:block;background:linear-gradient(180deg,#cfe8ff,#e8f3ff)}
   #banner{position:absolute;inset:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.6);backdrop-filter:blur(4px);border-radius:12px;font-weight:800;font-size:1.2rem;color:#111827;border:1px solid var(--border)}
-  .tiny{font-size:.9rem} .muted{color:var(--muted)}
+  .tiny{font-size:.9rem} .muted{color:#6b7280}
   .pill{background:#eef2ff;border:1px solid #c7d2fe;border-radius:999px;padding:.2rem .55rem;color:#3730a3}
   details summary{cursor:pointer;color:#1d4ed8;margin:.3rem 0}
   .badge{display:inline-block;padding:.15rem .5rem;border-radius:999px;font-weight:700;font-size:.8rem;border:1px solid #cbd5e1;background:#f1f5f9}
@@ -35,14 +35,13 @@
   .badge.vip{background:#fef9c3;color:#92400e;border-color:#fde68a}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media (max-width:900px){.grid{grid-template-columns:1fr}}
-  .right{float:right}
   a.link{color:#2563eb;text-decoration:underline;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="app">
   <section class="card">
-    <h1>🦆 Đua Vịt v3.1</h1>
+    <h1>🦆 Đua Vịt v3.2</h1>
     <div class="row">
       <label style="flex:1.1">Số vịt
         <input id="numDucks" type="number" min="3" max="8" value="6">
@@ -55,7 +54,7 @@
       </label>
     </div>
 
-    <h2 style="margin-top:.7rem">Người chơi (tối đa 30)</h2>
+    <h2 style="margin-top:.7rem">Người chơi (tối đa <b>30 mỗi vịt</b>)</h2>
     <div class="row">
       <input id="playerName" placeholder="Tên/ID">
       <select id="duckSelect"></select>
@@ -139,7 +138,7 @@
 
   // ===== State =====
   const TZ='Asia/Ho_Chi_Minh';
-  const LS_KEY='duck_race_v31_scores';
+  const LS_KEY='duck_race_v32_scores';
   const state = {
     players: [],
     raceRunning:false,
@@ -151,7 +150,7 @@
   function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
   function rand(a,b){return a + Math.random()*(b-a)}
   function randi(a,b){return Math.floor(rand(a,b+1))}
-  function escapeHtml(s){return s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;","&gt;":"&gt;",'"':"&quot;"}[c]))}
+  function escapeHtml(s){return s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
   const norm = s => (s||'').trim().toLowerCase();
 
   function loadScores(){
@@ -161,14 +160,12 @@
     }catch{ state.scores={}; }
     renderScores();
   }
-  function saveScores(){
-    try{ localStorage.setItem(LS_KEY, JSON.stringify(state.scores)); }catch{}
-  }
+  function saveScores(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state.scores)); }catch{} }
   function addScore(name, deltaXu=0, deltaVip=0){
     const key = norm(name);
     if(!key) return;
     if(!state.scores[key]) state.scores[key] = {name, xu:0, vip:0};
-    state.scores[key].name = name; // keep latest casing
+    state.scores[key].name = name;
     state.scores[key].xu += deltaXu;
     state.scores[key].vip += deltaVip;
   }
@@ -187,29 +184,23 @@
   }
   exportScoreBtn.onclick = ()=>{
     const rows = [['Name','Total Xu','VIP']];
-    for(const s of Object.values(state.scores)){
-      rows.push([s.name, s.xu, s.vip]);
-    }
+    for(const s of Object.values(state.scores)){ rows.push([s.name, s.xu, s.vip]); }
     exportCSV('duck_scores.csv', rows);
   };
-  resetScoreBtn.onclick = ()=>{
-    if(!confirm('Reset toàn bộ bảng tích luỹ?')) return;
-    state.scores={}; saveScores(); renderScores();
-  };
+  resetScoreBtn.onclick = ()=>{ if(!confirm('Reset toàn bộ bảng tích luỹ?')) return; state.scores={}; saveScores(); renderScores(); };
 
   function populateDuckOptions(){
     const n = clamp(parseInt(numDucksEl.value||6),3,8);
     duckSelEl.innerHTML='';
-    for(let i=1;i<=n;i++){
-      const opt=document.createElement('option'); opt.value=i; opt.textContent='Vịt '+i;
-      duckSelEl.appendChild(opt);
-    }
-    laneInfo.textContent='Số vịt: '+n;
+    for(let i=1;i<=n;i++){ const opt=document.createElement('option'); opt.value=i; opt.textContent='Vịt '+i; duckSelEl.appendChild(opt); }
+    laneInfo.textContent='Số vịt: '+n+' · Tối đa 30 người/1 vịt';
     redrawPlayers();
   }
   numDucksEl.addEventListener('change', populateDuckOptions);
   populateDuckOptions();
   loadScores();
+
+  function perDuckCount(duck){ return state.players.filter(p=>p.duck===duck).length; }
 
   function redrawPlayers(){
     bodyEl.innerHTML='';
@@ -221,23 +212,28 @@
     bodyEl.querySelectorAll('button[data-i]').forEach(btn=>btn.onclick=()=>{const i=+btn.getAttribute('data-i'); state.players.splice(i,1); redrawPlayers();});
     const counts={}; const n=parseInt(numDucksEl.value||6); for(let i=1;i<=n;i++) counts[i]=0;
     for(const p of state.players) counts[p.duck]++;
-    countInfo.textContent = 'Đặt cược: '+Object.entries(counts).map(([d,c])=>'Vịt '+d+': '+c).join(' · ');
+    countInfo.textContent = 'Đặt cược: '+Object.entries(counts).map(([d,c])=>'Vịt '+d+': '+c+' (≤30)').join(' · ');
   }
 
   addBtn.onclick=()=>{
     const name=(nameEl.value||'').trim(); const duck=parseInt(duckSelEl.value);
     if(!name) return alert('Nhập tên/ID');
-    if(state.players.length>=30) return alert('Tối đa 30 người');
     if(state.players.some(p=>norm(p.name)===norm(name))) return alert('Tên đã có');
+    if(perDuckCount(duck) >= 30) return alert('Làn vịt '+duck+' đã đủ 30 người!');
     state.players.push({name,duck}); nameEl.value=''; redrawPlayers();
   };
   demoBtn.onclick=()=>{
     const n=clamp(parseInt(numDucksEl.value||6),3,8);
-    const demo=['An','Bình','Cúc','Dũng','Em','Gấu','Huy','Lan','Minh','Nhi','Ôn','Phúc','Quân','Rin','Sơn','Tú','Uyên','Vũ'];
-    for(let i=0;i<Math.min(12,demo.length);i++){
-      if(state.players.length>=30) break;
-      const name=demo[i]+' demo'; if(state.players.some(p=>p.name===name)) continue;
-      state.players.push({name, duck:(i % n)+1});
+    const demo=['An','Bình','Cúc','Dũng','Em','Gấu','Huy','Lan','Minh','Nhi','Ôn','Phúc','Quân','Rin','Sơn','Tú','Uyên','Vũ','Xuân','Yến','Zed'];
+    let i=0;
+    while(state.players.length< n*30 && i<demo.length*10){
+      const name = demo[i % demo.length] + ' ' + (Math.floor(i/demo.length)+1);
+      const duck = (i % n) + 1;
+      if(!state.players.some(p=>norm(p.name)===norm(name)) && perDuckCount(duck)<30){
+        state.players.push({name, duck});
+      }
+      i++;
+      if(i>300) break; // avoid infinite
     }
     redrawPlayers();
   };
@@ -248,33 +244,30 @@
       const [nameRaw,duckRaw]=(line.split(',').map(s=>s.trim()));
       if(!nameRaw||!duckRaw) return;
       const duck=parseInt(duckRaw,10); if(isNaN(duck)||duck<1||duck>n) return;
-      if(state.players.length>=30) return;
       if(state.players.some(p=>norm(p.name)===norm(nameRaw))) return;
+      if(perDuckCount(duck) >= 30) return;
       state.players.push({name:nameRaw, duck});
     });
     redrawPlayers();
   };
   clearBtn.onclick=()=>{ if(state.raceRunning) return; state.players=[]; redrawPlayers(); };
 
-  // ===== Canvas (fix blur) =====
+  // ===== Canvas (sharp) =====
   let ctx, DPR=1, W=0, H=0;
   function setupCanvas(){
     const rect = canvas.getBoundingClientRect();
     const cssW = Math.max(300, Math.floor(rect.width));
     const cssH = Math.max(260, Math.floor(rect.height));
     DPR = Math.max(1, Math.min(2, window.devicePixelRatio||1));
-    canvas.style.width = cssW+'px';
-    canvas.style.height = cssH+'px';
-    canvas.width = Math.floor(cssW * DPR);
-    canvas.height = Math.floor(cssH * DPR);
+    canvas.style.width = cssW+'px'; canvas.style.height = cssH+'px';
+    canvas.width = Math.floor(cssW * DPR); canvas.height = Math.floor(cssH * DPR);
     W = canvas.width; H = canvas.height;
-    ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-    drawTrack(0, 1);
+    ctx = canvas.getContext('2d'); ctx.imageSmoothingEnabled = false;
+    drawTrack(0, parseInt(numDucksEl.value||6));
   }
   window.addEventListener('resize', setupCanvas); setupCanvas();
 
-  // ===== Theme visuals =====
+  // ===== Visual constants =====
   const SKY_TOP = '#cfe8ff', SKY_BOTTOM='#e8f3ff';
   const LANE_A='#e7f2ff', LANE_B='#f3f8ff';
   const FINISH_TXT = '#1f2937';
@@ -343,253 +336,175 @@
   const startBg = el=>{ try{ el&&el.play&&el.play().catch(()=>{});}catch{} };
   const stopBg  = el=>{ try{ if(el){ el.pause(); el.currentTime=0; }}catch{} };
 
-  // ===== Effects system =====
-  const effects=[]; // {type, x, y, vx, vy, r, life, max, color}
-  function spawnSplash(x,y,color){
-    for(let i=0;i<10;i++){
-      effects.push({type:'particle',x,y, vx:rand(-40,40), vy:rand(-20,0), r:rand(2,4)*DPR, life:0, max:500, color});
-    }
-  }
-  function spawnStars(x,y, color='#f59e0b'){
-    for(let i=0;i<6;i++){
-      effects.push({type:'star',x,y, vx:rand(-30,30), vy:rand(-10,-30), r:rand(2,3)*DPR, life:0, max:600, color});
-    }
-  }
-  function spawnBubbles(x,y){
-    effects.push({type:'bubble',x,y, vx:rand(-30,-10), vy:rand(-10,10), r:rand(2,5)*DPR, life:0, max:700, color:'rgba(255,255,255,.6)'});
-  }
-  function spawnChevrons(x,y){
-    for(let i=0;i<6;i++){
-      effects.push({type:'star',x,y, vx:rand(20,60), vy:rand(-10,10), r:rand(2,3)*DPR, life:0, max:500, color:'#22c55e'});
-    }
-  }
+  // ===== Effects =====
+  const effects=[];
+  function spawnSplash(x,y,color){ for(let i=0;i<10;i++){ effects.push({type:'particle',x,y,vx:rand(-40,40),vy:rand(-20,0),r:rand(2,4)*DPR,life:0,max:500,color}); } }
+  function spawnStars(x,y,color='#f59e0b'){ for(let i=0;i<6;i++){ effects.push({type:'star',x,y,vx:rand(-30,30),vy:rand(-10,-30),r:rand(2,3)*DPR,life:0,max:600,color}); } }
+  function spawnBubbles(x,y){ effects.push({type:'bubble',x,y,vx:rand(-30,-10),vy:rand(-10,10),r:rand(2,5)*DPR,life:0,max:700,color:'rgba(255,255,255,.6)'}); }
+  function spawnChevrons(x,y){ for(let i=0;i<6;i++){ effects.push({type:'star',x,y,vx:rand(20,60),vy:rand(-10,10),r:rand(2,3)*DPR,life:0,max:500,color:'#22c55e'}); } }
   function drawEffects(cameraX, dt){
     for(let i=effects.length-1;i>=0;i--){
-      const e = effects[i]; e.life += dt*1000;
-      if(e.life>e.max){ effects.splice(i,1); continue; }
-      const px = e.x - cameraX; const py = e.y;
-      if(e.type==='particle'){
-        ctx.fillStyle = e.color; ctx.beginPath(); ctx.arc(px, py, e.r*(1-e.life/e.max), 0, Math.PI*2); ctx.fill();
-      } else if(e.type==='star'){
-        ctx.fillStyle = e.color; ctx.fillRect(px-1*DPR,py-1*DPR,2*DPR,2*DPR);
-      } else if(e.type==='bubble'){
-        ctx.strokeStyle = e.color; ctx.beginPath(); ctx.arc(px,py,e.r*(1-e.life/e.max*0.6),0,Math.PI*2); ctx.stroke();
-      }
-      e.x += e.vx * dt; e.y += e.vy * dt;
+      const e=effects[i]; e.life+=dt*1000; if(e.life>e.max){effects.splice(i,1); continue;}
+      const px=e.x - cameraX, py=e.y;
+      if(e.type==='particle'){ ctx.fillStyle=e.color; ctx.beginPath(); ctx.arc(px,py,e.r*(1-e.life/e.max),0,Math.PI*2); ctx.fill(); }
+      else if(e.type==='star'){ ctx.fillStyle=e.color; ctx.fillRect(px-1*DPR,py-1*DPR,2*DPR,2*DPR); }
+      else if(e.type==='bubble'){ ctx.strokeStyle=e.color; ctx.beginPath(); ctx.arc(px,py,e.r*(1-e.life/e.max*0.6),0,Math.PI*2); ctx.stroke(); }
+      e.x+=e.vx*dt; e.y+=e.vy*dt;
     }
   }
 
-  // ===== Race simulation (virtual track + penalties + BOOST) =====
-  function rectsOverlap(ax,ay,aw,ah,bx,by,bw,bh){
-    return ax < bx+bw && ax+aw > bx && ay < by+bh && ay+ah > by;
+  // ===== Build race data so we can preview lineup BEFORE audio =====
+  function buildRace(){
+    const lanes = parseInt(numDucksEl.value||6);
+    const laneH = H/(lanes+0.5);
+    const startVirtX = Math.floor(W*0.06);
+    const baseVisibleLen = (W*0.88 - startVirtX);
+    const targetTime = clamp(rand(parseFloat(minTimeEl.value||15), parseFloat(maxTimeEl.value||18)), 5, 150);
+    const lengthScale = clamp(targetTime/12, 0.8, 3.5);
+    const trackLen = baseVisibleLen * lengthScale;
+    const finishVirtX = startVirtX + trackLen;
+    const baseSpeed = trackLen / targetTime;
+
+    const ducks=[];
+    for(let i=0;i<lanes;i++){
+      ducks.push({lane:i,x:startVirtX,y:(i+1)*laneH - laneH*0.2,base: baseSpeed * rand(0.95,1.05),
+                  slowUntil:0,freezeUntil:0,wobbleUntil:0,debuffUntil:0,boostUntil:0,
+                  wobbleAmp:2*DPR,touched:new Set(),color:DUCK_COLORS[i%DUCK_COLORS.length]});
+    }
+
+    const types=['MUD','OIL','NET','WAVE','CRAB'];
+    const obstacles=[]; const boosts=[];
+    for(let i=0;i<lanes;i++){
+      const k=randi(3,5);
+      for(let j=0;j<k;j++){
+        const x = rand(W*0.22, finishVirtX - 160*DPR);
+        const y = (i+1)*laneH - laneH*0.25;
+        const t = types[randi(0, types.length-1)];
+        obstacles.push({lane:i, type:t, x, y, w:28*DPR, h:28*DPR, id: `${i}-${j}-${t}`});
+      }
+      const bcount=randi(1,2);
+      for(let j=0;j<bcount;j++){
+        const x = rand(W*0.16, finishVirtX - 220*DPR);
+        const y = (i+1)*laneH - laneH*0.27;
+        boosts.push({lane:i, type:'BOOST', x, y, w:34*DPR, h:20*DPR, id:`B-${i}-${j}`});
+      }
+    }
+    return {lanes, laneH, startVirtX, finishVirtX, baseSpeed, ducks, obstacles, boosts, targetTime};
   }
-  function runRace(){
+
+  function drawObstacles(cameraX, obstacles){
+    ctx.textBaseline='middle'; ctx.textAlign='center';
+    for(const o of obstacles){
+      const px = o.x - cameraX; const py = o.y;
+      if(px < -60*DPR || px > W+60*DPR) continue;
+      if(o.type==='MUD'){ ctx.fillStyle='#a16207'; }
+      else if(o.type==='OIL'){ ctx.fillStyle='#111827'; }
+      else if(o.type==='NET'){ ctx.fillStyle='#374151'; }
+      else if(o.type==='WAVE'){ ctx.fillStyle='#60a5fa'; }
+      else { ctx.fillStyle='#ef4444'; }
+      ctx.fillRect(px, py, o.w, o.h);
+      ctx.fillStyle='#fff'; ctx.font = (10*DPR)+'px system-ui';
+      const label = (o.type==='MUD'?'M':o.type==='OIL'?'O':o.type==='NET'?'N':o.type==='WAVE'?'W':'C');
+      ctx.fillText(label, px + o.w/2, py + o.h/2 + 1*DPR);
+    }
+  }
+  function drawBoosts(cameraX, boosts){
+    ctx.textBaseline='middle'; ctx.textAlign='center';
+    for(const b of boosts){
+      const px = b.x - cameraX; const py = b.y;
+      if(px < -80*DPR || px > W+80*DPR) continue;
+      ctx.fillStyle='rgba(34,197,94,0.18)'; ctx.fillRect(px, py, b.w, b.h);
+      ctx.strokeStyle='rgba(34,197,94,0.9)'; ctx.lineWidth=2*DPR; ctx.strokeRect(px, py, b.w, b.h);
+      ctx.fillStyle='#16a34a'; ctx.font=(10*DPR)+'px system-ui'; ctx.fillText('>>', px + b.w/2, py + b.h/2 + 1*DPR);
+    }
+  }
+  function drawDucks(cameraX, ducks, now, wobble=true){
+    for(const d of ducks){
+      const baseY = d.y + (wobble ? Math.sin(now/120 + d.lane)* d.wobbleAmp : 0);
+      const px = d.x - cameraX;
+      if(Math.random()<0.12) spawnBubbles(px-16*DPR + cameraX, baseY+6*DPR);
+      ctx.fillStyle=d.color;
+      ctx.beginPath(); ctx.ellipse(px, baseY, 16*DPR, 12*DPR, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px+14*DPR, baseY-8*DPR, 8*DPR, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='#f59e0b'; ctx.fillRect(px+20*DPR, baseY-8*DPR, 10*DPR, 5*DPR);
+      ctx.fillStyle='#111'; ctx.fillRect(px+13*DPR, baseY-11*DPR, 2*DPR, 2*DPR);
+    }
+  }
+
+  // Show lineup immediately on Start (before waiting audio)
+  function previewLineup(race){
+    const cameraX = 0;
+    drawTrack(cameraX, race.lanes);
+    drawFinish(race.finishVirtX, cameraX);
+    drawBoosts(cameraX, race.boosts);
+    drawObstacles(cameraX, race.obstacles);
+    drawDucks(cameraX, race.ducks, performance.now(), false);
+  }
+
+  // Run the race on the already built data
+  function runRace(race){
     return new Promise(resolve=>{
       state.raceRunning=true; banner.hidden=true;
-
-      const lanes = parseInt(numDucksEl.value||6);
-      const laneH = H/(lanes+0.5);
-      const startVirtX = Math.floor(W*0.06);
-      const baseVisibleLen = (W*0.88 - startVirtX);
-
-      const targetTime = clamp(rand(parseFloat(minTimeEl.value||15), parseFloat(maxTimeEl.value||18)), 5, 150);
-      const lengthScale = clamp(targetTime/12, 0.8, 3.5);
-      const trackLen = baseVisibleLen * lengthScale;
-      const finishVirtX = startVirtX + trackLen;
-      const baseSpeed = trackLen / targetTime;
-
-      // Ducks
-      const ducks=[];
-      for(let i=0;i<lanes;i++){
-        ducks.push({
-          lane:i, x:startVirtX, y:(i+1)*laneH - laneH*0.2,
-          base: baseSpeed * rand(0.95,1.05),
-          slowUntil:0, freezeUntil:0, wobbleUntil:0, debuffUntil:0, boostUntil:0,
-          wobbleAmp: 2*DPR,
-          touched:new Set(),
-          color: DUCK_COLORS[i%DUCK_COLORS.length]
-        });
-      }
-
-      // Obstacles (5 loại) + BOOST
-      const types=['MUD','OIL','NET','WAVE','CRAB'];
-      const obstacles=[]; // penalties
-      const boosts=[];    // speed pads
-      for(let i=0;i<lanes;i++){
-        const k=randi(3,5);
-        for(let j=0;j<k;j++){
-          const x = rand(W*0.22, finishVirtX - 160*DPR);
-          const y = (i+1)*laneH - laneH*0.25;
-          const t = types[randi(0, types.length-1)];
-          obstacles.push({lane:i, type:t, x, y, w:28*DPR, h:28*DPR, id: `${i}-${j}-${t}`});
-        }
-        // boost pads
-        const bcount = randi(1,2);
-        for(let j=0;j<bcount;j++){
-          const x = rand(W*0.16, finishVirtX - 220*DPR);
-          const y = (i+1)*laneH - laneH*0.27;
-          boosts.push({lane:i, type:'BOOST', x, y, w:34*DPR, h:20*DPR, id:`B-${i}-${j}`});
-        }
-      }
-
       let last = performance.now();
       let cameraX = 0;
-      const maxCamera = Math.max(0, finishVirtX - W*0.95);
+      const maxCamera = Math.max(0, race.finishVirtX - W*0.95);
       let winnerLane=-1, startAt=performance.now();
 
       function duckSpeedMult(d, now){
         let m = 1;
-        if(now < d.slowUntil) m *= 0.45;      // MUD
-        if(now < d.debuffUntil) m *= 0.7;     // CRAB
-        if(now < d.freezeUntil) m = 0;        // NET
-        if(now < d.boostUntil) m *= 1.6;      // BOOST
+        if(now < d.slowUntil) m *= 0.45;
+        if(now < d.debuffUntil) m *= 0.7;
+        if(now < d.freezeUntil) m = 0;
+        if(now < d.boostUntil) m *= 1.6;
         return m;
       }
-
       function applyHit(d, obs, now){
-        if(obs.type==='MUD'){        // chậm mạnh
-          d.slowUntil = Math.max(d.slowUntil, now + 800);
-          spawnSplash(d.x, d.y, '#a16207');
-        } else if(obs.type==='OIL'){ // trượt lùi + sao
-          d.x -= 36*DPR; d.x = Math.max(d.x, startVirtX);
-          spawnStars(d.x, d.y-6*DPR);
-        } else if(obs.type==='NET'){ // đứng hình
-          d.freezeUntil = Math.max(d.freezeUntil, now + 900);
-          spawnSplash(d.x, d.y, '#111827');
-        } else if(obs.type==='WAVE'){ // sóng đánh
-          d.wobbleUntil = Math.max(d.wobbleUntil, now + 900);
-          d.wobbleAmp = 6*DPR;
-          d.slowUntil = Math.max(d.slowUntil, now + 500);
-          for(let k=0;k<5;k++) spawnSplash(d.x-10*DPR, d.y, '#60a5fa');
-        } else if(obs.type==='CRAB'){ // cua kẹp
-          d.debuffUntil = Math.max(d.debuffUntil, now + 1200);
-          spawnStars(d.x, d.y, '#ef4444');
-          spawnSplash(d.x, d.y, '#ef4444');
-        }
+        if(obs.type==='MUD'){ d.slowUntil=Math.max(d.slowUntil, now+800); spawnSplash(d.x,d.y,'#a16207'); }
+        else if(obs.type==='OIL'){ d.x -= 36*DPR; spawnStars(d.x,d.y-6*DPR); }
+        else if(obs.type==='NET'){ d.freezeUntil=Math.max(d.freezeUntil, now+900); spawnSplash(d.x,d.y,'#111827'); }
+        else if(obs.type==='WAVE'){ d.wobbleUntil=Math.max(d.wobbleUntil, now+900); d.wobbleAmp=6*DPR; d.slowUntil=Math.max(d.slowUntil, now+500); for(let k=0;k<5;k++)spawnSplash(d.x-10*DPR,d.y,'#60a5fa'); }
+        else if(obs.type==='CRAB'){ d.debuffUntil=Math.max(d.debuffUntil, now+1200); spawnStars(d.x,d.y,'#ef4444'); spawnSplash(d.x,d.y,'#ef4444'); }
       }
-      function applyBoost(d, pad, now){
-        d.boostUntil = Math.max(d.boostUntil, now + 900);
-        spawnChevrons(d.x, d.y);
-      }
-
-      function drawObstacles(cameraX){
-        ctx.textBaseline='middle'; ctx.textAlign='center';
-        for(const o of obstacles){
-          const px = o.x - cameraX; const py = o.y;
-          if(px < -60*DPR || px > W+60*DPR) continue;
-          // body
-          if(o.type==='MUD'){ ctx.fillStyle='#a16207'; }
-          else if(o.type==='OIL'){ ctx.fillStyle='#111827'; }
-          else if(o.type==='NET'){ ctx.fillStyle='#374151'; }
-          else if(o.type==='WAVE'){ ctx.fillStyle='#60a5fa'; }
-          else { ctx.fillStyle='#ef4444'; }
-          ctx.fillRect(px, py, o.w, o.h);
-          // icon letter
-          ctx.fillStyle='#fff'; ctx.font = (10*DPR)+'px system-ui';
-          const label = (o.type==='MUD'?'M':o.type==='OIL'?'O':o.type==='NET'?'N':o.type==='WAVE'?'W':'C');
-          ctx.fillText(label, px + o.w/2, py + o.h/2 + 1*DPR);
-        }
-      }
-      function drawBoosts(cameraX){
-        ctx.textBaseline='middle'; ctx.textAlign='center';
-        for(const b of boosts){
-          const px = b.x - cameraX; const py = b.y;
-          if(px < -80*DPR || px > W+80*DPR) continue;
-          ctx.fillStyle='rgba(34,197,94,0.18)'; ctx.fillRect(px, py, b.w, b.h);
-          ctx.strokeStyle='rgba(34,197,94,0.9)'; ctx.lineWidth=2*DPR; ctx.strokeRect(px, py, b.w, b.h);
-          ctx.fillStyle='#16a34a'; ctx.font=(10*DPR)+'px system-ui';
-          ctx.fillText('>>', px + b.w/2, py + b.h/2 + 1*DPR);
-        }
-      }
-
-      function drawDucks(cameraX, now){
-        for(const d of ducks){
-          const baseY = (d.y + Math.sin(now/120 + d.lane)* ( (now<d.wobbleUntil)? d.wobbleAmp : 2*DPR ));
-          const px = d.x - cameraX;
-          if(Math.random() < 0.15) spawnBubbles(px-16*DPR + cameraX, baseY+6*DPR);
-          ctx.fillStyle=d.color;
-          ctx.beginPath(); ctx.ellipse(px, baseY, 16*DPR, 12*DPR, 0, 0, Math.PI*2); ctx.fill();
-          ctx.beginPath(); ctx.arc(px+14*DPR, baseY-8*DPR, 8*DPR, 0, Math.PI*2); ctx.fill();
-          ctx.fillStyle='#f59e0b'; ctx.fillRect(px+20*DPR, baseY-8*DPR, 10*DPR, 5*DPR);
-          ctx.fillStyle='#111'; ctx.fillRect(px+13*DPR, baseY-11*DPR, 2*DPR, 2*DPR);
-        }
-      }
+      function applyBoost(d, pad, now){ d.boostUntil=Math.max(d.boostUntil, now+900); spawnChevrons(d.x,d.y); }
 
       function tick(now){
         const dt = Math.min(0.05, (now - last)/1000); last = now;
-
-        // update ducks
         let leaderX = 0;
-        for(const d of ducks){
-          // penalties
-          for(const o of obstacles){
-            if(o.lane!==d.lane) continue;
-            const touching = rectsOverlap(d.x-16*DPR, d.y-12*DPR, 32*DPR,24*DPR, o.x, o.y, o.w, o.h);
-            if(touching && !d.touched.has(o.id)){ d.touched.add(o.id); applyHit(d,o,now); }
-          }
-          // boosts
-          for(const b of boosts){
-            if(b.lane!==d.lane) continue;
-            const touching = rectsOverlap(d.x-16*DPR, d.y-12*DPR, 32*DPR,24*DPR, b.x, b.y, b.w, b.h);
-            if(touching && !d.touched.has(b.id)){ d.touched.add(b.id); applyBoost(d,b,now); }
-          }
-
-          // speed
-          let v = d.base;
-          v *= (0.985 + Math.random()*0.04);
-          if(Math.random()<0.004) v *= 1.35;
-          v *= duckSpeedMult(d, now);
+        for(const d of race.ducks){
+          for(const o of race.obstacles){ if(o.lane!==d.lane) continue; const touching = (d.x-16*DPR) < (o.x+o.w) && (d.x+16*DPR) > o.x && (d.y-12*DPR) < (o.y+o.h) && (d.y+12*DPR) > o.y; if(touching && !d.touched.has(o.id)){ d.touched.add(o.id); applyHit(d,o,now); } }
+          for(const b of race.boosts){ if(b.lane!==d.lane) continue; const touching = (d.x-16*DPR) < (b.x+b.w) && (d.x+16*DPR) > b.x && (d.y-12*DPR) < (b.y+b.h) && (d.y+12*DPR) > b.y; if(touching && !d.touched.has(b.id)){ d.touched.add(b.id); applyBoost(d,b,now); } }
+          let v = d.base; v *= (0.985 + Math.random()*0.04); if(Math.random()<0.004) v *= 1.35; v *= duckSpeedMult(d, now);
           d.x += v*dt;
           leaderX = Math.max(leaderX, d.x);
-          if(d.x >= finishVirtX && winnerLane===-1){ winnerLane = d.lane; }
+          if(d.x >= race.finishVirtX && winnerLane===-1){ winnerLane = d.lane; }
         }
-
-        // camera follow
-        const targetCam = clamp(leaderX - W*0.55, 0, maxCamera);
-        cameraX += (targetCam - cameraX) * Math.min(1, dt*3.5);
-
-        // draw
-        drawTrack(cameraX, lanes);
-        drawFinish(finishVirtX, cameraX);
-        drawBoosts(cameraX);
-        drawObstacles(cameraX);
-        drawDucks(cameraX, now);
+        const targetCam = clamp(leaderX - W*0.55, 0, maxCamera); cameraX += (targetCam - cameraX) * Math.min(1, dt*3.5);
+        drawTrack(cameraX, race.lanes);
+        drawFinish(race.finishVirtX, cameraX);
+        drawBoosts(cameraX, race.boosts);
+        drawObstacles(cameraX, race.obstacles);
+        drawDucks(cameraX, race.ducks, now, true);
         drawEffects(cameraX, dt);
-
         if(winnerLane===-1) requestAnimationFrame(tick);
-        else { state.raceRunning=false; resolve({winnerLane, time:(now-startAt)/1000, lanes, finishVirtX}); }
+        else { state.raceRunning=false; resolve({winnerLane, time:(now-startAt)/1000, lanes:race.lanes}); }
       }
       requestAnimationFrame(tick);
     });
   }
 
-  // ===== Grouping & logging & exports =====
+  // ===== Grouping & logging (as in v3.1) =====
   function groupByDuck(n){
     const groups = Array.from({length:n}, (_,i)=>({duck:i+1, names:[]}));
     for(const p of state.players){ if(p.duck>=1 && p.duck<=n) groups[p.duck-1].names.push(p.name); }
     return groups;
   }
-
-  function downloadRaceCSV(filename, groups, winnersList, duckNum, raceTime, secret){
-    const rows = [];
-    rows.push(['Winner Duck', duckNum]);
-    rows.push(['Race Time (s)', raceTime.toFixed(2)]);
-    if(secret){ rows.push(['Secret Gift', secret.type==='VIP'?'VIP':'100 xu']); rows.push(['Secret Winner', secret.who||'']); }
-    rows.push([]);
-    rows.push(['Duck','Players']);
-    for(const g of groups){
-      rows.push([g.duck, g.names.join('; ')]);
-    }
-    exportCSV(filename, rows);
-  }
-
   function logResult(winLane, raceTime, n){
     const duckNum = winLane+1;
     const groups = groupByDuck(n);
     const winners = groups[duckNum-1].names;
+    const randi=(a,b)=>Math.floor(a + Math.random()*(b-a+1));
     const payouts = winners.map(nm=>({name:nm, xu:randi(10,20)}));
 
-    // Secret gift in winning team
     let secret=null, secretWinner=null;
     if(winners.length>0){
       const r=Math.random();
@@ -597,23 +512,19 @@
       else if(r < 0.03) secret={type:'100XU'};
     }
     if(secret){
-      secretWinner = winners[randi(0, winners.length-1)];
+      secretWinner = winners[Math.floor(Math.random()*winners.length)];
       if(secret.type==='100XU'){
         const t = payouts.find(p=>p.name===secretWinner);
         if(t) t.xu += 100;
       }
     }
 
-    // ----- Update scoreboard (persist) -----
     for(const p of payouts){ addScore(p.name, p.xu, 0); }
     if(secret && secret.type==='VIP' && secretWinner){ addScore(secretWinner, 0, 1); }
     saveScores(); renderScores();
 
-    // ----- UI banner -----
-    banner.innerHTML = 'Vịt <span class="badge win">#'+duckNum+'</span> thắng!'; banner.hidden=false;
-    setTimeout(()=>banner.hidden=true, 2300);
+    banner.innerHTML = 'Vịt <span class="badge win">#'+duckNum+'</span> thắng!'; banner.hidden=false; setTimeout(()=>banner.hidden=true, 2300);
 
-    // ----- Build grouped bettors HTML -----
     const groupHtml = groups.map(g=>{
       const list = g.names.length? g.names.map(n=>escapeHtml(n)).join(', ') : '<span class="muted">—</span>';
       return '<li>Vịt #'+g.duck+': '+list+'</li>';
@@ -621,25 +532,16 @@
 
     const li=document.createElement('li');
     const t = new Date().toLocaleString('vi-VN',{timeZone:TZ});
-
-    // Create container and an export link per-race
-    const container = document.createElement('div');
-    container.innerHTML = `
+    li.innerHTML = `
       <div><b>${t}</b> — Vịt <span class="badge win">#${duckNum}</span> thắng (≈ ${raceTime.toFixed(2)}s)</div>
       <div class="tiny">Người thắng: ${payouts.length ? payouts.map(p=>escapeHtml(p.name)+' (+'+p.xu+' xu)').join(', ') : '<span class="muted">Không ai đặt đúng.</span>'}</div>
       ${secret ? `<div class="tiny">Quà bí mật: ${secret.type==='VIP'?'VIP':'100 xu'} → ${escapeHtml(secretWinner)}</div>`
                : `<div class="tiny muted">Quà bí mật: không xuất hiện.</div>`}
-      <details><summary>Lịch sử đặt cược theo nhóm (chặng này) — <a class="link" id="expLink">📤 Xuất CSV</a></summary>
+      <details><summary>Lịch sử đặt cược theo nhóm (chặng này)</summary>
         <ul>${groupHtml}</ul>
       </details>
     `;
-    li.appendChild(container);
     logList.prepend(li);
-
-    const expLink = container.querySelector('#expLink');
-    expLink.onclick = ()=>{
-      downloadRaceCSV(`race_${t.replace(/[:/\\s]/g,'-')}.csv`, groups, winners, duckNum, raceTime, secret?{type:secret.type, who:secretWinner}:null);
-    };
   }
 
   // ===== Start flow =====
@@ -650,25 +552,33 @@
     const nDucks = clamp(parseInt(numDucksEl.value||6),3,8);
     if(state.players.some(p=>p.duck<1 || p.duck>nDucks)) return alert('Có người đặt vào vịt không tồn tại.');
 
+    // Build race first -> preview lineup immediately
+    const race = buildRace();
+    previewLineup(race);
+
     state.audio1 = new Audio('1.mp3'); state.audio1.loop=false;
     state.audio2 = new Audio('2.mp3'); state.audio2.loop=false;
 
-    // Disable inputs during race
+    // Disable inputs
     [startBtn, addBtn, clearBtn, demoBtn, bulkBtn].forEach(b=> b && (b.disabled=true));
 
-    // Intro audio or beep
+    // Intro (play 1.mp3 or beep) while lineup is visible
     let introDone=false;
     await Promise.race([
       (async ()=>{ await playAudioFileOnce(state.audio1); introDone=true; })(),
       (async ()=>{ await new Promise(r=>setTimeout(r,200)); if(!introDone){ await beep(1.0, 660);} })()
     ]);
 
+    // Start bg
     startBg(state.audio2);
 
-    const result = await runRace();
+    // Run race
+    const result = await runRace(race);
 
+    // Stop & reset bg
     stopBg(state.audio2);
 
+    // Log
     logResult(result.winnerLane, result.time, result.lanes);
 
     [startBtn, addBtn, clearBtn, demoBtn, bulkBtn].forEach(b=> b && (b.disabled=false));
@@ -677,11 +587,3 @@
 })();</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
