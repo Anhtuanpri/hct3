@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hệ thống đang bảo trì</title>
+  <meta name="description" content="Thông báo bảo trì hệ thống" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#0f1226; /* midnight */
+      --bg2:#101827; /* deep */
+      --accent:#7c3aed; /* violet */
+      --accent-2:#22d3ee; /* cyan */
+      --text:#e5e7eb; /* gray-200 */
+      --muted:#94a3b8; /* slate-400 */
+      --glass:rgba(255,255,255,.08);
+      --glass-2:rgba(255,255,255,.06);
+      --ok:#10b981;
+      --warn:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text); background: radial-gradient(1200px 800px at 85% 15%, rgba(124,58,237,.25), transparent 60%),
+                           radial-gradient(800px 600px at 10% 90%, rgba(34,211,238,.22), transparent 55%),
+                           linear-gradient(180deg, var(--bg1), var(--bg2));
+      display:grid; place-items:center; padding:32px;
+    }
+    .wrap{
+      width:min(960px, 100%);
+      position:relative;
+    }
+    .card{
+      backdrop-filter: blur(16px) saturate(110%);
+      background:linear-gradient(180deg, var(--glass), var(--glass-2));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:28px; padding:28px; overflow:hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    header{
+      display:flex; align-items:center; gap:16px; margin-bottom:16px;
+    }
+    .badge{
+      padding:6px 12px; border-radius:999px; font-size:12px; letter-spacing:.04em; text-transform:uppercase; font-weight:700;
+      background:linear-gradient(90deg, rgba(124,58,237,.18), rgba(34,211,238,.18));
+      border:1px solid rgba(255,255,255,.18); color:#dbeafe;
+    }
+    h1{
+      margin:6px 0 0; font-family:"Space Grotesk", Inter, sans-serif; font-size: clamp(28px, 5vw, 44px);
+      line-height:1.1; letter-spacing:.2px;
+      background:linear-gradient(90deg,#fff, #c7d2fe 40%, #a5f3fc);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+    }
+    p.lead{margin:.5rem 0 1rem; color:var(--muted); font-size:clamp(14px, 2.2vw, 18px)}
+
+    .hero{
+      display:grid; grid-template-columns: 1.2fr .8fr; gap:24px; align-items:center;
+    }
+    @media (max-width: 820px){
+      .hero{grid-template-columns: 1fr;}
+      .art{order:-1}
+    }
+
+    /* Illustration */
+    .art{
+      height:100%; display:grid; place-items:center; padding:20px;
+    }
+    .art svg{width:100%; max-width:380px; height:auto; filter: drop-shadow(0 20px 40px rgba(124,58,237,.25));}
+
+    /* Progress */
+    .progress{
+      margin:18px 0 6px; height:12px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,.1);
+    }
+    .bar{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent-2)); box-shadow: 0 0 20px rgba(34,211,238,.35) inset;}
+    .status{display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#cbd5e1}
+
+    .countdown{display:flex; gap:10px; margin:10px 0 4px}
+    .slot{min-width:82px; text-align:center; padding:10px 12px; border-radius:16px; border:1px solid rgba(255,255,255,.12);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    }
+    .slot b{display:block; font-size:28px; font-variant-numeric:tabular-nums; letter-spacing:.5px}
+    .slot span{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em}
+
+    /* Actions */
+    .actions{display:flex; flex-wrap:wrap; gap:12px; margin-top:16px}
+    .btn{
+      appearance:none; border:1px solid rgba(255,255,255,.16); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04)); color:#fff;
+      padding:12px 16px; border-radius:14px; font-weight:600; letter-spacing:.2px; cursor:pointer; transition:transform .06s ease, border-color .2s ease, background .2s ease;
+      text-decoration:none; display:inline-flex; align-items:center; gap:10px;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.28)}
+    .btn:active{transform:translateY(0)}
+    .btn.primary{background:linear-gradient(90deg, rgba(124,58,237,.5), rgba(34,211,238,.5)); border-color:transparent}
+
+    footer{margin-top:18px; display:flex; justify-content:space-between; gap:12px; color:var(--muted); font-size:12px}
+    footer code{background:rgba(0,0,0,.24); padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,.08)}
+
+    /* Animated gear */
+    .spin-slow{animation: spin 10s linear infinite}
+    .spin{animation: spin 6s linear infinite}
+    @keyframes spin { to { transform: rotate(360deg) } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <span class="badge">Bảo trì định kỳ</span>
+      </header>
+      <div class="hero">
+        <div class="copy">
+          <h1>Hệ thống tạm thời ngoại tuyến</h1>
+          <p class="lead">
+            Chúng tôi đang nâng cấp hạ tầng để mang lại tốc độ và độ ổn định tốt hơn. Cảm ơn bạn đã kiên nhẫn!
+          </p>
+
+          <!-- Countdown -->
+          <div class="countdown" role="group" aria-label="Thời gian còn lại">
+            <div class="slot" aria-live="polite"><b id="d">00</b><span>Ngày</span></div>
+            <div class="slot" aria-live="polite"><b id="h">00</b><span>Giờ</span></div>
+            <div class="slot" aria-live="polite"><b id="m">00</b><span>Phút</span></div>
+            <div class="slot" aria-live="polite"><b id="s">00</b><span>Giây</span></div>
+          </div>
+
+          <!-- Progress -->
+          <div class="progress" aria-label="Tiến độ bảo trì"><div class="bar" id="bar"></div></div>
+          <div class="status"><span id="statusText">Đang triển khai bản cập nhật…</span><span id="percent">0%</span></div>
+
+          <!-- Actions -->
+          <div class="actions">
+            <a class="btn primary" href="#" onclick="location.reload()" aria-label="Tải lại trang">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0114.13-3.36L23 10"></path><path d="M1 14l5.36 4.36A9 9 0 0020.49 15"></path></svg>
+              Thử tải lại
+            </a>
+            <a class="btn" href="mailto:support@example.com?subject=H%E1%BB%97%20tr%E1%BB%A3%20b%E1%BA%A3o%20tr%C3%AC" aria-label="Liên hệ hỗ trợ">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              Liên hệ hỗ trợ
+            </a>
+            <a class="btn" href="/status" aria-label="Xem trang trạng thái">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"></path><rect x="7" y="9" width="3" height="7"></rect><rect x="12" y="5" width="3" height="11"></rect><rect x="17" y="12" width="3" height="4"></rect></svg>
+              Trạng thái hệ thống
+            </a>
+          </div>
+        </div>
+
+        <div class="art" aria-hidden="true">
+          <!-- Simple neon-ish gears illustration -->
+          <svg viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Minh hoạ bảo trì">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0%" stop-color="#7c3aed"/>
+                <stop offset="100%" stop-color="#22d3ee"/>
+              </linearGradient>
+              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <circle cx="180" cy="180" r="120" fill="none" stroke="url(#g1)" stroke-width="2" opacity=".35" />
+            <g transform="translate(180 180)">
+              <g class="spin-slow" filter="url(#glow)">
+                <path d="M0-80 l10 0 6 14 14 6 0 10 -14 6 -6 14 -10 0 -6 -14 -14 -6 0 -10 14 -6z" fill="url(#g1)" opacity=".7"/>
+              </g>
+              <g class="spin" transform="scale(.65)">
+                <path d="M0-80 l10 0 6 14 14 6 0 10 -14 6 -6 14 -10 0 -6 -14 -14 -6 0 -10 14 -6z" fill="url(#g1)" opacity=".9"/>
+              </g>
+            </g>
+            <circle cx="180" cy="180" r="4" fill="#fff" opacity=".9"/>
+          </svg>
+        </div>
+      </div>
+
+      <footer>
+        <div>ETA dự kiến: <code id="eta">—</code></div>
+        <div>© <span id="year"></span> Your Company</div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // ==== Config nhanh ====
+    // Đặt thời gian kết thúc bảo trì (giờ địa phương máy người dùng)
+    const maintenanceEnd = new Date(Date.now() + 24 * 60 * 60 * 1000); // +3 giờ
+    const maintenanceStart = new Date();
+
+    // Tùy chọn hiển thị tiến độ: tự động tăng dần nhưng không vượt 94%, sẽ về 100% khi hết thời gian
+    const autoProgress = true;
+
+    // ==== Logic countdown & progress ====
+    const d = document.getElementById('d');
+    const h = document.getElementById('h');
+    const m = document.getElementById('m');
+    const s = document.getElementById('s');
+    const bar = document.getElementById('bar');
+    const pct = document.getElementById('percent');
+    const eta = document.getElementById('eta');
+    const statusText = document.getElementById('statusText');
+
+    function fmt2(n){return String(Math.max(0,Math.floor(n))).padStart(2,'0')}
+
+    function tick(){
+      const now = new Date();
+      const total = maintenanceEnd - maintenanceStart;
+      const left = maintenanceEnd - now;
+
+      if (left <= 0){
+        d.textContent=h.textContent=m.textContent=s.textContent='00';
+        bar.style.width = '100%';
+        pct.textContent = '100%';
+        statusText.textContent = 'Đã hoàn tất bảo trì. Chuẩn bị trực tuyến lại!';
+        eta.textContent = new Date(maintenanceEnd).toLocaleString();
+        return; // dừng tăng
+      }
+
+      const days = Math.floor(left / (24*60*60*1000));
+      const hours = Math.floor((left % (24*60*60*1000)) / (60*60*1000));
+      const mins = Math.floor((left % (60*60*1000)) / (60*1000));
+      const secs = Math.floor((left % (60*1000)) / 1000);
+
+      d.textContent = fmt2(days);
+      h.textContent = fmt2(hours);
+      m.textContent = fmt2(mins);
+      s.textContent = fmt2(secs);
+
+      const progress = Math.min(1, 1 - (left/total));
+      // Auto progress: capping at 94% until finish
+      let shown = progress;
+      if (autoProgress && progress < 0.94) {
+        // Smooth curve to look nicer
+        shown = Math.min(0.94, Math.pow(progress, 0.88));
+      }
+      const p = Math.round(shown * 100);
+      bar.style.width = p + '%';
+      pct.textContent = p + '%';
+
+      eta.textContent = new Date(maintenanceEnd).toLocaleString();
+      requestAnimationFrame(()=>{}); // keep CSS smooth
+    }
+
+    tick();
+    setInterval(tick, 1000);
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
