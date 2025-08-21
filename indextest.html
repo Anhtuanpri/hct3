@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Cửu Thiên Huyền Vực - 2/9 Việt Nam</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#da251d; --red-dark:#b90f08; --yellow:#ffcd00; --crimson:#7f0b06;
+    --safeL:max(env(safe-area-inset-left),0px);
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:#1a1a1a; font-family:'Open Sans',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(circle at 20% 10%,rgba(255,255,255,.08),transparent 35%),
+      radial-gradient(circle at 80% 20%,rgba(255,255,255,.08),transparent 40%),
+      linear-gradient(180deg,#c41f17 0%,var(--red) 45%,#b51b14 100%);
+    overflow-x:hidden; display:flex; flex-direction:column; align-items:stretch;
+  }
+  body.dark-mode{ background:#121212!important; color:#f1f1f1 }
+
+  .topbar{
+    position:sticky; top:0; z-index:6; width:100%;
+    padding:.6rem calc(var(--safeL) + 10px);
+    background:linear-gradient(90deg,var(--red),var(--red-dark));
+    border-bottom:2px solid var(--yellow);
+    display:flex; align-items:center; gap:.6rem; flex-wrap:nowrap;
+  }
+  .ctrl{
+    width:44px; height:44px; min-width:44px; border-radius:50%;
+    background:#c62828; border:2px solid var(--yellow);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 0 var(--crimson); color:#fff; font-size:22px; cursor:pointer; user-select:none;
+    transition:transform .08s ease;
+  }
+  .ctrl:active{transform:translateY(2px)}
+  .spacer{flex:1}
+  .pill{min-width:120px;text-align:center;background:linear-gradient(180deg,#8a1a1a,#741313);
+        color:#fff;border:2px solid rgba(255,205,0,.7);border-radius:12px;padding:.35rem .6rem;
+        box-shadow:0 3px 0 var(--crimson)}
+  .pill .num{display:block;font-weight:900;font-size:22px;line-height:1}
+  .pill .lbl{font-size:12px;opacity:.9}
+
+  .flag-stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.15;
+    background-image:radial-gradient(var(--yellow) 28%,transparent 30%),
+                     radial-gradient(var(--yellow) 28%,transparent 30%),
+                     radial-gradient(var(--yellow) 28%,transparent 30%);
+    background-size:120px 120px,90px 90px,70px 70px;
+    background-position:10% 15%,80% 30%,60% 75%;
+    filter:drop-shadow(0 0 6px rgba(255,205,0,.6));
+    animation:floatStars 14s ease-in-out infinite alternate;
+  }
+  @keyframes floatStars{to{transform:translateY(-8px)}}
+
+  .hero{position:relative; z-index:1; width:100%; padding:12px calc(var(--safeL) + 10px) 10px;}
+  .hero-inner{
+    margin:0 auto; width:100%; max-width:1200px;
+    border:3px solid transparent; border-radius:16px;
+    border-image-slice:1; border-image-source:linear-gradient(45deg,var(--yellow),#fff,var(--yellow));
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(14px) saturate(170%); -webkit-backdrop-filter:blur(14px) saturate(170%);
+    padding:22px 16px; overflow:hidden;
+  }
+  .corner{position:absolute; top:-12px; left:-12px; background:var(--red); color:#fff; font-weight:800;
+          border:2px solid var(--yellow); border-radius:10px; padding:6px 12px; transform:rotate(-6deg);
+          text-shadow:0 1px 0 #0004; box-shadow:0 4px 0 var(--crimson); white-space:nowrap; z-index:2}
+
+  .avatar-wrapper{position:relative; width:336px; height:336px; margin:0 auto}
+  .avatar-wrapper img:first-child{position:absolute; top:98px; left:98px; width:140px; height:140px;
+    border-radius:50%; object-fit:cover; border:3px solid var(--yellow); box-shadow:0 0 12px rgba(255,205,0,.6)}
+  .avatar-wrapper img:last-child{position:absolute; top:-24px; left:0; width:336px; height:336px}
+  .masked-text{
+    font-family:'Ma Shan Zheng',cursive; font-size:60px; font-weight:900; margin:10px 0 12px;
+    color:transparent;
+    background:radial-gradient(circle at 50% 45%,var(--yellow) 0 40%, transparent 41%) center/1.1ch 1.1ch repeat,
+               linear-gradient(90deg,#fff7c2,var(--yellow),#ffd500,#ffe88a);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-stroke:1px #8a5;
+    text-shadow:0 0 10px rgba(255,205,0,.5); pointer-events:none;
+  }
+
+  .section-max{max-width:1200px;margin:0 auto;padding:0 6px}
+  .search-wrap{max-width:720px;margin:0 auto;padding:0 4px}
+  .glow-input{position:relative; overflow:hidden; border-radius:14px}
+  .glow-input input,.glow-input textarea{
+    width:100%; padding:14px; border:none; border-radius:12px; font-size:16px;
+    background:#fff7b8; color:#2b2b2b; outline:2px solid rgba(255,205,0,.55);
+  }
+  .glow-input::before{
+    content:""; position:absolute; inset:-2px; border-radius:14px; z-index:-1;
+    background:linear-gradient(270deg,var(--yellow),#fff,var(--yellow),#fff,var(--yellow));
+    background-size:600% 600%; animation:borderLED 6s linear infinite;
+  }
+  @keyframes borderLED{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+  #answerBox{max-width:820px;margin:14px auto 0;padding:15px;background:rgba(255,255,255,.25);
+    border:3px dashed var(--yellow); border-radius:10px; backdrop-filter:blur(8px); animation:glow 1s infinite alternate}
+  @keyframes glow{from{box-shadow:0 0 6px var(--yellow)}to{box-shadow:0 0 15px var(--yellow),0 0 25px var(--yellow)}}
+  .hidden{display:none}
+
+  .suggest{max-width:920px;margin:16px auto 0;padding:0 4px}
+  .suggest h3{color:#fff;background:var(--red);display:inline-block;padding:6px 10px;border-radius:8px;border:2px solid var(--yellow)}
+
+  .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+  .btn{
+    padding:12px 20px;background:linear-gradient(90deg,var(--red),var(--red-dark));color:#fff;border:2px solid var(--yellow);
+    border-radius:10px;font-weight:800;box-shadow:0 6px 0 var(--crimson);cursor:pointer;user-select:none
+  }
+  .btn:active{transform:translateY(2px)}
+
+  .send{width:100%;max-width:1200px;margin:20px auto;padding:20px;border-radius:12px;
+    background:rgba(255,255,255,.12);backdrop-filter:blur(16px) saturate(180%);border:2px solid rgba(255,205,0,.4); overflow:hidden}
+  .send .glow-input textarea{min-height:110px}
+
+  .lion{position:fixed;top:68px;left:10px;z-index:9;pointer-events:none;width:min(22vw,120px);
+        filter:drop-shadow(0 8px 0 var(--crimson));animation:lion 1.6s ease-in-out infinite}
+  .lion.hidden{display:none}
+  @keyframes lion{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  #fireCanvas{position:fixed;inset:0;z-index:7;pointer-events:none}
+
+  .foot{position:fixed;left:0;right:0;bottom:0;z-index:5;background:linear-gradient(90deg,#fff6b0,var(--yellow),#fff6b0);
+        color:#7a0000;font-weight:900;border-top:2px solid var(--crimson);overflow:hidden}
+  .foot .line{display:inline-block;padding-left:100%;white-space:nowrap;animation:footScroll 16s linear infinite}
+  @keyframes footScroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+
+  #chatFab{
+    position:fixed; right:18px; bottom:92px; width:62px; height:62px; border-radius:50%;
+    z-index:10; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 30% 30%, #ffeb7a, #ffd033 35%, #ffb300 60%, #ff9800 100%),
+               linear-gradient(90deg,var(--red),var(--red-dark));
+    border:3px solid #ffe178; box-shadow:0 10px 0 var(--crimson), 0 0 16px rgba(255,205,0,.6);
+    color:#7a0000; font-size:28px; font-weight:900; user-select:none; animation:pulse 1.6s infinite;
+  }
+  #chatFab span{position:absolute; top:-6px; right:-6px; background:#fff; color:#7a0000; border:2px solid var(--yellow);
+    border-radius:16px; font-size:12px; padding:1px 6px; font-weight:800}
+  @keyframes pulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+
+  #chat{
+    position:fixed; right:18px;
+    bottom:calc(84px + env(safe-area-inset-bottom));
+    width:min(92vw,420px);
+    max-height:min(78vh,640px);
+    display:none;
+    flex-direction:column;
+    z-index:10;
+    background:rgba(255,255,255,.25); backdrop-filter:blur(20px);
+    border-radius:14px; border:2px solid rgba(255,205,0,.7); box-shadow:0 14px 0 var(--crimson); overflow:hidden
+  }
+  #chat.open{display:flex;}
+  #chat .h{background:var(--red); color:#fff; padding:10px; font-weight:800; display:flex; align-items:center; justify-content:space-between; gap:8px; border-bottom:2px solid var(--yellow)}
+  #chat .h .right{display:flex; gap:6px;}
+  #msgs{flex:1; overflow:auto; padding:10px; background:rgba(255,255,255,.1)}
+  .m{margin:6px 0}
+  .m img{max-width:100%; border-radius:8px; border:2px solid rgba(255,205,0,.6)}
+  #chat .i{display:flex; gap:6px; padding:10px; background:rgba(255,255,255,.2)}
+  #chat .i input[type="text"]{flex:1; border:none; border-radius:6px; padding:8px}
+  #chat .i button{border:none; background:transparent; font-size:22px; cursor:pointer}
+
+  .status{position:fixed;right:16px;background:rgba(0,0,0,.55);color:#fff;padding:8px 12px;border-radius:10px;font-size:14px;display:none;z-index:9}
+  #audioStatus{top:90px} #themeStatus{top:130px}
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div class="flag-stars"></div>
+  <img id="lionGif" class="lion" src="https://i.postimg.cc/BvbjRVhN/lion-dance.gif" alt="Lân múa">
+  <canvas id="fireCanvas"></canvas>
+
+  <div id="topbar" class="topbar">
+    <div id="btnTheme" class="ctrl" title="Đổi nền">☀️</div>
+    <div id="btnFire"  class="ctrl" title="Bật/Tắt pháo hoa">🎆</div>
+    <div id="btnLion"  class="ctrl" title="Hiện/ẩn lân múa">🐲</div>
+    <div class="spacer"></div>
+    <div class="pill"><span id="dLeft" class="num">--</span><span class="lbl">Ngày</span></div>
+    <div class="spacer"></div>
+    <div id="btnAudio" class="ctrl" title="Nhạc nền">🔊</div>
+  </div>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="corner">2/9 🇻🇳</div>
+
+      <div class="avatar-wrapper">
+        <img src="https://i.postimg.cc/YS6RwWf9/6801332576069.gif" alt="Avatar">
+        <img src="https://i.postimg.cc/25mVbbvg/khung-vip-197.png" alt="Khung viền">
+      </div>
+      <h1 class="masked-text">Cuu Thien Huyen Vuc</h1>
+
+      <div class="search-wrap">
+        <div class="glow-input"><input id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..."></div>
+      </div>
+
+      <div id="answerBox" class="hidden"></div>
+
+      <div class="suggest">
+        <h3>📌 Gợi ý: Vấn đáp & sự kiện (2/9)</h3>
+        <ul>
+          <li>Nhập 1 từ liên quan → trả về các câu phù hợp</li>
+          <li>Ví dụ: “pháp” → mọi câu chứa từ “pháp”</li>
+          <li><strong>‼️ Xoá dấu “?” nếu không ra kết quả</strong></li>
+        </ul>
+      </div>
+
+      <div class="btns">
+        <button class="btn" onclick="gotoChat()">➡️ Chat</button>
+        <button class="btn" onclick="gotoSpin()">🎰 Quay</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="send">
+    <h3>🧧 Đóng góp câu hỏi mới (2/9)</h3>
+    <div class="section-max">
+      <div class="glow-input"><input id="newQuestion" placeholder="Nhập câu hỏi cần bổ sung..."></div>
+      <div style="height:10px"></div>
+      <div class="glow-input"><textarea id="newDetails" placeholder="Mô tả chi tiết hoặc gợi ý đáp án..."></textarea></div>
+      <div class="btns"><button class="btn" onclick="sendMail()">Gửi yêu cầu 📩</button></div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <div class="line">📢 Dùng thanh tìm kiếm để tra cứu nhanh câu hỏi — Chúc bạn có kỳ nghỉ 2/9 vui vẻ, luyện công đều tay! 📢 Dùng thanh tìm kiếm để tra cứu nhanh câu hỏi — Chúc bạn có kỳ nghỉ 2/9 vui vẻ, luyện công đều tay! 📢</div>
+  </div>
+
+  <!-- FAB Chat + khung Chat -->
+  <div id="chatFab" title="Chat">💬<span id="unread" style="display:none">0</span></div>
+  <div id="chat" aria-live="polite">
+    <div class="h">
+      <span>💬 Chat cộng đồng</span>
+      <div class="right">
+        <button id="btnClear" title="Xoá tin nhắn" style="color:#fff;cursor:pointer;font-size:20px">🧹</button>
+        <button id="btnCloseChat" title="Đóng chat" style="color:#fff;cursor:pointer;font-size:20px">✖</button>
+      </div>
+    </div>
+    <div id="msgs"></div>
+    <div class="i">
+      <input id="msgIn" type="text" placeholder="Nhập tin nhắn...">
+      <input id="imgPick" type="file" accept="image/*" hidden>
+      <button title="Gửi ảnh" onclick="document.getElementById('imgPick').click()">📷</button>
+      <button title="Gửi" onclick="sendMessage()">📤</button>
+    </div>
+  </div>
+
+  <div id="audioStatus" class="status"></div>
+  <div id="themeStatus" class="status"></div>
+
+  <audio id="bgAudio" autoplay loop><source src="1234.mp3" type="audio/mpeg"/></audio>
+
+<script>
+/* ======= Dán mảng QA của bạn vào đây ======= */
+const qaList = [/* ...your list... */];
+
+/* Search */
+const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+function doSearch(){
+  const q = norm(document.getElementById('searchBox').value.trim());
+  const box = document.getElementById('answerBox');
+  if(!q){ box.classList.add('hidden'); box.innerHTML=''; return; }
+  const res = qaList.map(x=>({...x, m:(norm(x.question).match(new RegExp(q,'g'))||[]).length}))
+                    .filter(x=>x.m>0).sort((a,b)=>b.m-a.m);
+  box.classList.remove('hidden');
+  box.innerHTML = res.length ? res.map(x=>`<p><strong>❓ ${x.question}</strong><br>💡 ${x.answer}</p>`).join('<hr/>')
+                             : `❌ Không tìm thấy kết quả cho: "<strong>${q}</strong>"`;
+}
+document.getElementById('searchBox').addEventListener('input', doSearch);
+
+/* Countdown: chỉ NGÀY */
+function pad(n){return (n<10?'0':'')+n}
+function tickDays(){
+  const target = new Date('2025-09-02T00:00:00+07:00');
+  const now = new Date(); let d = target - now; if(d<0) d=0;
+  document.getElementById('dLeft').textContent = pad(Math.floor(d/86400000));
+}
+tickDays(); setInterval(tickDays, 60000);
+
+/* Nav */
+function gotoChat(){ location.href='index2.html'; }
+function gotoSpin(){ location.href='index6.html'; }
+
+/* Email */
+function sendMail(){
+  const q=document.getElementById('newQuestion').value.trim();
+  const d=document.getElementById('newDetails').value.trim();
+  if(!q) return alert('⚠️ Vui lòng nhập câu hỏi cần bổ sung!');
+  location.href=`mailto:Hoangtuanhpyd@gmail.com?subject=${encodeURIComponent('Yêu cầu bổ sung câu hỏi (2/9)')}&body=${encodeURIComponent(`🔮 Câu hỏi:\n${q}\n\n💬 Chi tiết/Gợi ý:\n${d||'(Không có)'}`)}`;
+}
+
+/* Theme + Audio */
+const audio = document.getElementById('bgAudio');
+btnTheme.onclick=()=>{
+  document.body.classList.toggle('dark-mode');
+  themeStatus.textContent=document.body.classList.contains('dark-mode')?'🌙 Đã bật chế độ tối':'☀️ Đã bật chế độ sáng';
+  themeStatus.style.display='block'; setTimeout(()=>themeStatus.style.display='none',1500);
+};
+btnAudio.onclick=()=>{
+  if(audio.paused){ audio.play(); btnAudio.textContent='🔊'; audioStatus.textContent='🔊 Âm thanh đã bật'; }
+  else{ audio.pause(); btnAudio.textContent='🔇'; audioStatus.textContent='🔇 Âm thanh đã tắt'; }
+  audioStatus.style.display='block'; setTimeout(()=>audioStatus.style.display='none',1500);
+};
+
+/* Lân */
+const lion=document.getElementById('lionGif');
+btnLion.onclick=()=>lion.classList.toggle('hidden');
+
+/* Pháo hoa */
+const cvs=document.getElementById('fireCanvas'), ctx=cvs.getContext('2d',{alpha:true});
+let W,H,parts=[],autoTimer=null,autoOn=true;
+function rs(){ W=cvs.width=innerWidth; H=cvs.height=innerHeight } addEventListener('resize',rs); rs();
+const R=(a,b)=>Math.random()*(b-a)+a, HUE=()=>[45,50,55][(Math.random()*3)|0];
+function burst(x,y){ const n=52; for(let i=0;i<n;i++) parts.push({x,y,vx:Math.cos(i/n*2*Math.PI)*R(1.5,4.4),vy:Math.sin(i/n*2*Math.PI)*R(1.5,4.4),life:R(60,100),c:`hsl(${HUE()},100%,${R(45,60)}%)`}); }
+function autoBurst(){ burst(R(W*.15,W*.85),R(H*.15,H*.55)); }
+function startAuto(){ if(autoTimer) return; autoTimer=setInterval(autoBurst,700); for(let i=0;i<3;i++) setTimeout(autoBurst,200+i*220); }
+function stopAuto(){ clearInterval(autoTimer); autoTimer=null; }
+startAuto();
+btnFire.onmousedown=()=>{ if(!autoTimer) autoBurst(); };
+btnFire.onclick=()=>{ autoOn=!autoOn; autoOn?startAuto():stopAuto(); };
+(function ani(){
+  ctx.clearRect(0,0,W,H);
+  parts.forEach((p,i)=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=.03; p.life--; ctx.globalCompositeOperation='lighter';
+    ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2); ctx.fillStyle=p.c; ctx.fill();
+    if(p.life<=0) parts.splice(i,1);
+  });
+  requestAnimationFrame(ani);
+})();
+
+/* ===== Firebase chat có gửi ảnh (base64) ===== */
+const firebaseConfig={apiKey:"AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",authDomain:"sample-firebase-ai-app-2a091.firebaseapp.com",databaseURL:"https://sample-firebase-ai-app-2a091-default-rtdb.firebaseio.com",projectId:"sample-firebase-ai-app-2a091",storageBucket:"sample-firebase-ai-app-2a091.appspot.com",messagingSenderId:"94515253749",appId:"1:94515253749:web:86594f2222889c6472d0bc"};
+firebase.initializeApp(firebaseConfig); const db=firebase.database();
+
+const chat = document.getElementById('chat');
+const fab = document.getElementById('chatFab');
+const msgs = document.getElementById('msgs');
+const msgIn = document.getElementById('msgIn');
+const imgPick = document.getElementById('imgPick');
+const unread = document.getElementById('unread');
+const btnCloseChat = document.getElementById('btnCloseChat');
+const btnClear = document.getElementById('btnClear');
+
+let unreadCount = 0, chatOpen = false;
+
+function openChat(){ chatOpen=true; chat.classList.add('open'); unreadCount=0; unread.style.display='none'; msgIn.focus(); }
+function closeChat(){ chatOpen=false; chat.classList.remove('open'); }
+
+fab.onclick=()=> chatOpen ? closeChat() : openChat();
+btnCloseChat.onclick=closeChat;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && chatOpen) closeChat(); });
+
+function sendMessage(imgDataURL){
+  const text = msgIn.value.trim();
+  if(!text && !imgDataURL) return;
+  const name = localStorage.getItem('chatName') || 'Ẩn danh';
+  const data = { name, text, img: imgDataURL || null, time: Date.now() };
+  db.ref('messages').push(data);
+  msgIn.value = '';
+}
+imgPick.addEventListener('change', e=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => sendMessage(rd.result);
+  rd.readAsDataURL(f);
+  imgPick.value = '';
+});
+
+db.ref('messages').on('value', snap=>{
+  msgs.innerHTML = '';
+  snap.forEach(ch=>{
+    const v = ch.val();
+    const div = document.createElement('div'); div.className='m';
+    const name = `<b style="color:#ffd000">${esc(v.name)}:</b> `;
+    const text = v.text ? esc(v.text) : '';
+    const img = v.img ? `<div><a href="${v.img}" target="_blank" rel="noopener"><img src="${v.img}" alt="image"/></a></div>` : '';
+    div.innerHTML = name + text + img;
+    msgs.appendChild(div);
+  });
+  msgs.scrollTop = msgs.scrollHeight;
+  if(!chatOpen){ unreadCount++; unread.textContent = unreadCount; unread.style.display='inline-block'; }
+});
+btnClear.onclick = ()=>{ if(confirm('Xoá toàn bộ tin nhắn?')) db.ref('messages').remove(); };
+
+function esc(s){return (s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+/* chống devtools */
+addEventListener('contextmenu',e=>e.preventDefault());
+addEventListener('keydown',e=>{
+  if(e.key==='F12'||(e.ctrlKey&&['u','s','c','i','j','p'].includes(e.key.toLowerCase()))||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key.toUpperCase()))) e.preventDefault();
+});
+addEventListener('copy',e=>e.preventDefault());
+addEventListener('dragstart',e=>e.preventDefault());
+</script>
+</body>
+</html>
