@@ -22,6 +22,7 @@
   }
   body.dark-mode{ background:#121212!important; color:#f1f1f1 }
 
+  /* Top controls */
   .topbar{
     position:sticky; top:0; z-index:6; width:100%;
     padding:.6rem calc(var(--safeL) + 10px);
@@ -44,6 +45,7 @@
   .pill .num{display:block;font-weight:900;font-size:22px;line-height:1}
   .pill .lbl{font-size:12px;opacity:.9}
 
+  /* Sao mờ bay */
   .flag-stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.15;
     background-image:radial-gradient(var(--yellow) 28%,transparent 30%),
                      radial-gradient(var(--yellow) 28%,transparent 30%),
@@ -55,6 +57,7 @@
   }
   @keyframes floatStars{to{transform:translateY(-8px)}}
 
+  /* Hero */
   .hero{position:relative; z-index:1; width:100%; padding:12px calc(var(--safeL) + 10px) 10px;}
   .hero-inner{
     margin:0 auto; width:100%; max-width:1200px;
@@ -62,25 +65,32 @@
     border-image-slice:1; border-image-source:linear-gradient(45deg,var(--yellow),#fff,var(--yellow));
     background:rgba(255,255,255,.12);
     backdrop-filter:blur(14px) saturate(170%); -webkit-backdrop-filter:blur(14px) saturate(170%);
-    padding:22px 16px; overflow:hidden;
+    padding:22px 16px; overflow:hidden; position:relative;
   }
   .corner{position:absolute; top:-12px; left:-12px; background:var(--red); color:#fff; font-weight:800;
           border:2px solid var(--yellow); border-radius:10px; padding:6px 12px; transform:rotate(-6deg);
           text-shadow:0 1px 0 #0004; box-shadow:0 4px 0 var(--crimson); white-space:nowrap; z-index:2}
 
+  /* Avatar + khung */
   .avatar-wrapper{position:relative; width:336px; height:336px; margin:0 auto}
   .avatar-wrapper img:first-child{position:absolute; top:98px; left:98px; width:140px; height:140px;
     border-radius:50%; object-fit:cover; border:3px solid var(--yellow); box-shadow:0 0 12px rgba(255,205,0,.6)}
   .avatar-wrapper img:last-child{position:absolute; top:-24px; left:0; width:336px; height:336px}
+
+  /* TÊN TÔNG MÔN – căn GIỮA */
   .masked-text{
-    font-family:'Ma Shan Zheng',cursive; font-size:60px; font-weight:900; margin:10px 0 12px;
+    font-family:'Ma Shan Zheng',cursive;
+    font-size:60px; font-weight:900;
+    margin:10px auto 12px; text-align:center; max-width:100%;
     color:transparent;
     background:radial-gradient(circle at 50% 45%,var(--yellow) 0 40%, transparent 41%) center/1.1ch 1.1ch repeat,
                linear-gradient(90deg,#fff7c2,var(--yellow),#ffd500,#ffe88a);
-    -webkit-background-clip:text; background-clip:text; -webkit-text-stroke:1px #8a5;
-    text-shadow:0 0 10px rgba(255,205,0,.5); pointer-events:none;
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-stroke:1px #8a5; text-shadow:0 0 10px rgba(255,205,0,.5);
+    pointer-events:none;
   }
 
+  /* Search + result */
   .section-max{max-width:1200px;margin:0 auto;padding:0 6px}
   .search-wrap{max-width:720px;margin:0 auto;padding:0 4px}
   .glow-input{position:relative; overflow:hidden; border-radius:14px}
@@ -113,17 +123,20 @@
     background:rgba(255,255,255,.12);backdrop-filter:blur(16px) saturate(180%);border:2px solid rgba(255,205,0,.4); overflow:hidden}
   .send .glow-input textarea{min-height:110px}
 
+  /* Lân & pháo hoa (đằng TRƯỚC) */
   .lion{position:fixed;top:68px;left:10px;z-index:9;pointer-events:none;width:min(22vw,120px);
         filter:drop-shadow(0 8px 0 var(--crimson));animation:lion 1.6s ease-in-out infinite}
   .lion.hidden{display:none}
   @keyframes lion{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
   #fireCanvas{position:fixed;inset:0;z-index:7;pointer-events:none}
 
+  /* Marquee dưới */
   .foot{position:fixed;left:0;right:0;bottom:0;z-index:5;background:linear-gradient(90deg,#fff6b0,var(--yellow),#fff6b0);
         color:#7a0000;font-weight:900;border-top:2px solid var(--crimson);overflow:hidden}
   .foot .line{display:inline-block;padding-left:100%;white-space:nowrap;animation:footScroll 16s linear infinite}
   @keyframes footScroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 
+  /* FAB Chat */
   #chatFab{
     position:fixed; right:18px; bottom:92px; width:62px; height:62px; border-radius:50%;
     z-index:10; cursor:pointer; display:flex; align-items:center; justify-content:center;
@@ -136,13 +149,13 @@
     border-radius:16px; font-size:12px; padding:1px 6px; font-weight:800}
   @keyframes pulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 
+  /* Khung Chat */
   #chat{
     position:fixed; right:18px;
     bottom:calc(84px + env(safe-area-inset-bottom));
     width:min(92vw,420px);
     max-height:min(78vh,640px);
-    display:none;
-    flex-direction:column;
+    display:none; flex-direction:column;
     z-index:10;
     background:rgba(255,255,255,.25); backdrop-filter:blur(20px);
     border-radius:14px; border:2px solid rgba(255,205,0,.7); box-shadow:0 14px 0 var(--crimson); overflow:hidden
@@ -159,8 +172,14 @@
 
   .status{position:fixed;right:16px;background:rgba(0,0,0,.55);color:#fff;padding:8px 12px;border-radius:10px;font-size:14px;display:none;z-index:9}
   #audioStatus{top:90px} #themeStatus{top:130px}
+
+  /* Responsive tweak */
+  @media (max-width:420px){
+    .masked-text{font-size:44px}
+  }
 </style>
 
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
@@ -169,6 +188,7 @@
   <img id="lionGif" class="lion" src="https://i.postimg.cc/BvbjRVhN/lion-dance.gif" alt="Lân múa">
   <canvas id="fireCanvas"></canvas>
 
+  <!-- Topbar -->
   <div id="topbar" class="topbar">
     <div id="btnTheme" class="ctrl" title="Đổi nền">☀️</div>
     <div id="btnFire"  class="ctrl" title="Bật/Tắt pháo hoa">🎆</div>
@@ -179,6 +199,7 @@
     <div id="btnAudio" class="ctrl" title="Nhạc nền">🔊</div>
   </div>
 
+  <!-- Hero -->
   <section class="hero">
     <div class="hero-inner">
       <div class="corner">2/9 🇻🇳</div>
@@ -187,7 +208,8 @@
         <img src="https://i.postimg.cc/YS6RwWf9/6801332576069.gif" alt="Avatar">
         <img src="https://i.postimg.cc/25mVbbvg/khung-vip-197.png" alt="Khung viền">
       </div>
-      <h1 class="masked-text">Cuu Thien Huyen Vuc</h1>
+
+      <h1 class="masked-text">Cửu Thiên Huyền Vực</h1>
 
       <div class="search-wrap">
         <div class="glow-input"><input id="searchBox" placeholder="Nhập từ khóa hoặc câu hỏi..."></div>
@@ -211,6 +233,7 @@
     </div>
   </section>
 
+  <!-- Đóng góp -->
   <section class="send">
     <h3>🧧 Đóng góp câu hỏi mới (2/9)</h3>
     <div class="section-max">
@@ -221,11 +244,12 @@
     </div>
   </section>
 
+  <!-- Marquee dưới -->
   <div class="foot">
     <div class="line">📢 Dùng thanh tìm kiếm để tra cứu nhanh câu hỏi — Chúc bạn có kỳ nghỉ 2/9 vui vẻ, luyện công đều tay! 📢 Dùng thanh tìm kiếm để tra cứu nhanh câu hỏi — Chúc bạn có kỳ nghỉ 2/9 vui vẻ, luyện công đều tay! 📢</div>
   </div>
 
-  <!-- FAB Chat + khung Chat -->
+  <!-- FAB + Chat -->
   <div id="chatFab" title="Chat">💬<span id="unread" style="display:none">0</span></div>
   <div id="chat" aria-live="polite">
     <div class="h">
@@ -276,7 +300,7 @@ function tickDays(){
 }
 tickDays(); setInterval(tickDays, 60000);
 
-/* Nav */
+/* Nav buttons (nếu bạn dùng) */
 function gotoChat(){ location.href='index2.html'; }
 function gotoSpin(){ location.href='index6.html'; }
 
@@ -290,6 +314,8 @@ function sendMail(){
 
 /* Theme + Audio */
 const audio = document.getElementById('bgAudio');
+const themeStatus=document.getElementById('themeStatus');
+const audioStatus=document.getElementById('audioStatus');
 btnTheme.onclick=()=>{
   document.body.classList.toggle('dark-mode');
   themeStatus.textContent=document.body.classList.contains('dark-mode')?'🌙 Đã bật chế độ tối':'☀️ Đã bật chế độ sáng';
@@ -305,7 +331,7 @@ btnAudio.onclick=()=>{
 const lion=document.getElementById('lionGif');
 btnLion.onclick=()=>lion.classList.toggle('hidden');
 
-/* Pháo hoa */
+/* Pháo hoa (đằng TRƯỚC) */
 const cvs=document.getElementById('fireCanvas'), ctx=cvs.getContext('2d',{alpha:true});
 let W,H,parts=[],autoTimer=null,autoOn=true;
 function rs(){ W=cvs.width=innerWidth; H=cvs.height=innerHeight } addEventListener('resize',rs); rs();
@@ -315,7 +341,7 @@ function autoBurst(){ burst(R(W*.15,W*.85),R(H*.15,H*.55)); }
 function startAuto(){ if(autoTimer) return; autoTimer=setInterval(autoBurst,700); for(let i=0;i<3;i++) setTimeout(autoBurst,200+i*220); }
 function stopAuto(){ clearInterval(autoTimer); autoTimer=null; }
 startAuto();
-btnFire.onmousedown=()=>{ if(!autoTimer) autoBurst(); };
+btnFire.onmousedown=()=>{ if(!autoTimer) autoBurst(); }; // giữ cảm giác “bắn ngay”
 btnFire.onclick=()=>{ autoOn=!autoOn; autoOn?startAuto():stopAuto(); };
 (function ani(){
   ctx.clearRect(0,0,W,H);
@@ -326,7 +352,7 @@ btnFire.onclick=()=>{ autoOn=!autoOn; autoOn?startAuto():stopAuto(); };
   requestAnimationFrame(ani);
 })();
 
-/* ===== Firebase chat có gửi ảnh (base64) ===== */
+/* ===== Firebase chat (gửi ảnh base64) ===== */
 const firebaseConfig={apiKey:"AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",authDomain:"sample-firebase-ai-app-2a091.firebaseapp.com",databaseURL:"https://sample-firebase-ai-app-2a091-default-rtdb.firebaseio.com",projectId:"sample-firebase-ai-app-2a091",storageBucket:"sample-firebase-ai-app-2a091.appspot.com",messagingSenderId:"94515253749",appId:"1:94515253749:web:86594f2222889c6472d0bc"};
 firebase.initializeApp(firebaseConfig); const db=firebase.database();
 
@@ -340,7 +366,6 @@ const btnCloseChat = document.getElementById('btnCloseChat');
 const btnClear = document.getElementById('btnClear');
 
 let unreadCount = 0, chatOpen = false;
-
 function openChat(){ chatOpen=true; chat.classList.add('open'); unreadCount=0; unread.style.display='none'; msgIn.focus(); }
 function closeChat(){ chatOpen=false; chat.classList.remove('open'); }
 
@@ -359,7 +384,7 @@ function sendMessage(imgDataURL){
 imgPick.addEventListener('change', e=>{
   const f = e.target.files?.[0]; if(!f) return;
   const rd = new FileReader();
-  rd.onload = () => sendMessage(rd.result);
+  rd.onload = () => sendMessage(rd.result); // base64
   rd.readAsDataURL(f);
   imgPick.value = '';
 });
@@ -382,7 +407,7 @@ btnClear.onclick = ()=>{ if(confirm('Xoá toàn bộ tin nhắn?')) db.ref('mess
 
 function esc(s){return (s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
-/* chống devtools */
+/* Chống devtools (như bạn đang dùng) */
 addEventListener('contextmenu',e=>e.preventDefault());
 addEventListener('keydown',e=>{
   if(e.key==='F12'||(e.ctrlKey&&['u','s','c','i','j','p'].includes(e.key.toLowerCase()))||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key.toUpperCase()))) e.preventDefault();
