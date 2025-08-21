@@ -109,8 +109,23 @@
   @keyframes glow{from{box-shadow:0 0 6px var(--yellow)}to{box-shadow:0 0 15px var(--yellow),0 0 25px var(--yellow)}}
   .hidden{display:none}
 
-  .suggest{max-width:920px;margin:16px auto 0;padding:0 4px}
-  .suggest h3{color:#fff;background:var(--red);display:inline-block;padding:6px 10px;border-radius:8px;border:2px solid var(--yellow)}
+  /* ====== Căn giữa Gợi ý ====== */
+  .suggest{
+    max-width:920px;
+    margin:16px auto 0;
+    padding:0 4px;
+    text-align:center;                 /* căn giữa toàn khối */
+  }
+  .suggest h3{
+    color:#fff; background:var(--red);
+    display:inline-block; padding:6px 10px; border-radius:8px; border:2px solid var(--yellow);
+    margin:0 auto 10px;                /* tiêu đề giữa */
+  }
+  .suggest ul{
+    list-style-position:inside;        /* giữ bullet nhưng căn giữa */
+    padding-left:0; margin:10px auto 0; text-align:center;
+  }
+  .suggest li{margin:6px 0; font-weight:600}
 
   .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0}
   .btn{
@@ -341,7 +356,7 @@ function autoBurst(){ burst(R(W*.15,W*.85),R(H*.15,H*.55)); }
 function startAuto(){ if(autoTimer) return; autoTimer=setInterval(autoBurst,700); for(let i=0;i<3;i++) setTimeout(autoBurst,200+i*220); }
 function stopAuto(){ clearInterval(autoTimer); autoTimer=null; }
 startAuto();
-btnFire.onmousedown=()=>{ if(!autoTimer) autoBurst(); }; // giữ cảm giác “bắn ngay”
+btnFire.onmousedown=()=>{ if(!autoTimer) autoBurst(); }; // bắn ngay khi giữ
 btnFire.onclick=()=>{ autoOn=!autoOn; autoOn?startAuto():stopAuto(); };
 (function ani(){
   ctx.clearRect(0,0,W,H);
@@ -407,7 +422,7 @@ btnClear.onclick = ()=>{ if(confirm('Xoá toàn bộ tin nhắn?')) db.ref('mess
 
 function esc(s){return (s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
-/* Chống devtools (như bạn đang dùng) */
+/* Chống devtools */
 addEventListener('contextmenu',e=>e.preventDefault());
 addEventListener('keydown',e=>{
   if(e.key==='F12'||(e.ctrlKey&&['u','s','c','i','j','p'].includes(e.key.toLowerCase()))||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key.toUpperCase()))) e.preventDefault();
