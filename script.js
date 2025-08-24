@@ -1,5 +1,5 @@
 // === CONFIG ===
-const ADMIN_NAME = "Admin"; // 👉 Đổi tên admin tại đây (chỉ 1 người có quyền xoá tất cả / xoá của người khác)
+const ADMIN_NAME = "ADMIN"; // 👉 Đổi tên admin tại đây (chỉ 1 người có quyền xoá tất cả / xoá của người khác)
 
 // === Firebase config ===
 const firebaseConfig = {
