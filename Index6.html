@@ -137,7 +137,7 @@
     <!-- QUIZ MODAL -->
     <div id="quizModal" class="modal" role="dialog" aria-modal="true">
       <div class="box">
-        <h3>❓ Câu hỏi chướng ngại</h3>
+        <h3 id="quizTitle">❓ Câu hỏi chướng ngại</h3>
         <div id="quizQuestion" style="margin:.2rem 0 .5rem"></div>
         <div id="quizOptions" class="opts"></div>
         <div id="quizCountdown" class="hint tiny">⏳ Còn 10.0s</div>
@@ -881,14 +881,19 @@
     rebuildIdle();
   };
 
-  // ===== Quiz modal logic (cầu chì handled để chỉ xử lý 1 lần) =====
+  // ===== Quiz modal logic =====
   const quizModal = document.getElementById('quizModal');
+  const quizTitle = document.getElementById('quizTitle');
   const quizQEl    = document.getElementById('quizQuestion');
   const quizOptsEl = document.getElementById('quizOptions');
   function openQuiz(duck){
     if (state.quizOpen) return;
     state.quizOpen = true;
     state.racePaused = true;
+
+    // THÔNG BÁO đội nào gặp câu hỏi
+    showBanner(`❓ Vịt #${duck.lane+1} gặp CÂU HỎI!`);
+    quizTitle.textContent = `❓ Câu hỏi – Vịt #${duck.lane+1}`;
 
     const q = QUIZ_BANK[Math.floor(Math.random()*QUIZ_BANK.length)];
     quizQEl.textContent = q.q;
@@ -911,12 +916,13 @@
     }, 150);
 
     function announce(result){
+      const tag = ` (Vịt #${duck.lane+1})`;
       if(result === 'correct'){
-        showBanner('✅ ĐÚNG! 🚀 Tăng tốc x2 trong 2s');
+        showBanner('✅ ĐÚNG! 🚀 Tăng tốc x2 trong 2s' + tag);
       } else if(result === 'wrong'){
-        showBanner('❌ SAI! 🐢 Giảm tốc trong 1s');
+        showBanner('❌ SAI! 🐢 Giảm tốc trong 1s' + tag);
       } else if(result === 'timeout'){
-        showBanner('⌛ HẾT GIỜ! ❌ Tính sai — 🐢 Giảm tốc trong 1s');
+        showBanner('⌛ HẾT GIỜ! ❌ Tính sai — 🐢 Giảm tốc trong 1s' + tag);
       }
       setTimeout(()=>{ if(!state.quizOpen) hideBanner(); }, 1400);
     }
