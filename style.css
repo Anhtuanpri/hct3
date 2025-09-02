@@ -10,7 +10,8 @@ html,body{height:100%}
   --border:#e5e7eb; --accent:#0891b2; --danger:#b91c1c; --chip:#eef2ff;
 }
 body{
-  margin:0; font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  margin:0; font-family:Inter, -apple-system, system-ui, "Apple Color Emoji",
+               "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", Arial, sans-serif;
   background:var(--bg); color:var(--text); display:flex; flex-direction:column;
 }
 
@@ -33,7 +34,7 @@ body{
 .btn.danger{border-color:rgba(239,68,68,.5)}
 .btn:hover{border-color:#334155}
 
-/* Ribbon 2/9 */
+/* Ribbon */
 .ribbon{
   display:flex;align-items:center;gap:8px;padding:.28rem .55rem;border-radius:999px;
   border:1px solid rgba(245,158,11,.45);
@@ -54,25 +55,14 @@ body{
   background:var(--panel2); border:1px solid var(--border); border-radius:12px;
   word-wrap:break-word; box-shadow:0 10px 20px rgba(0,0,0,.12);
 }
-/* Left (others) */
-.message{ margin-right:auto }
-/* Right (me) */
+.message{ margin-right:auto }          /* Left (others) */
 .message.me{ margin-left:auto; margin-right:0; background:linear-gradient(180deg,#0c152d,#0b152c); border-color:#1d4ed8 }
 .light .message.me{ background:#eff6ff; border-color:#93c5fd }
 
 .message .text{white-space:pre-wrap; line-height:1.45}
 .message .meta{font-size:11px;color:var(--muted);margin-top:6px}
 
-/* Kebab & actions */
-.kebab{position:absolute; top:6px; right:8px; font-size:16px; opacity:.75; background:transparent; border:0; color:var(--text); cursor:pointer}
-.kebab:hover{opacity:1}
-.message .actions{display:none; position:absolute; top:28px; right:8px; background:var(--panel);
-  border:1px solid var(--border); border-radius:10px; padding:4px; box-shadow:0 10px 20px rgba(0,0,0,.25); z-index:2}
-.message .actions button{display:block; width:100%; text-align:left; background:transparent; border:0; color:var(--text);
-  font-size:12px; padding:.3rem .5rem; border-radius:8px; cursor:pointer}
-.message .actions button:hover{background:rgba(148,163,184,.15)}
-
-/* Under row (likes) */
+/* Under row */
 .under{display:flex; align-items:center; justify-content:space-between; margin-top:6px}
 .icon.mini{background:transparent; border:0; color:var(--text); cursor:pointer; padding:2px 6px; border-radius:8px; font-size:14px}
 .icon.mini.like.on{filter: drop-shadow(0 0 6px rgba(244,63,94,.5))}
