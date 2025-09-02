@@ -1,4 +1,4 @@
-/*************** Firebase config ***************/
+/*************** 1) Firebase config (đúng region) ***************/
 const firebaseConfig = {
   apiKey: "AIzaSyCgTSTsGQaeGT9eaQCoCF6m58MBsdbHz-0",
   authDomain: "phan1-f7af4.firebaseapp.com",
@@ -14,8 +14,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const storage = firebase.storage();
 
-/*************** DOM refs ***************/
-const $ = (s) => document.querySelector(s);
+/*************** 2) DOM ***************/
+const $ = (s)=>document.querySelector(s);
 const messagesList = $("#messages");
 const input        = $("#messageInput");
 const sendBtn      = $("#sendBtn");
@@ -28,24 +28,36 @@ const ribbon       = $("#ribbon");
 const hideRibbon   = $("#hideRibbon");
 const toastEl      = $("#toast");
 
-/*************** Helpers ***************/
-function showToast(t){ if(!toastEl) return; toastEl.textContent=t; toastEl.classList.add("show"); setTimeout(()=>toastEl.classList.remove("show"),1500); }
-function fmtTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}); }
-function escapeHTML(s=""){ return s.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
-function uid(){ let id=localStorage.getItem("uid"); if(!id){ id="u_"+Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem("uid",id);} return id; }
+/*************** 3) Helpers ***************/
+function toast(t){ if(!toastEl) return; toastEl.textContent=t; toastEl.classList.add("show"); setTimeout(()=>toastEl.classList.remove("show"),1500); }
+const timeFmt = (ts)=>new Date(ts).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+const esc = (s="")=>s.replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function uid(){
+  let id=localStorage.getItem("uid");
+  if(!id){ id="u_"+Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem("uid",id); }
+  return id;
+}
 const myUID = uid();
-const myNick = () => localStorage.getItem("nick") || "guest";
-const isAdmin = () => localStorage.getItem("isAdmin")==="1"; // bật thử: localStorage.setItem('isAdmin','1')
+function getNick(){
+  let n = localStorage.getItem("nick");
+  if (!n) {
+    n = prompt("Nhập tên hiển thị:", "Khách") || "Khách";
+    localStorage.setItem("nick", n);
+  }
+  return n;
+}
+const myNick = ()=> localStorage.getItem("nick") || getNick();
+const isAdmin = ()=> localStorage.getItem("isAdmin")==="1"; // bật thử: localStorage.setItem('isAdmin','1')
 
-/*************** Theme + Ribbon ***************/
+/*************** 4) Theme + Ribbon ***************/
 (function initTheme(){ const s=localStorage.getItem("theme")||"dark"; if(s==="light") document.body.classList.add("light");})();
-themeToggle?.addEventListener("click", ()=>{ document.body.classList.toggle("light"); localStorage.setItem("theme", document.body.classList.contains("light") ? "light":"dark"); });
+themeToggle?.addEventListener("click", ()=>{ document.body.classList.toggle("light"); localStorage.setItem("theme", document.body.classList.contains("light")?"light":"dark"); });
 hideRibbon?.addEventListener("click", ()=>{ ribbon.style.display="none"; });
 
-/*************** Emoji picker (ô bên cạnh input) ***************/
+/*************** 5) Emoji picker (bên input) ***************/
 const EMOJIS = "😀😁😂🤣😊😍😘😎😇😉🙂🤔🥲🥳👍❤️🔥✨🎉💥💯".split("");
 function buildEmojiPicker(){
-  emojiPicker.innerHTML = "";
+  emojiPicker.innerHTML=""; 
   EMOJIS.forEach(e=>{
     const b=document.createElement("button");
     b.className="emoji-item"; b.type="button"; b.textContent=e;
@@ -53,139 +65,134 @@ function buildEmojiPicker(){
     emojiPicker.appendChild(b);
   });
 }
-emojiToggle?.addEventListener("click", ()=>{ if(emojiPicker.classList.contains("hidden")) buildEmojiPicker(); emojiPicker.classList.toggle("hidden");});
-document.addEventListener("click",(ev)=>{ if(!emojiPicker.classList.contains("hidden") && !emojiPicker.contains(ev.target) && ev.target!==emojiToggle){ emojiPicker.classList.add("hidden"); }});
+emojiToggle?.addEventListener("click", ()=>{ if(emojiPicker.classList.contains("hidden")) buildEmojiPicker(); emojiPicker.classList.toggle("hidden"); });
+document.addEventListener("click", (ev)=>{ if(!emojiPicker.classList.contains("hidden")&&!emojiPicker.contains(ev.target)&&ev.target!==emojiToggle){ emojiPicker.classList.add("hidden"); }});
 
-/*************** Reaction config ***************/
-const REACTS = ["❤️","😂","😡"]; // tim, cười, phẫn nộ
+/*************** 6) Reaction ***************/
+const REACTS = ["❤️","😂","😡"]; // ba cảm xúc
 
-/*************** Render message ***************/
-function renderMessage(key, msg, reactions={}) {
+/*************** 7) Render 1 message ***************/
+function renderMessage(key, msg){
   let li = messagesList.querySelector(`li[data-key="${key}"]`);
   if (!li) {
     li = document.createElement("li");
     li.dataset.key = key;
-    li.className = "message" + (msg.uid===myUID ? " me" : "");
     messagesList.appendChild(li);
-  } else {
-    li.className = "message" + (msg.uid===myUID ? " me" : "");
   }
+  li.className = "message" + (msg.uid===myUID ? " me" : "");
 
-  // Đếm reaction
+  // tổng hợp reactions
+  const reactions = msg.reactions || {};
   const counts = REACTS.map(emoji=>{
-    const users = reactions && reactions[emoji] ? Object.keys(reactions[emoji]) : [];
-    return { emoji, n: users.length, mine: users.includes(myUID) };
+    const users = reactions[emoji] ? Object.keys(reactions[emoji]) : [];
+    return {emoji, n: users.length, mine: users.includes(myUID)};
   });
 
-  const countsHtml = counts.map(({emoji,n,mine})=> n ? `<span class="like-count" data-emoji="${emoji}" ${mine?'style="filter:drop-shadow(0 0 6px rgba(244,63,94,.5))"':''}>${emoji} ${n}</span>` : "" ).join("");
+  const countsHtml = counts.map(({emoji,n,mine}) => 
+    n ? `<span class="like-count" data-emoji="${emoji}" ${mine?'style="filter:drop-shadow(0 0 6px rgba(244,63,94,.5))"':''}>${emoji} ${n}</span>` : ""
+  ).join("");
 
-  let inner = "";
-  if (msg.text) inner += `<div class="text">${escapeHTML(msg.text)}</div>`;
-  if (msg.imageURL) inner += `<img class="message-img" src="${escapeHTML(msg.imageURL)}" alt="image">`;
-  inner += `<div class="meta">${fmtTime(msg.time||Date.now())}</div>
-            <div class="under">
-              <button class="icon mini react-btn" title="Reaction">❤</button>
-              <div class="reactions">${countsHtml}</div>
-              ${isAdmin()?'<button class="icon mini admin-del" title="Xoá tất cả (admin)">🧹</button>':''}
-            </div>`;
+  let html = "";
+  if (msg.text)     html += `<div class="text">${esc(msg.text)}</div>`;
+  if (msg.imageURL) html += `<img class="message-img" src="${esc(msg.imageURL)}" alt="image">`;
 
-  li.innerHTML = inner;
+  // meta: tên + giờ
+  html += `<div class="meta">${esc(msg.sender || "Ẩn danh")} • ${timeFmt(msg.time||Date.now())}</div>`;
+
+  // under-row: nút reaction + đếm + admin
+  html += `
+    <div class="under">
+      <button class="icon mini react-btn" title="Reaction">❤</button>
+      <div class="reactions">${countsHtml}</div>
+      ${isAdmin()?'<button class="icon mini admin-del" title="Xoá tất cả (admin)">🧹</button>':''}
+    </div>
+  `;
+
+  li.innerHTML = html;
   messagesList.scrollTop = messagesList.scrollHeight;
 }
 
-/*************** Gửi text ***************/
+/*************** 8) Gửi tin ***************/
 function sendMessage(){
   const text=(input.value||"").trim();
   if(!text) return;
-  db.ref("messages").push({ text, time: Date.now(), uid: myUID, sender: myNick() })
-    .then(()=>{ input.value=""; })
-    .catch(err=> showToast("Lỗi gửi: "+err.message));
+  const payload = { text, time:Date.now(), uid:myUID, sender: myNick() };
+  db.ref("messages").push(payload).then(()=>{ input.value=""; }).catch(e=>toast("Lỗi gửi: "+e.message));
 }
 sendBtn?.addEventListener("click", sendMessage);
-input?.addEventListener("keypress",(e)=>{ if(e.key==="Enter") sendMessage(); });
+input?.addEventListener("keypress", (e)=>{ if(e.key==="Enter") sendMessage(); });
 
-/*************** Gửi ảnh ***************/
+/*************** 9) Gửi ảnh ***************/
 imageInput?.addEventListener("change", async ()=>{
   const file = imageInput.files?.[0];
   if (!file) return;
-  if (file.size > 5 * 1024 * 1024) { showToast("Ảnh > 5MB, vui lòng chọn ảnh nhỏ hơn."); imageInput.value=""; return; }
-
+  if (file.size > 5*1024*1024){ toast("Ảnh > 5MB, chọn ảnh nhỏ hơn."); imageInput.value=""; return; }
   try{
-    showToast("Đang tải ảnh…");
+    toast("Đang tải ảnh…");
     const ext = (file.name.split(".").pop()||"jpg").toLowerCase();
-    const objPath = `uploads/${myUID}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const ref = storage.ref().child(objPath);
-    await ref.put(file, { contentType: file.type || "image/"+ext });
+    const path = `uploads/${myUID}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const ref  = storage.ref().child(path);
+    await ref.put(file, { contentType: file.type || ("image/"+ext) });
     const url = await ref.getDownloadURL();
-    await db.ref("messages").push({ imageURL: url, time: Date.now(), uid: myUID, sender: myNick() });
-    showToast("Đã gửi ảnh ✅");
-  }catch(err){
-    showToast("Lỗi ảnh: "+err.message);
-  }finally{ imageInput.value=""; }
+    await db.ref("messages").push({ imageURL:url, time:Date.now(), uid:myUID, sender: myNick() });
+    toast("Đã gửi ảnh ✅");
+  }catch(e){ toast("Lỗi ảnh: "+e.message); }
+  finally{ imageInput.value=""; }
 });
 
-/*************** Reaction bar + toggle ***************/
-messagesList.addEventListener("click",(ev)=>{
-  const li = ev.target.closest("li.message");
-  if (!li) return;
+/*************** 10) Mở thanh reaction & toggle reaction ***************/
+messagesList.addEventListener("click", (ev)=>{
+  const li = ev.target.closest("li.message"); if(!li) return;
   const key = li.dataset.key;
 
-  // open/close reaction bar
+  // Mở/đóng thanh chọn 3 emoji
   if (ev.target.classList.contains("react-btn")) {
     let bar = li.querySelector(".react-bar");
     if (bar) { bar.remove(); return; }
     bar = document.createElement("div");
     bar.className = "react-bar";
-    bar.style.marginTop="6px";
+    bar.style.marginTop = "6px";
     REACTS.forEach(emoji=>{
-      const b=document.createElement("button");
-      b.className="icon mini"; b.textContent=emoji; b.title="Thả "+emoji;
-      b.onclick=()=>toggleReaction(key, emoji);
+      const b = document.createElement("button");
+      b.className = "icon mini";
+      b.textContent = emoji;
+      b.title = "Thả "+emoji;
+      b.onclick = ()=> toggleReaction(key, emoji);
       bar.appendChild(b);
     });
     li.querySelector(".under").after(bar);
   }
 
-  // admin clear all
+  // Admin xoá tất cả
   if (ev.target.classList.contains("admin-del")) {
-    if (!isAdmin()) return showToast("Bạn không phải admin.");
+    if (!isAdmin()) return toast("Bạn không phải admin.");
     if (!confirm("Xoá TẤT CẢ tin nhắn?")) return;
-    db.ref("messages").set(null).then(()=>{ messagesList.innerHTML=""; showToast("Đã xoá"); })
-      .catch(err=> showToast("Lỗi xoá: "+err.message));
+    db.ref("messages").set(null).then(()=>{ messagesList.innerHTML=""; toast("Đã xoá"); })
+      .catch(err=> toast("Lỗi xoá: "+err.message));
   }
 });
 
-// Quan trọng: KHÔNG encodeURIComponent emoji khi lưu key → Firebase hỗ trợ Unicode.
-// (Trước đây encode khiến đọc/ghi mismatch nên bấm không cập nhật.)
+// Toggle reaction (không encode emoji – Firebase hỗ trợ Unicode)
 function toggleReaction(msgKey, emoji){
   const rRef = db.ref(`messages/${msgKey}/reactions/${emoji}/${myUID}`);
   rRef.get().then(snap=>{
     if (snap.exists()) rRef.remove(); else rRef.set(true);
-  }).catch(err=> showToast("Lỗi reaction: "+err.message));
+  }).catch(e=> toast("Lỗi reaction: "+e.message));
 }
 
-/*************** Realtime listeners ***************/
+/*************** 11) Realtime listeners ***************/
 const listRef = db.ref("messages").limitToLast(200);
-
-listRef.on("child_added", snap=>{
-  const key = snap.key, val = snap.val() || {};
-  renderMessage(key, val, val.reactions || {});
-});
-
-db.ref("messages").on("child_changed", snap=>{
-  const key = snap.key, val = snap.val() || {};
-  renderMessage(key, val, val.reactions || {});
-});
-
-db.ref("messages").on("child_removed", snap=>{
+listRef.on("child_added",  snap => renderMessage(snap.key, snap.val()||{}));
+db.ref("messages").on("child_changed", snap => renderMessage(snap.key, snap.val()||{}));
+db.ref("messages").on("child_removed", snap => {
   const li = messagesList.querySelector(`li[data-key="${snap.key}"]`);
   if (li) li.remove();
 });
 
-/*************** Header clear (admin) ***************/
+/*************** 12) Header clear (admin) ***************/
 clearBtn?.addEventListener("click", ()=>{
-  if (!isAdmin()) return showToast("Bạn không phải admin.");
+  if (!isAdmin()) return toast("Bạn không phải admin.");
   if (!confirm("Xoá TẤT CẢ tin nhắn?")) return;
-  db.ref("messages").set(null).then(()=>{ messagesList.innerHTML=""; showToast("Đã xoá"); })
-    .catch(err=> showToast("Lỗi xoá: "+err.message));
+  db.ref("messages").set(null).then(()=>{ messagesList.innerHTML=""; toast("Đã xoá"); })
+    .catch(err=> toast("Lỗi xoá: "+err.message));
 });
