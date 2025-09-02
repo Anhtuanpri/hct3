@@ -1,4 +1,4 @@
-/*************** 1) Firebase config (đúng region asia-southeast1) ***************/
+/*************** Firebase config ***************/
 const firebaseConfig = {
   apiKey: "AIzaSyCgTSTsGQaeGT9eaQCoCF6m58MBsdbHz-0",
   authDomain: "phan1-f7af4.firebaseapp.com",
@@ -10,12 +10,11 @@ const firebaseConfig = {
   measurementId: "G-6WY24EN28R"
 };
 
-// Init Firebase (compat)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const storage = firebase.storage();
 
-/*************** 2) DOM ***************/
+/*************** DOM refs ***************/
 const $ = (s) => document.querySelector(s);
 const messagesList = $("#messages");
 const input        = $("#messageInput");
@@ -29,224 +28,164 @@ const ribbon       = $("#ribbon");
 const hideRibbon   = $("#hideRibbon");
 const toastEl      = $("#toast");
 
-/*************** 3) Helpers ***************/
+/*************** Helpers ***************/
 function showToast(t){ if(!toastEl) return; toastEl.textContent=t; toastEl.classList.add("show"); setTimeout(()=>toastEl.classList.remove("show"),1500); }
 function fmtTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}); }
 function escapeHTML(s=""){ return s.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
-function uid(){
-  let id = localStorage.getItem("uid");
-  if(!id){ id = "u_" + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem("uid", id); }
-  return id;
-}
-function nick(){
-  return localStorage.getItem("nick") || "guest";
-}
-function isAdmin(){
-  return localStorage.getItem("isAdmin") === "1";
-}
+function uid(){ let id=localStorage.getItem("uid"); if(!id){ id="u_"+Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem("uid",id);} return id; }
+const myUID = uid();
+const myNick = () => localStorage.getItem("nick") || "guest";
+const isAdmin = () => localStorage.getItem("isAdmin")==="1"; // bật thử: localStorage.setItem('isAdmin','1')
 
-/*************** 4) Theme + Ribbon ***************/
-(function initTheme(){
-  const saved = localStorage.getItem("theme") || "dark";
-  if (saved === "light") document.body.classList.add("light");
-})();
-themeToggle?.addEventListener("click", ()=>{
-  document.body.classList.toggle("light");
-  localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
-});
-hideRibbon?.addEventListener("click", ()=>{ ribbon.style.display = "none"; });
+/*************** Theme + Ribbon ***************/
+(function initTheme(){ const s=localStorage.getItem("theme")||"dark"; if(s==="light") document.body.classList.add("light");})();
+themeToggle?.addEventListener("click", ()=>{ document.body.classList.toggle("light"); localStorage.setItem("theme", document.body.classList.contains("light") ? "light":"dark"); });
+hideRibbon?.addEventListener("click", ()=>{ ribbon.style.display="none"; });
 
-/*************** 5) Emoji (ô chọn emoji bên cạnh ô nhập) ***************/
+/*************** Emoji picker (ô bên cạnh input) ***************/
 const EMOJIS = "😀😁😂🤣😊😍😘😎😇😉🙂🤔🥲🥳👍❤️🔥✨🎉💥💯".split("");
 function buildEmojiPicker(){
   emojiPicker.innerHTML = "";
   EMOJIS.forEach(e=>{
-    const b = document.createElement("button");
-    b.className = "emoji-item";
-    b.type="button";
-    b.textContent = e;
-    b.onclick = ()=>{ input.value += e; emojiPicker.classList.add("hidden"); input.focus(); };
+    const b=document.createElement("button");
+    b.className="emoji-item"; b.type="button"; b.textContent=e;
+    b.onclick=()=>{ input.value+=e; emojiPicker.classList.add("hidden"); input.focus(); };
     emojiPicker.appendChild(b);
   });
 }
-emojiToggle?.addEventListener("click", ()=>{
-  if (emojiPicker.classList.contains("hidden")) buildEmojiPicker();
-  emojiPicker.classList.toggle("hidden");
-});
-document.addEventListener("click", (ev)=>{
-  if (!emojiPicker.classList.contains("hidden")
-      && !emojiPicker.contains(ev.target)
-      && ev.target !== emojiToggle) {
-    emojiPicker.classList.add("hidden");
-  }
-});
+emojiToggle?.addEventListener("click", ()=>{ if(emojiPicker.classList.contains("hidden")) buildEmojiPicker(); emojiPicker.classList.toggle("hidden");});
+document.addEventListener("click",(ev)=>{ if(!emojiPicker.classList.contains("hidden") && !emojiPicker.contains(ev.target) && ev.target!==emojiToggle){ emojiPicker.classList.add("hidden"); }});
 
-/*************** 6) Reaction config ***************/
+/*************** Reaction config ***************/
 const REACTS = ["❤️","😂","😡"]; // tim, cười, phẫn nộ
 
-/*************** 7) Render message ***************/
-function renderMessage(key, msg, me=false, reactions={}) {
+/*************** Render message ***************/
+function renderMessage(key, msg, reactions={}) {
   let li = messagesList.querySelector(`li[data-key="${key}"]`);
   if (!li) {
     li = document.createElement("li");
     li.dataset.key = key;
-    li.className = "message" + (me ? " me" : "");
+    li.className = "message" + (msg.uid===myUID ? " me" : "");
     messagesList.appendChild(li);
   } else {
-    li.className = "message" + (me ? " me" : "");
+    li.className = "message" + (msg.uid===myUID ? " me" : "");
   }
 
-  // Phần nội dung
-  let html = "";
-  if (msg.text) html += `<div class="text">${escapeHTML(msg.text)}</div>`;
-  if (msg.imageURL) html += `<img class="message-img" src="${escapeHTML(msg.imageURL)}" alt="image">`;
-  html += `<div class="meta">${fmtTime(msg.time || Date.now())}</div>`;
-
-  // Under-row: reaction button + counts
-  const counts = REACTS.map(e => {
-    const users = reactions[e] ? Object.keys(reactions[e]) : [];
-    const myOn  = users.includes(uid());
-    const n = users.length || 0;
-    return {e, n, myOn};
+  // Đếm reaction
+  const counts = REACTS.map(emoji=>{
+    const users = reactions && reactions[emoji] ? Object.keys(reactions[emoji]) : [];
+    return { emoji, n: users.length, mine: users.includes(myUID) };
   });
 
-  const countHtml = counts.map(({e,n,myOn}) => {
-    if (!n) return "";
-    return `<span class="like-count" data-emoji="${e}" ${myOn ? 'style="filter:drop-shadow(0 0 6px rgba(244,63,94,.5))"' : ""}>${e} ${n}</span>`;
-  }).join("");
+  const countsHtml = counts.map(({emoji,n,mine})=> n ? `<span class="like-count" data-emoji="${emoji}" ${mine?'style="filter:drop-shadow(0 0 6px rgba(244,63,94,.5))"':''}>${emoji} ${n}</span>` : "" ).join("");
 
-  html += `
-    <div class="under">
-      <button class="icon mini react-btn" title="Reaction">❤</button>
-      <div class="reactions">${countHtml}</div>
-      ${isAdmin() ? '<button class="icon mini admin-del" title="Xoá tất cả (admin)">🧹</button>' : ''}
-    </div>
-    <div class="actions" hidden></div>
-  `;
+  let inner = "";
+  if (msg.text) inner += `<div class="text">${escapeHTML(msg.text)}</div>`;
+  if (msg.imageURL) inner += `<img class="message-img" src="${escapeHTML(msg.imageURL)}" alt="image">`;
+  inner += `<div class="meta">${fmtTime(msg.time||Date.now())}</div>
+            <div class="under">
+              <button class="icon mini react-btn" title="Reaction">❤</button>
+              <div class="reactions">${countsHtml}</div>
+              ${isAdmin()?'<button class="icon mini admin-del" title="Xoá tất cả (admin)">🧹</button>':''}
+            </div>`;
 
-  li.innerHTML = html;
+  li.innerHTML = inner;
   messagesList.scrollTop = messagesList.scrollHeight;
 }
 
-/*************** 8) Send text ***************/
+/*************** Gửi text ***************/
 function sendMessage(){
-  const text = (input.value || "").trim();
-  if (!text) return;
-  const msg = { text, time: Date.now(), sender: nick(), uid: uid() };
-  db.ref("messages").push(msg)
+  const text=(input.value||"").trim();
+  if(!text) return;
+  db.ref("messages").push({ text, time: Date.now(), uid: myUID, sender: myNick() })
     .then(()=>{ input.value=""; })
-    .catch(err => showToast("Lỗi gửi: " + err.message));
+    .catch(err=> showToast("Lỗi gửi: "+err.message));
 }
 sendBtn?.addEventListener("click", sendMessage);
-input?.addEventListener("keypress", (e)=>{ if (e.key === "Enter") sendMessage(); });
+input?.addEventListener("keypress",(e)=>{ if(e.key==="Enter") sendMessage(); });
 
-/*************** 9) Send image ***************/
+/*************** Gửi ảnh ***************/
 imageInput?.addEventListener("change", async ()=>{
   const file = imageInput.files?.[0];
   if (!file) return;
-
   if (file.size > 5 * 1024 * 1024) { showToast("Ảnh > 5MB, vui lòng chọn ảnh nhỏ hơn."); imageInput.value=""; return; }
 
-  try {
+  try{
     showToast("Đang tải ảnh…");
-    const ext = file.name.split(".").pop() || "jpg";
-    const path = `uploads/${uid()}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const ref  = storage.ref().child(path);
-
-    await ref.put(file);
+    const ext = (file.name.split(".").pop()||"jpg").toLowerCase();
+    const objPath = `uploads/${myUID}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const ref = storage.ref().child(objPath);
+    await ref.put(file, { contentType: file.type || "image/"+ext });
     const url = await ref.getDownloadURL();
-
-    await db.ref("messages").push({ imageURL: url, time: Date.now(), sender: nick(), uid: uid() });
+    await db.ref("messages").push({ imageURL: url, time: Date.now(), uid: myUID, sender: myNick() });
     showToast("Đã gửi ảnh ✅");
-  } catch (err) {
-    showToast("Lỗi ảnh: " + err.message);
-  } finally {
-    imageInput.value = "";
-  }
+  }catch(err){
+    showToast("Lỗi ảnh: "+err.message);
+  }finally{ imageInput.value=""; }
 });
 
-/*************** 10) Reaction bar (hiện 3 emoji khi bấm ❤) ***************/
-messagesList.addEventListener("click", (ev)=>{
-  const target = ev.target;
-  const li = target.closest("li.message");
+/*************** Reaction bar + toggle ***************/
+messagesList.addEventListener("click",(ev)=>{
+  const li = ev.target.closest("li.message");
   if (!li) return;
   const key = li.dataset.key;
 
-  // Mở/đóng thanh chọn reaction
-  if (target.classList.contains("react-btn")) {
-    // Nếu đã có thanh -> toggle
+  // open/close reaction bar
+  if (ev.target.classList.contains("react-btn")) {
     let bar = li.querySelector(".react-bar");
     if (bar) { bar.remove(); return; }
-
     bar = document.createElement("div");
     bar.className = "react-bar";
-    bar.style.marginTop = "6px";
-    REACTS.forEach(e=>{
-      const b = document.createElement("button");
-      b.className = "icon mini";
-      b.textContent = e;
-      b.title = "Thả " + e;
-      b.addEventListener("click", ()=> toggleReaction(key, e));
+    bar.style.marginTop="6px";
+    REACTS.forEach(emoji=>{
+      const b=document.createElement("button");
+      b.className="icon mini"; b.textContent=emoji; b.title="Thả "+emoji;
+      b.onclick=()=>toggleReaction(key, emoji);
       bar.appendChild(b);
     });
-    // đóng khi click ngoài
-    document.addEventListener("click", function onDoc(e2){
-      if (!bar.contains(e2.target) && e2.target !== target) {
-        bar.remove(); document.removeEventListener("click", onDoc);
-      }
-    });
-
-    // chèn ngay dưới under
     li.querySelector(".under").after(bar);
   }
 
-  // Admin xoá tất cả
-  if (target.classList.contains("admin-del")) {
+  // admin clear all
+  if (ev.target.classList.contains("admin-del")) {
     if (!isAdmin()) return showToast("Bạn không phải admin.");
     if (!confirm("Xoá TẤT CẢ tin nhắn?")) return;
-    db.ref("messages").set(null)
-      .then(()=>{ messagesList.innerHTML=""; showToast("Đã xoá toàn bộ"); })
-      .catch(err => showToast("Lỗi xoá: " + err.message));
+    db.ref("messages").set(null).then(()=>{ messagesList.innerHTML=""; showToast("Đã xoá"); })
+      .catch(err=> showToast("Lỗi xoá: "+err.message));
   }
 });
 
-// Toggle reaction của user
+// Quan trọng: KHÔNG encodeURIComponent emoji khi lưu key → Firebase hỗ trợ Unicode.
+// (Trước đây encode khiến đọc/ghi mismatch nên bấm không cập nhật.)
 function toggleReaction(msgKey, emoji){
-  const rPath = `messages/${msgKey}/reactions/${encodeURIComponent(emoji)}/${uid()}`;
-  const ref = db.ref(rPath);
-  ref.get().then(snap=>{
-    if (snap.exists()) {
-      ref.remove(); // bỏ reaction
-    } else {
-      ref.set(true); // thả reaction
-    }
-  }).catch(err=> showToast("Lỗi reaction: " + err.message));
+  const rRef = db.ref(`messages/${msgKey}/reactions/${emoji}/${myUID}`);
+  rRef.get().then(snap=>{
+    if (snap.exists()) rRef.remove(); else rRef.set(true);
+  }).catch(err=> showToast("Lỗi reaction: "+err.message));
 }
 
-/*************** 11) Realtime listener ***************/
-const msgRef = db.ref("messages").limitToLast(200);
+/*************** Realtime listeners ***************/
+const listRef = db.ref("messages").limitToLast(200);
 
-// Khi có message mới
-msgRef.on("child_added", (snap)=>{
-  const key = snap.key;
-  const msg = snap.val() || {};
-  const me  = msg.uid === uid();
-  renderMessage(key, msg, me, msg.reactions || {});
+listRef.on("child_added", snap=>{
+  const key = snap.key, val = snap.val() || {};
+  renderMessage(key, val, val.reactions || {});
 });
 
-// Khi message thay đổi (ví dụ reaction thay đổi)
-db.ref("messages").on("child_changed", (snap)=>{
-  const key = snap.key;
-  const msg = snap.val() || {};
-  const me  = msg.uid === uid();
-  renderMessage(key, msg, me, msg.reactions || {});
+db.ref("messages").on("child_changed", snap=>{
+  const key = snap.key, val = snap.val() || {};
+  renderMessage(key, val, val.reactions || {});
 });
 
-/*************** 12) Admin clear ở header ***************/
+db.ref("messages").on("child_removed", snap=>{
+  const li = messagesList.querySelector(`li[data-key="${snap.key}"]`);
+  if (li) li.remove();
+});
+
+/*************** Header clear (admin) ***************/
 clearBtn?.addEventListener("click", ()=>{
-  if (!isAdmin()) { showToast("Bạn không phải admin."); return; }
+  if (!isAdmin()) return showToast("Bạn không phải admin.");
   if (!confirm("Xoá TẤT CẢ tin nhắn?")) return;
-  db.ref("messages").set(null)
-    .then(()=>{ messagesList.innerHTML=""; showToast("Đã xoá"); })
-    .catch(err=> showToast("Lỗi xoá: " + err.message));
+  db.ref("messages").set(null).then(()=>{ messagesList.innerHTML=""; showToast("Đã xoá"); })
+    .catch(err=> showToast("Lỗi xoá: "+err.message));
 });
