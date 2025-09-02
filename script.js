@@ -3,13 +3,13 @@ const ADMIN_NAME = "ADMIN"; // 👉 Đổi tên admin tại đây (chỉ 1 ngư�
 
 // === Firebase config ===
 const firebaseConfig = {
-  apiKey: "AIzaSyDL54a3OIuzaxY_IEQgscCzIfBWCQqvhcM",
-  authDomain: "sample-firebase-ai-app-2a091.firebaseapp.com",
-  databaseURL: "https://sample-firebase-ai-app-2a091-default-rtdb.firebaseio.com",
-  projectId: "sample-firebase-ai-app-2a091",
-  storageBucket: "sample-firebase-ai-app-2a091.appspot.com",
-  messagingSenderId: "94515253749",
-  appId: "1:94515253749:web:86594f2222889c6472d0bc"
+  apiKey: "AIzaSyCgTSTsGQaeGT9eaQCoCF6m58MBsdbHz-0",
+  authDomain: "phan1-f7af4.firebaseapp.com",
+  projectId: "phan1-f7af4",
+  storageBucket: "phan1-f7af4.appspot.com",   // đã sửa đúng
+  messagingSenderId: "673326593732",
+  appId: "1:673326593732:web:c7dd17ff2036264d25bb91",
+  measurementId: "G-6WY24EN28R"
 };
 
 firebase.initializeApp(firebaseConfig);
