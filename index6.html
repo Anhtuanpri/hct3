@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arena 90s — Trung Thu Tech</title>
+<style>
+/* ========= THEME ========= */
+:root{
+  --bg:#0b1024; --bg2:#0f1540; --ink:#e9eeff; --muted:#a7b0e0; --line:#ffffff22;
+  --accent:#ffd166; --cyan:#37e3ff; --pink:#ff6b9b; --vio:#7a56ff; --win:#3ddc97; --lose:#ef476f;
+
+  /* Fighter / Frame (bạn giữ như cấu hình trước) */
+  --fighterSize:64px;
+  --frameGrow:56px;           /* khung to gấp đôi */
+  --avatarInset:0px;
+  --frameOffsetY:-10px;       /* khung nhích lên */
+  --frameScale1:1;
+  --frameScale2:1;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;
+  background:
+    radial-gradient(1200px 600px at 70% 5%, #1c2146 0%, transparent 55%),
+    linear-gradient(180deg, #0b1024 0%, #141a3f 40%, #0b1024 100%);
+  overflow-x:hidden;
+}
+
+/* ======= COSMIC BACKDROP for Lobby ======= */
+.starry{
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(2px 2px at 20% 30%, #ffffffaa, transparent 60%),
+    radial-gradient(2px 2px at 70% 15%, #ffffffaa, transparent 60%),
+    radial-gradient(2px 2px at 40% 70%, #ffffffaa, transparent 60%),
+    radial-gradient(1.5px 1.5px at 85% 40%, #ffffff88, transparent 60%),
+    radial-gradient(1.5px 1.5px at 12% 82%, #ffffff88, transparent 60%);
+  animation: twinkle 6s linear infinite;
+  opacity:.65;
+}
+@keyframes twinkle{50%{opacity:.45}}
+
+.moon{
+  position:absolute; right:6vw; top:40px; width:min(26vw,240px); aspect-ratio:1/1; border-radius:50%;
+  background:
+    radial-gradient(130px 130px at 45% 40%, #fff8 10%, #fff0 70%),
+    radial-gradient(closest-side, #ffe9b5, #ffd166 65%, #e4a84f 100%);
+  box-shadow:0 0 120px #ffd16666, 0 0 220px #ffd16633;
+  z-index:1;
+  filter:saturate(1.06);
+}
+.cloud{
+  position:absolute; top:120px; left:-20vw; width:60vw; height:120px; z-index:1; opacity:.15;
+  background:radial-gradient(closest-side, #fff, transparent 70%),
+             radial-gradient(closest-side, #fff, transparent 70%),
+             radial-gradient(closest-side, #fff, transparent 70%);
+  background-size:22% 100%, 28% 100%, 18% 100%;
+  background-position:0 0, 33% 0, 70% 0; background-repeat:no-repeat;
+  animation:fcloud 38s linear infinite;
+}
+@keyframes fcloud{to{transform:translateX(120vw)}}
+.lantern{
+  position:absolute; left:6vw; top:60px; width:70px; height:110px; z-index:2;
+  background:
+    radial-gradient(closest-side, #ff9f43, #ff6b6b 70%, #c94866 100%);
+  border-radius:26px; box-shadow:0 0 22px #ff8c6f99, 0 0 60px #ff9c4faa;
+  transform-origin:top center; animation:swing 4.5s ease-in-out infinite;
+}
+.lantern::before{
+  content:""; position:absolute; top:-18px; left:50%; width:2px; height:18px; background:#e9eeff44; transform:translateX(-50%);
+}
+.lantern::after{
+  content:""; position:absolute; bottom:-14px; left:50%; width:32px; height:14px; background:linear-gradient(180deg,#ffd166,#ff9c4f);
+  transform:translateX(-50%); border-radius:0 0 18px 18px; filter:blur(.2px);
+}
+@keyframes swing{
+  0%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}100%{transform:rotate(-5deg)}
+}
+
+/* ======= LAYOUT ======= */
+.container{max-width:1200px;margin:0 auto;padding:22px;position:relative;z-index:3}
+
+/* HERO */
+.hero{
+  display:grid; grid-template-columns:1.2fr .8fr; gap:16px; align-items:center; margin:6px 0 14px;
+}
+@media (max-width:950px){ .hero{grid-template-columns:1fr} }
+.heroCard{
+  background:linear-gradient(180deg,#151c3fdd,#0e1436dd);
+  border:1px solid #ffffff22;border-radius:20px;padding:18px;box-shadow:0 20px 60px #0004, inset 0 1px 0 #ffffff33; backdrop-filter:blur(6px)
+}
+.title{
+  font-size:clamp(26px,4.6vw,44px); margin:0;
+  background:linear-gradient(90deg,#e9eeff,#ffd166,#7a56ff,#37e3ff,#e9eeff);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  letter-spacing:.3px; font-weight:900; text-shadow:0 10px 40px #0006;
+}
+.sub{color:var(--muted); margin-top:6px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.badge{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid #ffffff22;
+  background:linear-gradient(180deg,#212959aa,#161c44aa); color:#cfd7ff}
+
+/* PANEL quick actions */
+.panel{
+  background:linear-gradient(180deg,#0f1542ee,#0c1236ee);
+  border:1px solid #ffffff22;border-radius:18px;padding:14px;box-shadow:0 18px 50px #0004; backdrop-filter:blur(6px)
+}
+.panel h3{margin:0 0 8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:950px){ .row{grid-template-columns:1fr} }
+label{font-size:13px;color:var(--muted)}
+input,textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #2b355c;
+  background:#0b102e;color:#e9eeff;outline:none}
+textarea{min-height:64px;resize:vertical}
+.small{font-size:12px;color:#a7b0e0}
+button{cursor:pointer;padding:10px 12px;border-radius:12px;border:1px solid #ffffff26;color:#0c122e;
+  background:linear-gradient(180deg,#ffd166,#ffb648); font-weight:700; box-shadow:0 8px 20px #ffb64844}
+button.btn-ghost{background:linear-gradient(180deg,#212959,#161c44); color:#e9eeff; border-color:#ffffff22}
+button.btn-danger{background:linear-gradient(180deg,#ff6b9b,#e84c88); color:#fff; border-color:#ffffff33}
+
+/* CARDS */
+.card{
+  background:linear-gradient(180deg,#151c3fdd,#0e1436dd);
+  border:1px solid #ffffff22;border-radius:18px;padding:14px;box-shadow:0 14px 40px #0005;backdrop-filter:blur(6px)
+}
+.grid{display:grid;gap:14px}
+.lg-7{grid-column:span 7}.lg-5{grid-column:span 5}.lg-12{grid-column:span 12}
+@media (max-width:950px){.lg-7,.lg-5{grid-column:span 12}}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px;border-bottom:1px solid #ffffff14;text-align:left}
+th{color:#dfe6ff;background:#0c1338}
+.tag{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;background:#12183a;border:1px solid #ffffff22;color:#dfe6ff}
+
+/* ======= ARENA (giữ logic cũ, chỉ tinh gọn style chỗ cần) ======= */
+.arenaCard{position:relative;border-radius:20px;padding:14px;background:linear-gradient(180deg,#0f1440ee,#0a1033ee);border:1px solid #ffffff22;box-shadow:0 14px 40px #0005,inset 0 1px 0 #ffffff22}
+.arenaTop{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.teamBox{display:flex;align-items:center;gap:10px}
+.logoImg{width:44px;height:44px;border-radius:12px;object-fit:cover;border:1px solid #ffffff22;background:#0b102e}
+.teamTitle{font-weight:800;letter-spacing:.3px}
+.timerRing{--p:0deg;width:90px;height:90px;border-radius:50%;
+  background:conic-gradient(#ffd166 var(--p), #212959 0deg); display:grid; place-items:center;
+  box-shadow: inset 0 0 0 7px #0e1438, 0 0 0 1px #ffffff22; color:#fff; font-weight:900}
+.timerNum{font-size:18px}
+
+/* Field */
+.fieldWrap{position:relative;margin-top:10px;border-radius:14px;border:1px solid #ffffff22;background:#0a1133;overflow:hidden}
+.field{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden}
+#arenaGif{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;opacity:.22;pointer-events:none;mix-blend-mode:screen}
+
+/* Fighter stack */
+.fighter{position:absolute;width:var(--fighterSize);height:var(--fighterSize);transform:translate(-50%,-50%);pointer-events:none;z-index:1}
+.fAvatar{position:absolute;inset:var(--avatarInset);border-radius:50%;overflow:hidden;border:3px solid #ffffff;box-shadow:0 6px 18px #0009;z-index:2}
+.fAvatar img{width:100%;height:100%;object-fit:cover;display:block}
+.fFrame{position:absolute;inset:calc(var(--frameGrow) * -1);pointer-events:none;display:grid;place-items:center;transform:translateY(var(--frameOffsetY));z-index:3}
+.fFrame img{width:100%;height:100%;object-fit:cover;transform:scale(var(--frameScale,1));transform-origin:center}
+.fighter.t1{--frameScale:var(--frameScale1)} .fighter.t2{--frameScale:var(--frameScale2)}
+
+.hpBar{position:absolute;left:50%;top:-12px;transform:translateX(-50%);width:66px;height:8px;border-radius:999px;background:#00000055}
+.hpBar>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#3ddc97,#7a56ff);width:100%}
+
+.spark{position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(#fff,#ff6b6b);opacity:.9;pointer-events:none;animation:spark .45s ease-out forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.6);opacity:0}}
+.slash{position:absolute;width:120px;height:26px;border-radius:999px;background:linear-gradient(90deg,transparent,#fff 25%,#ffd166 50%,#ff6b6b 75%,transparent);box-shadow:0 0 20px #fff7,0 0 30px #ffd16666;mix-blend-mode:screen;pointer-events:none;transform:translate(-50%,-50%) rotate(0deg);opacity:.95;filter:blur(.2px);animation:slashOut .28s ease-out forwards}
+@keyframes slashOut{to{transform:translate(-50%,-50%) rotate(var(--ang)) scaleX(1.35);opacity:0}}
+.fighter.hit .fAvatar{filter:brightness(1.35) saturate(1.25) drop-shadow(0 6px 16px #fff6)}
+.field.shake{animation:shake .12s linear 1}
+@keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(2px,-1px)}50%{transform:translate(-2px,1px)}75%{transform:translate(1px,2px)}100%{transform:translate(0,0)}}
+
+/* Overlay */
+.overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:radial-gradient(50% 80% at 50% 50%, #00000040, #00000055);backdrop-filter:blur(3px);z-index:5}
+.overlay.show{display:flex}
+.overlay.plain{background:transparent !important; backdrop-filter:none !important}
+.dimLast{position:absolute;inset:0;display:none;background:radial-gradient(50% 80% at 50% 50%, #00000026, #00000050);backdrop-filter:blur(2px);z-index:3}
+.dimLast.show{display:block}
+.calli{font-family:"Brush Script MT","Segoe Script","Zapfino","Snell Roundhand",cursive;letter-spacing:.5px;text-shadow:0 10px 40px #000c,0 0 10px #fff8}
+.countNum{font-size:clamp(64px,10vw,140px);font-weight:900;background:linear-gradient(180deg,#fff,#ffd166,#ff6b9b);-webkit-background-clip:text;background-clip:text;color:transparent;animation:pop .6s ease}
+@keyframes pop{from{transform:scale(.7);opacity:.5} to{transform:scale(1);opacity:1}}
+
+/* Result card */
+.resultCard{position:relative;background:linear-gradient(180deg,#0c1338ee,#0a1033ee);border:1px solid #ffffff33;border-radius:22px;padding:18px;width:min(520px,92vw);box-shadow:0 28px 80px #0009, inset 0 1px 0 #ffffff44;color:#fff}
+.resultTitle{margin:0 0 8px;font-size:clamp(20px,3.2vw,28px);background:linear-gradient(90deg,#e9eeff,#ffd166,#7a56ff,#37e3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.resultMeta{font-size:13px;color:#a7b0e0}
+
+/* ======= WELCOME MODAL ======= */
+.welcome{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:9; }
+.welcome.show{display:flex}
+.wPanel{
+  position:relative; width:min(860px,92vw);
+  background:
+    radial-gradient(260px 120px at 85% 10%, #ffd16622, #0000),
+    linear-gradient(180deg,#0f1542ee,#0c1236ee);
+  border:1px solid #ffffff2a;border-radius:24px;padding:22px;box-shadow:0 40px 120px #000a, inset 0 1px 0 #ffffff33; backdrop-filter:blur(8px)
+}
+.wHead{display:flex;align-items:center;gap:12px}
+.wTitle{margin:0;font-size:clamp(24px,4.2vw,36px);letter-spacing:.3px;background:linear-gradient(90deg,#e9eeff,#ffd166,#7a56ff,#37e3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wDesc{color:#a7b0e0;margin:6px 0 0}
+.wGrid{display:grid;grid-template-columns:1fr 1fr; gap:12px; margin-top:14px}
+@media (max-width:820px){.wGrid{grid-template-columns:1fr}}
+.wCard{background:linear-gradient(180deg,#151c3fdd,#0e1436dd);border:1px solid #ffffff22;border-radius:16px;padding:12px}
+.closeX{position:absolute;right:14px;top:12px;background:#212959;border:1px solid #ffffff2a;color:#e9eeff;border-radius:12px}
+.ctaRow{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+
+/* Footer */
+.footer{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:18px 2px 6px;color:#a7b0e0}
+.footer a{color:#ffd166;text-decoration:none}
+.footer .sig{display:flex;gap:8px;align-items:center}
+.footer .sig img{width:22px;height:22px;object-fit:cover;border-radius:50%}
+</style>
+</head>
+<body>
+<div class="starry"></div>
+<div class="moon"></div>
+<div class="cloud"></div>
+<div class="lantern"></div>
+
+<div class="container">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="heroCard">
+      <h1 class="title">🎑 Arena 90s — Trung Thu Tech</h1>
+      <p class="sub">Đấu trường mini với avatar tròn + khung động, hiệu ứng chém – spark – rung máy. Chia xu đều đội thắng, phù hợp event Trung Thu và giải trí trong team.</p>
+      <div class="badges">
+        <span class="badge">⚡ Realtime Battle</span>
+        <span class="badge">🌕 Mid-Autumn Theme</span>
+        <span class="badge">🛡️ Fair Split Rewards</span>
+        <span class="badge">🎨 Custom Frames</span>
+      </div>
+    </div>
+    <div class="panel">
+      <h3 style="margin:0 0 8px">🚀 Bắt đầu nhanh</h3>
+      <div class="row">
+        <button id="btnOpenWelcome" class="btn-ghost">👋 Xem panel chào mừng</button>
+        <button id="toggleTheme" class="btn-ghost">🌗 Dark / Light</button>
+      </div>
+      <p class="small" style="margin-top:8px">Tip: dán URL avatar/khung/gif trực tiếp vào form dưới. Không cần host đặc biệt.</p>
+    </div>
+  </section>
+
+  <!-- ===== LOBBY ===== -->
+  <section id="screenLobby" class="screen active">
+    <div class="grid" style="grid-template-columns:repeat(12,1fr)">
+      <div class="card lg-7">
+        <h2 style="margin:0 0 10px">⚙️ Thiết lập trận</h2>
+        <div class="row">
+          <div>
+            <label>Nhập tất cả ID (phân cách dấu phẩy hoặc xuống dòng)</label>
+            <textarea id="allIds" placeholder="vd: 101, 102, 103, 201, 202, 203"></textarea>
+          </div>
+          <div>
+            <label>Random Teams (tùy chọn)</label>
+            <div class="row">
+              <button id="btnRandom" class="btn-ghost">🎲 Random Teams</button><div></div>
+            </div>
+            <div class="small">Sau khi bấm, 2 ô bên dưới sẽ được lấp ID.</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div><label>Đội 1 — ID</label><textarea id="team1" placeholder="vd: 101, 102, 103"></textarea></div>
+          <div><label>Đội 2 — ID</label><textarea id="team2" placeholder="vd: 201, 202, 203"></textarea></div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div><label>Avatar Đội 1 (URL)</label><input id="ava1" placeholder="https://.../team1_avatar.png"></div>
+          <div><label>Avatar Đội 2 (URL)</label><input id="ava2" placeholder="https://.../team2_avatar.png"></div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div><label>Khung Đội 1 (APNG/GIF/PNG/JPG)</label><input id="frameUrl1" placeholder="https://.../frame_team1.png"></div>
+          <div><label>Khung Đội 2 (APNG/GIF/PNG/JPG)</label><input id="frameUrl2" placeholder="https://.../frame_team2.png"></div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div><label>GIF sàn đấu (tùy chọn)</label><input id="arenaGifUrl" placeholder="https://.../arena.gif"></div>
+          <div>
+            <label>Scale frame phụ (tinh chỉnh)</label>
+            <div class="row" style="grid-template-columns:1fr 1fr; gap:8px">
+              <input id="frameScale1" type="number" step="0.05" value="1.00" title="Đội 1">
+              <input id="frameScale2" type="number" step="0.05" value="1.00" title="Đội 2">
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div><label>Logo Đội 1</label><input id="logo1" placeholder="https://.../logo1.png"></div>
+          <div><label>Logo Đội 2</label><input id="logo2" placeholder="https://.../logo2.png"></div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div><label>Tiền thưởng mỗi trận (xu)</label><input id="reward" type="number" min="1" step="1" value="100"></div>
+          <div><label>Thời lượng trận (giây)</label><input id="duration" type="number" min="10" step="5" value="90"></div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <button id="btnStart">🚀 Start — Vào Arena</button>
+          <button id="btnClear" class="btn-danger">♻️ Xóa dữ liệu</button>
+        </div>
+      </div>
+
+      <div class="card lg-5">
+        <h2 style="margin:0 0 10px">📊 Bảng tổng (theo ID)</h2>
+        <div class="row" style="grid-template-columns:1fr auto;align-items:center">
+          <div class="small">Tự cập nhật sau mỗi trận. Chia xu <b>đều</b>.</div>
+          <button id="btnExport" class="btn-ghost">⬇️ Xuất CSV</button>
+        </div>
+        <div style="max-height:320px;overflow:auto;margin-top:10px">
+          <table id="leaderboard"><thead><tr><th>#</th><th>ID</th><th>Xu</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <div class="card lg-12">
+        <h2 style="margin:0 0 10px">🧾 Lịch sử trận</h2>
+        <div style="max-height:320px;overflow:auto;margin-top:10px">
+          <table id="history"><thead><tr><th>Thời gian</th><th>Đội thắng</th><th>Thưởng</th><th>Người nhận</th><th>Tổng phát</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ARENA ===== -->
+  <section id="screenArena" class="screen">
+    <div class="card arenaCard">
+      <div class="arenaTop">
+        <div class="teamBox">
+          <img id="logoImg1" class="logoImg" alt="" hidden>
+          <div><div class="teamTitle">Đội 1 <span id="count1" class="small"></span></div><div class="small">Avatars chiến hữu</div></div>
+        </div>
+        <div class="timerRing" id="timerRing"><div class="timerNum" id="timerText">90</div></div>
+        <div class="teamBox" style="justify-self:end">
+          <div style="text-align:right"><div class="teamTitle">Đội 2 <span id="count2" class="small"></span></div><div class="small">Avatars chiến hữu</div></div>
+          <img id="logoImg2" class="logoImg" alt="" hidden>
+        </div>
+      </div>
+
+      <div class="fieldWrap">
+        <div class="field" id="field">
+          <img id="arenaGif" alt="" hidden>
+          <div class="dimLast" id="dimLast"></div>
+          <div class="overlay" id="overlay"><div id="overlayInner"></div></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button id="btnBack" class="btn-ghost">⟵ Trở về Lobby</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div>© <span id="year"></span> Arena 90s — Mid-Autumn Edition</div>
+    <div class="sig">
+      <img id="creatorAvatar" src="https://picsum.photos/seed/creator/60" alt="">
+      <div>Made by <a id="creatorLink" href="#" target="_blank" rel="noopener" title="Creator Home">@yourname</a></div>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== WELCOME MODAL ===== -->
+<div id="welcome" class="welcome">
+  <div class="wPanel">
+    <button class="closeX" id="wClose">✖</button>
+    <div class="wHead">
+      <h2 class="wTitle">👋 Chào mừng đến <b>Arena 90s — Trung Thu Tech</b></h2>
+    </div>
+    <p class="wDesc">Đây là lobby mới mang phong cách công nghệ × Trung Thu. Bạn có thể random đội, dán avatar/khung động, và mở trận chỉ trong vài giây.</p>
+    <div class="wGrid">
+      <div class="wCard">
+        <h4 style="margin:0 0 6px">🌕 Chủ đề & Hiệu ứng</h4>
+        <p class="small">Trăng rằm, lồng đèn, cloud trôi, badge neon. Arena có slash, spark, knockback và rung màn.</p>
+      </div>
+      <div class="wCard">
+        <h4 style="margin:0 0 6px">⚙️ Cách dùng nhanh</h4>
+        <ol class="small" style="margin:0;padding-left:18px;line-height:1.5">
+          <li>Nhập ID vào 2 đội (hoặc bấm <b>Random Teams</b>).</li>
+          <li>Dán URL avatar & khung động cho mỗi đội.</li>
+          <li>Tùy chọn GIF sàn đấu, logo team.</li>
+          <li>Bấm <b>Start — Vào Arena</b> để chiến!</li>
+        </ol>
+      </div>
+    </div>
+    <div class="ctaRow">
+      <button id="wDocs" class="btn-ghost">📜 Hướng dẫn nhanh</button>
+      <button id="wStart">🚀 Vào phần Thiết lập</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====== CREATOR INFO ====== */
+const CREATOR_NAME = "@yourname";                 // ← đổi tên của bạn
+const CREATOR_URL  = "https://example.com/home";  // ← link nhà sáng tạo
+const CREATOR_AVT  = "https://picsum.photos/seed/creator/120";
+
+/* ====== Helpers ====== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const dist2 = (x1,y1,x2,y2)=>{const dx=x2-x1,dy=y2-y1;return dx*dx+dy*dy;}
+function parseIds(text){ return text? [...new Set(text.split(/[,\s]+/).map(s=>s.trim()).filter(Boolean))] : []; }
+function nowStr(){ const d=new Date(),p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function download(filename, text){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8;'})); a.download=filename; a.click(); URL.revokeObjectURL(a.href); }
+
+/* ====== Persistent totals/history ====== */
+const KEY='arena90_totals_v1';
+let state={ totals:{}, history:[] };
+try{ const raw=localStorage.getItem(KEY); if(raw){ state=JSON.parse(raw) || state; } }catch(e){}
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+function renderLeaderboard(){
+  const tbody=$('#leaderboard tbody'); tbody.innerHTML='';
+  const rows=Object.entries(state.totals).map(([id,coins])=>({id,coins})).sort((a,b)=>b.coins-a.coins);
+  rows.forEach((r,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${i+1}</td><td><span class="tag">${r.id}</span></td><td><b>${(r.coins||0).toFixed(2)}</b></td>`; tbody.appendChild(tr); });
+}
+function renderHistory(){
+  const tbody=$('#history tbody'); tbody.innerHTML='';
+  state.history.slice().reverse().forEach(h=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${h.time}</td><td>${h.winner===1?'Đội 1':'Đội 2'}</td><td>${h.reward}</td><td>${h.recipients}</td><td>${h.distributed?.toFixed? h.distributed.toFixed(2): h.distributed||0}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ====== Theme toggle ====== */
+$('#toggleTheme').addEventListener('click', ()=>{
+  const root=document.documentElement;
+  const isDark= document.body.getAttribute('data-theme')!=='light';
+  if(isDark){ document.body.setAttribute('data-theme','light'); }
+  else { document.body.setAttribute('data-theme','dark'); }
+});
+
+/* ====== Random Teams ====== */
+$('#btnRandom').addEventListener('click', ()=>{
+  const all=parseIds($('#allIds').value);
+  if(all.length<2){ alert('Cần ít nhất 2 ID để chia team.'); return; }
+  for(let i=all.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+  const mid=Math.ceil(all.length/2);
+  $('#team1').value = all.slice(0,mid).join(', ');
+  $('#team2').value = all.slice(mid).join(', ');
+});
+
+/* ====== Export & Clear ====== */
+$('#btnExport').addEventListener('click', ()=>{
+  const rows=Object.entries(state.totals).map(([id,coins])=>({id,coins})).sort((a,b)=>b.coins-a.coins);
+  let csv='ID,Coins\n'; rows.forEach(r=> csv+=`${r.id},${(r.coins||0).toFixed(2)}\n`);
+  download('leaderboard_totals.csv', csv);
+});
+$('#btnClear').addEventListener('click', ()=>{
+  if(!confirm('Xóa toàn bộ leaderboard & lịch sử?')) return;
+  state={totals:{}, history:[]}; save(); renderLeaderboard(); renderHistory();
+});
+
+/* ====== Screens ====== */
+function show(id){ $$('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); }
+
+/* ====== Arena Simulation (giữ nguyên bản tối ưu trước) ====== */
+const field = $('#field');
+const overlay = $('#overlay');
+const overlayInner = $('#overlayInner');
+const dimLast = $('#dimLast');
+const timerRing = $('#timerRing');
+const timerText = $('#timerText');
+const arenaGif = $('#arenaGif');
+
+let sim = { acc: 0, raf: null, running: false };
+
+function showOverlayCountdown(seq, cb){
+  overlay.classList.remove('plain');
+  overlay.classList.add('show'); overlayInner.innerHTML='';
+  let i=0; (function next(){
+    if(i>=seq.length){ overlay.classList.remove('show'); cb(); return; }
+    overlayInner.innerHTML = `<div class="countNum calli">${seq[i++]}</div>`;
+    setTimeout(next, 600);
+  })();
+}
+function setTimer(total, left){
+  timerText.textContent = left;
+  const deg = (1 - left/total) * 360;
+  timerRing.style.setProperty('--p', `${deg}deg`);
+}
+function spark(x,y,count=6,spread=50){
+  for(let k=0;k<count;k++){
+    const s=document.createElement('div'); s.className='spark';
+    s.style.left=x+'px'; s.style.top=y+'px';
+    s.style.setProperty('--dx', (Math.random()*spread-spread/2)+'px');
+    s.style.setProperty('--dy', (Math.random()*spread-spread/2)+'px');
+    field.appendChild(s); setTimeout(()=>s.remove(), 450);
+  }
+}
+function slash(x,y,angRad){
+  const sl=document.createElement('div'); sl.className='slash';
+  sl.style.left=x+'px'; sl.style.top=y+'px';
+  const deg = (angRad*180/Math.PI).toFixed(2)+'deg';
+  sl.style.setProperty('--ang', deg);
+  field.appendChild(sl); setTimeout(()=>sl.remove(), 280);
+}
+function shakeField(ms=120){ field.classList.add('shake'); setTimeout(()=>field.classList.remove('shake'), ms); }
+function createFighter({id, team, x, y, avatarUrl, frameUrl}){
+  const el=document.createElement('div'); el.className='fighter t'+team;
+  el.style.left=`${x}px`; el.style.top=`${y}px`; el.dataset.team=team; el.dataset.id=id;
+  const hpWrap=document.createElement('div'); hpWrap.className='hpBar'; const hpInner=document.createElement('span'); hpWrap.appendChild(hpInner);
+  const avatar=document.createElement('div'); avatar.className='fAvatar'; const img=document.createElement('img'); img.src=avatarUrl; avatar.appendChild(img);
+  const frame=document.createElement('div'); frame.className='fFrame'; if(frameUrl){ const fimg=document.createElement('img'); fimg.src=frameUrl; frame.appendChild(fimg); }
+  el.appendChild(hpWrap); el.appendChild(avatar); el.appendChild(frame); field.appendChild(el);
+  return { id, team, x, y, vx:(Math.random()*.6+.4)*(Math.random()<.5?1:-1), vy:(Math.random()*.6+.4)*(Math.random()<.5?1:-1),
+           hp:100, maxHp:100, alive:true, el, hpInner, radius:28, atkCd:0 };
+}
+function dist2(x1,y1,x2,y2){const dx=x2-x1,dy=y2-y1;return dx*dx+dy*dy;}
+function startBattle(opts){
+  if(sim && sim.raf) cancelAnimationFrame(sim.raf);
+  sim = { acc: 0, raf: null, running: true };
+  $$('.fighter').forEach(n=>n.remove());
+  dimLast.classList.remove('show');
+
+  const rect = field.getBoundingClientRect();
+  const W = rect.width, H = rect.height;
+
+  const fighters=[];
+  const pad=60;
+  const spread = (n, leftSide)=> Array.from({length:n}, ()=>({
+    x: leftSide? (pad + Math.random()*(W*0.35-pad)) : (W - pad - Math.random()*(W*0.35-pad)),
+    y: pad + Math.random()*(H - pad*2)
+  }));
+
+  const pos1=spread(opts.team1.length, true);
+  const pos2=spread(opts.team2.length, false);
+
+  opts.team1.forEach((id,i)=>{ fighters.push( createFighter({id, team:1, x:pos1[i].x, y:pos1[i].y, avatarUrl:opts.avatar1, frameUrl:opts.frame1}) ); });
+  opts.team2.forEach((id,i)=>{ fighters.push( createFighter({id, team:2, x:pos2[i].x, y:pos2[i].y, avatarUrl:opts.avatar2, frameUrl:opts.frame2}) ); });
+
+  document.documentElement.style.setProperty('--frameScale1', String(opts.frameScale1||1));
+  document.documentElement.style.setProperty('--frameScale2', String(opts.frameScale2||1));
+
+  const totalTime = opts.duration; let left = totalTime; let lastTs = performance.now();
+
+  function step(ts){
+    const dt = Math.min(0.033, (ts - lastTs)/1000); lastTs = ts;
+    sim.acc += dt; if(sim.acc >= 1){ sim.acc -= 1; left = Math.max(0, left-1); setTimer(totalTime, left);
+      if(left<=3 && left>0){ dimLast.classList.add('show'); showCornerCountdown(left); }
+      if(left>3){ dimLast.classList.remove('show'); hideCornerCountdown(); }
+    }
+
+    const alive1=fighters.filter(f=>f.alive&&f.team===1);
+    const alive2=fighters.filter(f=>f.alive&&f.team===2);
+    if(alive1.length===0 || alive2.length===0 || left<=0){ endBattle({fighters, winner: decideWinner(alive1, alive2, left), reward: opts.reward}); return; }
+
+    fighters.forEach(f=>{
+      if(!f.alive) return;
+      const enemies = f.team===1? alive2 : alive1;
+      let target=enemies[0], best=Infinity;
+      for(const e of enemies){ const d2=dist2(f.x,f.y,e.x,e.y); if(d2<best){best=d2;target=e;} }
+      const dx=target.x - f.x, dy=target.y - f.y; const d=Math.hypot(dx,dy)||1; const nx=dx/d, ny=dy/d;
+
+      const allies = f.team===1? alive1 : alive2; let sx=0, sy=0;
+      for(const a of allies){ if(a===f || !a.alive) continue; const d2a=dist2(f.x,f.y,a.x,a.y); if(d2a<70*70){ const dA=Math.sqrt(d2a)||1; sx += (f.x - a.x)/dA; sy += (f.y - a.y)/dA; } }
+
+      const speed = 140 + Math.random()*60; f.vx += (nx*0.9 + sx*0.4) * dt * 40; f.vy += (ny*0.9 + sy*0.4) * dt * 40;
+      const vmax = speed, vlen = Math.hypot(f.vx,f.vy) || 1; f.vx = f.vx/vlen * vmax; f.vy = f.vy/vlen * vmax;
+      f.x += f.vx*dt; f.y += f.vy*dt;
+      const r = f.radius; if(f.x<r){f.x=r; f.vx*=-.8} if(f.x>W-r){f.x=W-r; f.vx*=-.8} if(f.y<r){f.y=r; f.vy*=-.8} if(f.y>H-r){f.y=H-r; f.vy*=-.8}
+
+      const atkRange = 42; f.atkCd = Math.max(0, f.atkCd - dt);
+      if(f.atkCd<=0 && d <= atkRange){
+        const dmg = 8 + Math.random()*12; target.hp = Math.max(0, target.hp - dmg); target.hpInner.style.width = (target.hp/target.maxHp*100)+'%';
+        const mx=(f.x+target.x)/2, my=(f.y+target.y)/2; slash(mx,my,Math.atan2(dy,dx)); spark(mx,my,8,70); shakeField(120);
+        target.el.classList.add('hit'); setTimeout(()=>target.el.classList.remove('hit'),120);
+        f.atkCd = 0.45 + Math.random()*0.35; const kb = 28; target.vx += nx*kb; target.vy += ny*kb;
+        if(target.hp<=0){ target.alive=false; target.el.classList.add('dead'); }
+      }
+      f.el.style.left = f.x+'px'; f.el.style.top  = f.y+'px';
+    });
+
+    sim.raf = requestAnimationFrame(step);
+  }
+  showOverlayCountdown(['3','2','1','BẮT ĐẦU!'], ()=>{ lastTs = performance.now(); setTimer(totalTime, left); sim.raf = requestAnimationFrame(step); });
+}
+function showCornerCountdown(n){ overlay.classList.add('show'); overlayInner.innerHTML = `<div class="countNum calli">${n}</div>`; }
+function hideCornerCountdown(){ overlay.classList.remove('show'); overlayInner.innerHTML=''; }
+function decideWinner(alive1, alive2, left){
+  if(alive1.length===0 && alive2.length>0) return 2; if(alive2.length===0 && alive1.length>0) return 1;
+  if(left<=0){ if(alive1.length>alive2.length) return 1; if(alive2.length>alive1.length) return 2;
+    const hp1 = alive1.reduce((s,f)=>s+f.hp,0), hp2 = alive2.reduce((s,f)=>s+f.hp,0);
+    if(hp1>hp2) return 1; if(hp2>hp1) return 2; }
+  return Math.random()<0.5?1:2;
+}
+function endBattle({fighters, winner, reward}){
+  if(sim && sim.raf){ cancelAnimationFrame(sim.raf); }
+  sim.running = false; dimLast.classList.remove('show'); hideCornerCountdown();
+  const winners = fighters.filter(f=>f.team===winner); const ids = winners.map(f=>f.id);
+  state.history.push({ time:nowStr(), winner, reward, recipients:ids.length, distributed:reward });
+  save(); renderLeaderboard(); renderHistory();
+  overlay.classList.add('plain'); overlay.classList.add('show');
+  overlayInner.innerHTML = `
+    <div class="resultCard">
+      <h2 class="resultTitle">🎉 Đội <span style="filter:drop-shadow(0 4px 12px #ffd16666); color:${winner===1?'#37e3ff':'#ff6b9b'}">${winner}</span> chiến thắng!</h2>
+      <div class="resultMeta">Chúc mừng! Bấm Về Lobby để tiếp tục.</div>
+      <div style="display:flex; gap:10px; margin-top:14px; justify-content:flex-end">
+        <button id="btnNext" style="background:linear-gradient(180deg,#ffd166,#ffb648);border:1px solid #ffffff33">⟵ Về Lobby</button>
+      </div>
+    </div>`;
+  $('#btnNext').onclick = ()=>{ overlay.classList.remove('show','plain'); show('#screenLobby'); };
+}
+
+/* ====== Wiring ====== */
+function initCreator(){
+  $('#creatorLink').textContent = CREATOR_NAME;
+  $('#creatorLink').href = CREATOR_URL;
+  $('#creatorAvatar').src = CREATOR_AVT;
+  $('#year').textContent = new Date().getFullYear();
+}
+function show(id){ $$('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); }
+function bootstrap(){
+  initCreator(); renderLeaderboard(); renderHistory();
+  // Welcome modal
+  const w=$('#welcome'); const wClose=$('#wClose'); const openBtn=$('#btnOpenWelcome');
+  w.classList.add('show');
+  wClose.onclick = ()=> w.classList.remove('show');
+  openBtn.onclick = ()=> w.classList.add('show');
+  $('#wDocs').onclick = ()=> alert('Tip nhanh: Nhập ID → Random → Dán avatar/khung → Start!');
+  $('#wStart').onclick = ()=> { w.classList.remove('show'); document.querySelector('#screenLobby').scrollIntoView({behavior:'smooth'}); };
+}
+bootstrap();
+
+/* Lobby -> Arena Start */
+$('#btnStart').addEventListener('click', ()=>{
+  const team1 = parseIds($('#team1').value);
+  const team2 = parseIds($('#team2').value);
+  if(team1.length===0 || team2.length===0){ alert('Cần nhập ID cho cả 2 đội.'); return; }
+  if(team1.some(id=>team2.includes(id))){ alert('Một ID không thể thuộc cả hai đội.'); return; }
+
+  const reward = Math.max(1, Math.floor(Number($('#reward').value)||0));
+  const duration = Math.max(10, Math.floor(Number($('#duration').value)||90));
+
+  const avatar1 = ($('#ava1').value.trim() || 'https://picsum.photos/seed/team1/128');
+  const avatar2 = ($('#ava2').value.trim() || 'https://picsum.photos/seed/team2/128');
+  const frame1  = ($('#frameUrl1').value.trim() || '');
+  const frame2  = ($('#frameUrl2').value.trim() || '');
+
+  const frameScale1 = parseFloat($('#frameScale1').value)||1;
+  const frameScale2 = parseFloat($('#frameScale2').value)||1;
+
+  const gifUrl   = ($('#arenaGifUrl').value.trim() || '');
+  const l1 = ($('#logo1').value.trim() || '');
+  const l2 = ($('#logo2').value.trim() || '');
+
+  const L1=$('#logoImg1'), L2=$('#logoImg2');
+  if(l1){ L1.src=l1; L1.hidden=false; } else { L1.hidden=true; }
+  if(l2){ L2.src=l2; L2.hidden=false; } else { L2.hidden=true; }
+  if(gifUrl){ arenaGif.src=gifUrl; arenaGif.hidden=false; } else { arenaGif.removeAttribute('src'); arenaGif.hidden=true; }
+
+  $('#count1').textContent = `(${team1.length} ID)`; $('#count2').textContent = `(${team2.length} ID)`;
+  show('#screenArena');
+
+  showOverlayCountdown(['3','2','1','BẮT ĐẦU!'], ()=>{
+    startBattle({ team1, team2, avatar1, avatar2, frame1, frame2, frameScale1, frameScale2, duration, reward });
+  });
+});
+
+$('#btnBack').addEventListener('click', ()=>{
+  if(sim && sim.raf){ if(!confirm('Trận có thể đang diễn ra. Thoát về Lobby?')) return; cancelAnimationFrame(sim.raf); }
+  overlay.classList.remove('show','plain'); dimLast.classList.remove('show'); show('#screenLobby');
+});
+</script>
+</body>
+</html
