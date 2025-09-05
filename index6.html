@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Game Thẻ tướng lượt chơi HH3D</title>
+
+<!-- Font “thư pháp nhẹ” -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0b0f1a; --muted:#62708a; --line:#e6e9ef; --brand:#1c3e8a;
+    --good:#0ea472; --gold:#c08900; --frame-border:#2c335a;
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0; background:#fff; color:var(--ink); font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
+  .screen{display:none; min-height:100dvh} .show{display:block}
+  .topbar{position:sticky; top:0; z-index:50; background:#fff; border-bottom:1px solid var(--line); padding:12px 16px; display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+  .tabs{display:flex; gap:8px; flex-wrap:wrap}
+  .btn{appearance:none; border:1px solid var(--line); background:#fff; color:#000; padding:10px 14px; border-radius:12px; font-weight:700; cursor:pointer}
+  .primary{background:linear-gradient(180deg,#214aa0,#1a3a86); color:#fff; border-color:#183982}
+  .input,.select{width:100%; background:#fff; color:#0b0f1a; border:1px solid var(--line); border-radius:12px; padding:10px 12px; outline:none}
+  .wrap{margin:18px auto; width:min(1100px,94vw)}
+  .intro{margin:12px 0 18px 0; color:var(--muted)}
+  .grid{display:grid; gap:12px; grid-template-columns:repeat(1,minmax(0,1fr))}
+  @media (min-width:640px){ .grid{grid-template-columns:repeat(2, minmax(0,1fr))} }
+  @media (min-width:1024px){ .grid{grid-template-columns:repeat(3, minmax(0,1fr))} }
+  .card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; display:grid; grid-template-columns:96px 1fr; gap:12px; align-items:center}
+  .thumb{width:96px; aspect-ratio:1/1; border-radius:10px; overflow:hidden; border:1px solid var(--line); background:#f6f7fb; display:grid; place-items:center}
+  .thumb img{width:100%; height:100%; object-fit:contain; object-position:center; display:block}
+  .row{display:grid; gap:8px} .row.two{grid-template-columns:1fr}
+  .muted{color:var(--muted)}
+
+  /* Stage (battle) */
+  .stage{min-height:100dvh; background:#0b0f1a; display:flex; align-items:center; justify-content:center}
+  .frame{position:relative; width:min(96vw,1080px); aspect-ratio:16/9; border:2px solid var(--frame-border); border-radius:14px; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,.45) inset, 0 20px 60px rgba(0,0,0,.45); background:#000}
+
+  /* Video nền */
+  .bgvid{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    z-index:0;
+    background:#000;
+  }
+
+  .group{position:absolute; top:5%; bottom:5%; width:32%; z-index:3; display:grid; grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(3,1fr); gap:16px}
+  .group.left{ left:3% } .group.right{ right:3% }
+  .slot{ position:relative; overflow:visible; background:transparent; padding:6px; }
+  .gifHero{ width:100%; height:100%; object-fit:contain; object-position:center bottom; display:block }
+  .weaponIdle{ position:absolute; left:6px; top:6px; width:46px; height:46px; object-fit:contain; pointer-events:none; filter:drop-shadow(0 6px 10px rgba(0,0,0,.45)); z-index:4 }
+  .projectile{ position:absolute; width:56px; height:56px; object-fit:contain; z-index:6; pointer-events:none; filter:drop-shadow(0 6px 12px rgba(0,0,0,.55)) }
+
+  /* Lật hướng */
+  .group.left  .gifHero{ transform:scaleX(1) }
+  .group.right .gifHero{ transform:scaleX(-1) }
+  .group.left  .weaponIdle{ transform:scaleX(1) }
+  .group.right .weaponIdle{ transform:scaleX(-1) }
+
+  .dmg{position:absolute; left:50%; top:42%; transform:translate(-50%,-50%); font-weight:800; text-shadow:0 2px 8px rgba(0,0,0,.5); opacity:0; pointer-events:none}
+  .dmg.show{animation:pop .8s ease-out forwards}
+  .dmg.red{color:#ff7b7b} .dmg.gold{color:#ffd166} .dmg.green{color:#55ffa7}
+  @keyframes pop{0%{opacity:0; transform:translate(-50%,-20%) scale(.7)}10%{opacity:1}60%{transform:translate(-50%,-65%) scale(1.08)}100%{opacity:0; transform:translate(-50%,-95%) scale(.96)}}
+  .hitflash{position:absolute; inset:0; background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.55), rgba(255,255,255,0) 60%); opacity:0; pointer-events:none; animation:flash .18s ease-out}
+  @keyframes flash{0%{opacity:0}20%{opacity:.8}100%{opacity:0}}
+  .shake{animation:shake .25s cubic-bezier(.36,.07,.19,.97)}
+  @keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-3px)}40%,60%{transform:translateX(3px)}100%{transform:translateX(0)}}
+
+  /* Overlay + chữ thư pháp */
+  #overlay{position:absolute; inset:0; z-index:8; pointer-events:none}
+  .countdown{position:absolute; inset:0; display:grid; place-items:center; z-index:8; font-size:15vmin; background:rgba(0,0,0,.15)}
+  .countdown span,
+  .victoryTxt{
+    font-family:'Playfair Display', serif;
+    font-weight:900;           /* đậm */
+    letter-spacing:1px;
+    color:#fff;
+    -webkit-text-stroke:1.5px rgba(0,0,0,.35); /* viền mảnh */
+    text-shadow:
+      0 10px 28px rgba(0,0,0,.55),
+      0 4px  12px rgba(0,0,0,.45),
+      0 2px   6px rgba(0,0,0,.35);
+  }
+  .countdown span{animation:boomCD .9s ease-out forwards}
+  @keyframes boomCD{0%{transform:scale(.4); opacity:0}30%{transform:scale(1.1); opacity:1}100%{transform:scale(1); opacity:0}}
+
+  /* Payout */
+  .panel{background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:12px}
+  .flex{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .table{width:100%; border-collapse:collapse; font-size:14px}
+  .table th,.table td{padding:8px 10px; border-bottom:1px solid var(--line)}
+  .right{text-align:right}
+  .stats{display:flex; gap:12px; flex-wrap:wrap; margin-top:6px}
+  .stat{background:#f6f7fb; border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- ========= NAV ========= -->
+<div class="topbar">
+  <div class="tabs">
+    <button class="btn" id="tabSelect">Chọn tướng</button>
+    <button class="btn" id="tabStage">Vào trận</button>
+    <button class="btn primary" id="tabPayout">Trao thưởng</button>
+  </div>
+  <div class="flex">
+    <span class="muted">Giới hạn phát mỗi lần: <b>≤ 1000 xu</b> &nbsp;•&nbsp; Kho còn: <b id="bankInline">...</b> xu</span>
+  </div>
+</div>
+
+<!-- ========= Screen: SELECT ========= -->
+<section class="screen show" id="scrSelect">
+  <div class="wrap">
+    <p class="intro">Thêm <b>ID</b> cho từng ô và <b>chọn tướng</b>. có xem trước </p>
+    <h3>Tiên</h3>
+    <div id="gridA" class="grid"></div>
+    <h3 style="margin-top:18px">Ma</h3>
+    <div id="gridB" class="grid"></div>
+    <div style="margin-top:16px" class="flex">
+      <button class="btn primary" id="btnGo">Xuất Chiến</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========= Screen: STAGE ========= -->
+<section class="screen stage" id="scrStage">
+  <div class="frame" id="gameFrame">
+    <!-- Video nền -->
+    <video class="bgvid" id="bgVideo" autoplay muted loop playsinline preload="auto">
+      <source src="./bideo.mp4" type="video/mp4">
+    </video>
+
+    <div class="group left" id="groupA"></div>
+    <div class="group right" id="groupB"></div>
+    <div id="overlay"></div>
+  </div>
+</section>
+
+<!-- ========= Screen: PAYOUT ========= -->
+<section class="screen" id="scrPayout">
+  <div class="wrap">
+    <h2>Trao thưởng phe thắng</h2>
+    <div class="panel">
+      <div class="flex">
+        <button class="btn primary" id="btnGen">Tạo phân phối (1–10, jackpot 150 p=0.001)</button>
+        <button class="btn" id="btnDownload">Tải CSV</button>
+        <button class="btn" id="btnResetWinners">Reset danh sách đội thắng</button>
+      </div>
+      <div class="flex" style="margin-top:10px">
+        <span class="muted">Kho hiện có: <b id="bankNow">...</b> xu</span>
+        <input class="input" id="bankInput" type="number" min="0" step="1" placeholder="Nhập số xu mới (quản trị)">
+        <button class="btn" id="btnSetBank">Đặt lại kho</button>
+      </div>
+      <div class="stats" id="stats"></div>
+      <table class="table" id="tblPayout"></table>
+      <p class="muted" style="margin-top:8px">MADE BY PTC/CHATBOT.</p>
+    </div>
+    <div class="panel">
+      <h3 style="margin:0 0 8px 0">Danh sách đội thắng đã lưu</h3>
+      <div id="winnersList" class="muted">Chưa có dữ liệu.</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ======= CONFIG ======= */
+const STORAGE_WINNERS='arenaWinnersV1';
+const STORAGE_PAYOUT_LAST='arenaPayoutLast';
+const STORAGE_COIN_BANK='arenaCoinBankV1';
+const DEFAULT_BANK=10000;
+const PAYOUT_RUN_CAP=1000;
+const JACKPOT_CHANCE=0.001;
+const JACKPOT_AMOUNT=150;
+
+/* ======= HERO LIST ======= */
+function Hero(name,role,heroGif,weaponGif,passive){return {name,role,heroGif,weaponGif:weaponGif||null,passive:passive||{}};}
+const HEROES=[
+  Hero('Quang Minh Chi Tử','melee','https://i.ibb.co/bRstCb4n/IMG-5874.webp',null,{meleeDmg:0.05}),
+  Hero('Trư Bát Giới','melee','https://i.ibb.co/gb4gT5KT/IMG-5875.webp',null,{meleeDmg:0.05}),
+  Hero('Tôn Ngộ Không','melee','https://i.ibb.co/YBZxPQcM/IMG-5878.webp',null,{meleeDmg:0.06}),
+  Hero('Hứa Lập Quốc','melee','https://i.ibb.co/XZVvPgg1/IMG-5877.gif',null,{meleeDmg:0.05}),
+  Hero('Chân Long','ranged','https://i.ibb.co/4wV4YhKh/IMG-5873.webp','https://i.ibb.co/V0P3pGFm/IMG-5885.gif',{rangedDmg:0.08}),
+  Hero('Tiên Đế','melee','https://i.ibb.co/7JNV7DGQ/IMG-5876.webp',null,{meleeDmg:0.07}),
+  Hero('Thiên Thần','support','https://i.ibb.co/Q3PjtTxz/IMG-5880.gif',null,{teamHP:0.10}),
+  Hero('Hắc Vô Thường','melee','https://i.ibb.co/C3npvjft/IMG-5879.webp',null,{meleeDmg:0.05}),
+  Hero('Chu Tước','ranged','https://i.ibb.co/BH9BGwfC/IMG-5886.webp','https://i.ibb.co/7tTbHswZ/IMG-5890.gif',{rangedDmg:0.08}),
+  Hero('Dơi','melee','https://i.ibb.co/vvB65sxL/IMG-5889.gif',null,{meleeDmg:0.05}),
+  Hero('Ông Công','ranged','https://i.ibb.co/Gf46Ywjj/IMG-5887.webp','https://i.ibb.co/d4LJnZQ5/IMG-5881.webp',{rangedDmg:0.07}),
+  Hero('Chí Tôn','ranged','https://i.ibb.co/ymd6bBgX/IMG-5888.webp','https://i.ibb.co/mCPtcKB4/IMG-5883.webp',{rangedDmg:0.09,crit:0.02}),
+];
+
+/* ======= BANK helpers ======= */
+function loadBank(){
+  const raw = localStorage.getItem(STORAGE_COIN_BANK);
+  const n = raw==null ? NaN : Number(raw);
+  if (Number.isNaN(n)) { localStorage.setItem(STORAGE_COIN_BANK, String(DEFAULT_BANK)); return DEFAULT_BANK; }
+  return Math.max(0, Math.floor(n));
+}
+function saveBank(val){
+  localStorage.setItem(STORAGE_COIN_BANK, String(Math.max(0, Math.floor(val))));
+  renderBankInline();
+}
+
+/* ======= SELECT SCREEN ======= */
+const scrSelect=document.getElementById('scrSelect');
+const gridA=document.getElementById('gridA'), gridB=document.getElementById('gridB');
+function heroLabel(h){return `${h.name} <${h.role==='melee'?'cận chiến':h.role==='ranged'?'tầm xa':'support'}>`;}
+function buildSelectGrid(container, team){
+  container.innerHTML='';
+  for(let i=0;i<6;i++){
+    const id=`${team}-${i+1}`, selId=`sel-${team}-${i}`;
+    const card=document.createElement('div'); card.className='card';
+    card.innerHTML=`
+      <div class="thumb"><img id="thumb-${team}-${i}" alt="xem trước"></div>
+      <div class="row two">
+        <h4>Nhân Vật ${team}-${i+1}</h4>
+        <input class="input" id="${team}${i}" value="${id}" placeholder="ID người chơi">
+        <select class="select" id="${selId}">
+          <option value="">— Chọn Thần Tướng/Ma Tướng —</option>
+          ${HEROES.map((h,idx)=>`<option value="${idx}">${heroLabel(h)}</option>`).join('')}
+        </select>
+      </div>`;
+    container.appendChild(card);
+    card.querySelector('#'+selId).addEventListener('change',e=>{
+      const idx=parseInt(e.target.value), img=document.getElementById(`thumb-${team}-${i}`);
+      if(Number.isFinite(idx)) img.src=HEROES[idx].heroGif||''; else img.removeAttribute('src');
+    });
+  }
+}
+buildSelectGrid(gridA,'THẦN'); buildSelectGrid(gridB,'MA');
+
+/* ======= STAGE (battle) ======= */
+const scrStage=document.getElementById('scrStage');
+const groupA=document.getElementById('groupA'), groupB=document.getElementById('groupB');
+const overlay=document.getElementById('overlay');
+
+const state={ roster:{A:[],B:[]}, nextIdx:{A:0,B:0}, turn:0,timer:null,playing:false,
+  teamMods:{A:{meleeDmg:0,rangedDmg:0,crit:0,teamHP:0}, B:{meleeDmg:0,rangedDmg:0,crit:0,teamHP:0}} };
+const BASE_HP=2400, TURN_MS=900;
+const DMG={ melee:{base:320,varMin:0.85,varMax:1.10,crit:0.12,critMul:1.5}, ranged:{base:170,varMin:0.85,varMax:1.10,crit:0.10,critMul:1.35}};
+const HEAL={base:150,varMin:0.95,varMax:1.10};
+
+function readPicks(team){const out=[];for(let i=0;i<6;i++){const id=document.getElementById(team+i).value.trim();const heroIdx=parseInt(document.getElementById(`sel-${team}-${i}`).value);out.push({id,heroIdx:Number.isFinite(heroIdx)?heroIdx:null});}return out;}
+document.getElementById('btnGo').onclick=()=>{
+  const pA=readPicks('A'), pB=readPicks('B');
+  if([...pA,...pB].some(x=>!x.id||x.heroIdx==null)) return alert('Nhập đủ 12 ID và chọn tướng.');
+  startBattleScreen(pA,pB);
+};
+
+function buildTeam(team, container, picks){
+  container.innerHTML=''; state.roster[team]=[]; state.nextIdx[team]=0;
+  picks.forEach((pick)=>{
+    const def=HEROES[pick.heroIdx]; const slot=document.createElement('div'); slot.className='slot';
+    const hero=document.createElement('img'); hero.className='gifHero'; hero.alt=pick.id; hero.src=def.heroGif||''; slot.appendChild(hero);
+    let weaponIdle=null;
+    if(def.role==='ranged' && def.weaponGif){ weaponIdle=document.createElement('img'); weaponIdle.className='weaponIdle'; weaponIdle.src=def.weaponGif; weaponIdle.alt='weapon'; slot.appendChild(weaponIdle); }
+    const dmg=document.createElement('div'); dmg.className='dmg'; slot.appendChild(dmg);
+    container.appendChild(slot);
+    state.roster[team].push({id:pick.id,team,role:def.role,hp:BASE_HP,alive:true,el:slot,heroEl:hero,weaponIdle,passive:def.passive||{}});
+  });
+}
+function computeTeamPassives(){['A','B'].forEach(t=>{const m={meleeDmg:0,rangedDmg:0,crit:0,teamHP:0};state.roster[t].forEach(u=>{const p=u.passive||{};for(const k in p){m[k]=(m[k]||0)+p[k];}});state.teamMods[t]=m;});}
+function startBattleScreen(pA,pB){ buildTeam('A',groupA,pA); buildTeam('B',groupB,pB); computeTeamPassives(); show(scrStage); countdown(); }
+function show(s){[scrSelect,scrStage,scrPayout].forEach(e=>e.classList.remove('show')); s.classList.add('show');}
+function countdown(){
+  overlay.innerHTML='';
+  const cd=document.createElement('div'); cd.className='countdown'; overlay.appendChild(cd);
+  const seq=['3','2','1','GO!'];
+  let i=0;
+  (function tick(){
+    if(i>=seq.length){ overlay.innerHTML=''; start(); return; }
+    const val=seq[i++];
+    cd.innerHTML = `<span style="${val==='GO!'?'font-size:17vmin':''}">${val}</span>`;
+    setTimeout(tick,900);
+  })();
+}
+function start(){ state.turn=0; state.playing=true; loop(); }
+function loop(){ if(!state.playing) return; const a=state.roster.A.some(x=>x.alive), b=state.roster.B.some(x=>x.alive);
+  if(!a||!b){ finish(a?'A':b?'B':'DRAW'); return;} takeTurn(); state.turn++; state.timer=setTimeout(loop,TURN_MS); }
+function nextAlive(t){const arr=state.roster[t]; let i=state.nextIdx[t]%arr.length,c=0;while(c<arr.length){const u=arr[i];state.nextIdx[t]=(i+1)%arr.length; if(u&&u.alive) return u; i=(i+1)%arr.length;c++;} return null;}
+function rc(i){return{row:Math.floor(i/2),col:i%2};}
+function pickFrontOrLowest(t){const f=(t==='A')?1:0; const list=state.roster[t].map((p,i)=>({p,i,rc:rc(i)})).filter(x=>x.p.alive&&x.rc.col===f);
+  if(list.length) return list.reduce((m,x)=>x.p.hp<m.p.hp?x:x,list[0]).p;
+  const all=state.roster[t].map((p,i)=>({p,i})).filter(x=>x.p.alive); if(!all.length) return null; return all.reduce((m,x)=>x.p.hp<m.p.hp?x:x,all[0]).p; }
+function firstThreeOrdered(t){const f=(t==='A')?1:0,b=f?0:1,out=[];for(let r=0;r<3;r++){const i=r*2+f;const p=state.roster[t][i];if(p?.alive) out.push(p);} for(let r=0;r<3 && out.length<3;r++){const i=r*2+b;const p=state.roster[t][i];if(p?.alive) out.push(p);} return out.slice(0,3);}
+function rollVal(base,vmin,vmax){const v=Math.random()*(vmax-vmin)+vmin;return Math.round(base*v);}
+function rollDamage(kind,team){const mod=state.teamMods[team]||{}; let base,vmin,vmax,cr,cm,bonus=1;
+  if(kind==='melee'){({base,vmin,vmax,cr,cm}={base:DMG.melee.base,vmin:DMG.melee.varMin,vmax:DMG.melee.varMax,cr:DMG.melee.crit,cm:DMG.melee.critMul}); bonus*=(1+(mod.meleeDmg||0));}
+  else {({base,vmin,vmax,cr,cm}={base:DMG.ranged.base,vmin:DMG.ranged.varMin,vmax:DMG.ranged.varMax,cr:DMG.ranged.crit,cm:DMG.ranged.critMul}); bonus*=(1+(mod.rangedDmg||0));}
+  const critBonus=1+(mod.crit||0); let amount=Math.round(rollVal(base,vmin,vmax)*bonus); const crit=Math.random()<cr*critBonus; if(crit) amount=Math.round(amount*cm); return{amount,crit};}
+function rollHeal(team){const mod=state.teamMods[team]||{}; const base=HEAL.base*(1+(mod.teamHP||0)); return {amount:rollVal(base,HEAL.varMin,HEAL.varMax)};}
+function showDmg(el,txt,cls){const dm=el.querySelector('.dmg'); dm.textContent=txt; dm.className=`dmg show ${cls}`; setTimeout(()=>dm.classList.remove('show'),820);}
+
+/* CHẶN FRIENDLY-FIRE CHẮC CHẮN */
+function applyHit(target, info, actor){
+  if (!target || !actor || target.team === actor.team) return;
+  if(!target.alive) return;
+  showDmg(target.el,(info.crit?'✦ ':'')+`-${info.amount}`,info.crit?'gold':'red');
+  const fx=document.createElement('div'); fx.className='hitflash'; target.el.appendChild(fx); target.el.classList.add('shake'); setTimeout(()=>{fx.remove();target.el.classList.remove('shake');},240);
+  target.hp=Math.max(0,target.hp-info.amount); if(target.hp<=0){target.alive=false; target.el.style.filter='grayscale(1) brightness(.65)';}
+}
+function applyHeal(u,heal){ if(!u.alive) return; u.hp=Math.min(BASE_HP,u.hp+heal.amount); showDmg(u.el,`+${heal.amount}`,'green'); }
+function opp(team){ return team==='A' ? 'B' : 'A'; }
+
+/* RANGED: xác định đội địch bên trong */
+function weaponFlyBurst(actor){
+  const defTeam = opp(actor.team);
+  const targets=firstThreeOrdered(defTeam); if(!targets.length) return;
+  const arena=document.getElementById('gameFrame'); const cp=arena.getBoundingClientRect(); const startEl=actor.weaponIdle||actor.heroEl; const sp=startEl.getBoundingClientRect();
+  const start={x:sp.left-cp.left+sp.width/2,y:sp.top-cp.top+sp.height/2}; let cx=0,cy=0; targets.forEach(t=>{const r=t.el.getBoundingClientRect(); cx+=r.left+r.width/2; cy+=r.top+r.height/2;}); cx/=targets.length; cy/=targets.length;
+  const dest={x:cx-cp.left,y:cy-cp.top}; const img=document.createElement('img'); img.src=(actor.weaponIdle?actor.weaponIdle.src:actor.heroEl.src);
+  img.className='projectile'; img.style.left=(start.x-28)+'px'; img.style.top=(start.y-28)+'px'; arena.appendChild(img);
+  img.animate([{transform:'translate(0,0) scale(.9)',opacity:.9},{transform:`translate(${dest.x-start.x}px,${dest.y-start.y}px) scale(1)`,opacity:1}],{duration:520,easing:'cubic-bezier(.2,.9,.2,1)'}).onfinish=()=>{
+    img.remove(); targets.forEach(t=>applyHit(t,rollDamage('ranged',actor.team),actor)); };
+}
+function dash(actor,target){
+  const h=actor.heroEl,a=actor.el.getBoundingClientRect(),t=target.el.getBoundingClientRect();
+  const dx=(t.left+t.width/2)-(a.left+a.width/2), dy=(t.top+t.height/2)-(a.top+a.height/2);
+  h.style.zIndex=7; h.animate([{transform:'translate(0,0)'},{transform:`translate(${dx}px,${dy}px)`},{transform:'translate(0,0)'}],{duration:650,easing:'cubic-bezier(.2,.9,.2,1)'}).onfinish=()=>{h.style.zIndex='';};
+}
+function teamHealPulse(actor,team){
+  const arena=document.getElementById('gameFrame'); const cp=arena.getBoundingClientRect(), ap=actor.el.getBoundingClientRect();
+  const cx=ap.left-cp.left+ap.width/2, cy=ap.top-cp.top+ap.height/2; const pulse=document.createElement('div');
+  pulse.style.cssText=`position:absolute;left:${cx-60}px;top:${cy-60}px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle, rgba(80,255,180,.9), rgba(80,255,180,.0) 70%);opacity:0;z-index:6;pointer-events:none`;
+  arena.appendChild(pulse); pulse.animate([{opacity:0,transform:'scale(.5)'},{opacity:.9,transform:'scale(1.2)'},{opacity:0,transform:'scale(1.4)'}],{duration:420,easing:'ease-out'}).onfinish=()=>pulse.remove();
+  const allies=state.roster[team].filter(u=>u.alive); const heal=rollHeal(team); allies.forEach(u=>applyHeal(u,heal));
+}
+function takeTurn(){
+  const atkTeam = (state.turn % 2 === 0) ? 'A' : 'B';
+  const actor = nextAlive(atkTeam); if(!actor) return;
+  const defTeam = opp(actor.team);
+  if(actor.role==='melee'){ const t=pickFrontOrLowest(defTeam); if(!t) return; dash(actor,t); setTimeout(()=>applyHit(t,rollDamage('melee',actor.team),actor),340); }
+  else if(actor.role==='ranged'){ weaponFlyBurst(actor); }
+  else { teamHealPulse(actor,actor.team); }
+}
+function finish(w){
+  state.playing=false; if(state.timer) clearTimeout(state.timer);
+  const cd=document.createElement('div'); cd.className='countdown';
+  cd.innerHTML = `<span class="victoryTxt">${w==='DRAW'?'HÒA!':'ĐỘI '+w+' THẮNG!'}</span>`;
+  overlay.appendChild(cd);
+  if(w==='A' || w==='B'){ const ids=state.roster[w].map(u=>u.id); saveWinnerTeam(ids); }
+}
+
+/* ======= LƯU & HIỂN THỊ ĐỘI THẮNG ======= */
+function loadWinners(){ try{return JSON.parse(localStorage.getItem(STORAGE_WINNERS)||'[]');}catch(_){return[];} }
+function saveWinners(list){ localStorage.setItem(STORAGE_WINNERS, JSON.stringify(list)); renderWinners(); }
+function saveWinnerTeam(ids){
+  const list=loadWinners();
+  list.push({at:new Date().toISOString(), ids:[...new Set(ids)]});
+  saveWinners(list);
+}
+function renderWinners(){
+  const list=loadWinners(), box=document.getElementById('winnersList');
+  if(!list.length){ box.textContent='Chưa có dữ liệu.'; return; }
+  box.innerHTML=list.map((w,i)=>`#${i+1} — ${new Date(w.at).toLocaleString()} — ${w.ids.join(', ')}`).join('<br>');
+}
+
+/* ======= TRAO THƯỞNG ======= */
+const scrPayout=document.getElementById('scrPayout');
+const statsBox=document.getElementById('stats');
+const tblPayout=document.getElementById('tblPayout');
+document.getElementById('btnGen').onclick=generatePayout;
+document.getElementById('btnResetWinners').onclick=()=>{ if(confirm('Xoá toàn bộ danh sách đội thắng?')){ saveWinners([]); tblPayout.innerHTML=''; statsBox.innerHTML=''; localStorage.removeItem(STORAGE_PAYOUT_LAST);} };
+document.getElementById('btnDownload').onclick=downloadCSV;
+document.getElementById('btnSetBank').onclick=()=>{
+  const v = Number(document.getElementById('bankInput').value);
+  if(!Number.isNaN(v) && v>=0){ saveBank(v); renderBankBoxes(); }
+  else alert('Số xu không hợp lệ');
+};
+
+function generatePayout(){
+  const winners=loadWinners(); if(!winners.length) { alert('Chưa có đội thắng để phát!'); return; }
+
+  const bankBefore = loadBank();
+  if(bankBefore<=0){ alert('Kho hết xu!'); renderBankBoxes(); return; }
+
+  let totalBudget = Math.min(PAYOUT_RUN_CAP, bankBefore);
+
+  const byId={}; let teamsUsed=0;
+
+  for(const team of winners){
+    const teamSize = team.ids.length; if (!teamSize) continue;
+
+    let R = 1 + Math.floor(Math.random()*10);
+    let need = R * teamSize;
+
+    if(need > totalBudget){
+      const R2 = Math.floor(totalBudget / teamSize);
+      if(R2 >= 1){ R = R2; need = R * teamSize; }
+      else{ break; }
+    }
+
+    team.ids.forEach(id=> byId[id]=(byId[id]||0)+R);
+    totalBudget -= need;
+    teamsUsed++;
+    if(totalBudget<=0) break;
+  }
+
+  const idsAll=Object.keys(byId);
+  let jackpotGiven = 0;
+  if(idsAll.length && totalBudget>=JACKPOT_AMOUNT && Math.random()<JACKPOT_CHANCE){
+    const luckyId = idsAll[Math.floor(Math.random()*idsAll.length)];
+    byId[luckyId] += JACKPOT_AMOUNT;
+    totalBudget -= JACKPOT_AMOUNT;
+    jackpotGiven = JACKPOT_AMOUNT;
+  }
+
+  const rows = Object.entries(byId).map(([id,coins])=>({id,coins}));
+  rows.sort((a,b)=> b.coins-a.coins || a.id.localeCompare(b.id));
+
+  const distributed = rows.reduce((s,r)=>s+r.coins,0);
+  const uniqueIds   = rows.length;
+  const bankAfter   = Math.max(0, loadBank() - distributed - jackpotGiven);
+
+  saveBank(bankAfter);
+
+  tblPayout.innerHTML = `
+    <tr><th>ID</th><th class="right">Xu</th></tr>
+    ${rows.map(r=>`<tr><td>${r.id}</td><td class="right">${r.coins}</td></tr>`).join('')}
+  `;
+  statsBox.innerHTML = `
+    <div class="stat"><b>Đội đã xử lý:</b> ${teamsUsed}/${winners.length}</div>
+    <div class="stat"><b>Người nhận (không trùng):</b> ${uniqueIds}</div>
+    <div class="stat"><b>Tổng đã phát:</b> ${distributed} xu</div>
+    <div class="stat"><b>Jackpot:</b> ${jackpotGiven? (jackpotGiven+' xu'): 'không'}</div>
+    <div class="stat"><b>Kho còn:</b> ${bankAfter} xu</div>
+  `;
+
+  localStorage.setItem(STORAGE_PAYOUT_LAST, JSON.stringify({
+    rows,teamsUsed,distributed,remaining:bankAfter, jackpot:jackpotGiven, at:new Date().toISOString()
+  }));
+
+  renderBankBoxes();
+}
+
+function downloadCSV(){
+  const table = tblPayout.querySelectorAll('tr');
+  if(!table.length){ alert('Chưa có bảng phân phối. Hãy ấn "Tạo phân phối" trước.'); return; }
+  let csv = 'ID,Xu\n';
+  for(let i=1;i<table.length;i++){
+    const tds=table[i].querySelectorAll('td');
+    if(tds.length===2){
+      const id=tds[0].textContent.replace(/"/g,'""');
+      const coins=tds[1].textContent.trim();
+      csv += `"${id}",${coins}\n`;
+    }
+  }
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='payout.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+/* ======= NAV tabs ======= */
+document.getElementById('tabSelect').onclick=()=>show(scrSelect);
+document.getElementById('tabStage').onclick=()=>show(scrStage);
+document.getElementById('tabPayout').onclick=()=>{ show(scrPayout); renderWinners(); restoreLastPayout(); renderBankBoxes(); };
+
+/* ======= Winners restore / Bank UI ======= */
+function restoreLastPayout(){
+  const data = localStorage.getItem(STORAGE_PAYOUT_LAST);
+  if(!data){ tblPayout.innerHTML=''; statsBox.innerHTML=''; return; }
+  const {rows,teamsUsed,distributed,remaining,at,jackpot} = JSON.parse(data);
+  tblPayout.innerHTML = `
+    <tr><th>ID</th><th class="right">Xu</th></tr>
+    ${rows.map(r=>`<tr><td>${r.id}</td><td class="right">${r.coins}</td></tr>`).join('')}
+  `;
+  statsBox.innerHTML = `
+    <div class="stat"><b>Đội đã xử lý:</b> ${teamsUsed}</div>
+    <div class="stat"><b>Tổng đã phát:</b> ${distributed} xu</div>
+    <div class="stat"><b>Jackpot:</b> ${jackpot?jackpot+' xu':'không'}</div>
+    <div class="stat"><b>Kho còn:</b> ${remaining} xu</div>
+    <div class="stat"><b>Lần gần nhất:</b> ${new Date(at).toLocaleString()}</div>
+  `;
+}
+function renderBankInline(){ document.getElementById('bankInline').textContent = loadBank(); }
+function renderBankBoxes(){
+  const b = loadBank();
+  const bankNow = document.getElementById('bankNow');
+  if (bankNow) bankNow.textContent = b;
+  renderBankInline();
+}
+
+/* ======= Khởi động ======= */
+renderBankBoxes();
+renderWinners();
+
+/* Báo lỗi nếu video nền không tải được */
+document.getElementById('bgVideo')?.addEventListener('error', () => {
+  console.warn('Không tải được bideo.mp4 — kiểm tra tên file/đường dẫn.');
+});
+</script>
+</body>
+</html>
