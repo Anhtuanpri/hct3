@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Game Thẻ tướng lượt chơi HH3D</title>
+<title>HH3D- THAN MA DAI CHIEN</title>
 
 <!-- Font “thư pháp nhẹ” -->
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
@@ -112,13 +112,13 @@
 <!-- ========= Screen: SELECT ========= -->
 <section class="screen show" id="scrSelect">
   <div class="wrap">
-    <p class="intro">Thêm <b>ID</b> cho từng ô và <b>chọn tướng</b>. có xem trước </p>
-    <h3>Tiên</h3>
+    <p class="intro">Nhập <b>ID</b> cho từng ô và <b>chọn tướng</b>. Made by PTC.</p>
+    <h3>Thần ma</h3>
     <div id="gridA" class="grid"></div>
-    <h3 style="margin-top:18px">Ma</h3>
+    <h3 style="margin-top:18px">Ma Thần</h3>
     <div id="gridB" class="grid"></div>
     <div style="margin-top:16px" class="flex">
-      <button class="btn primary" id="btnGo">Xuất Chiến</button>
+      <button class="btn primary" id="btnGo">Bắt đầu trận</button>
     </div>
   </div>
 </section>
@@ -140,7 +140,7 @@
 <!-- ========= Screen: PAYOUT ========= -->
 <section class="screen" id="scrPayout">
   <div class="wrap">
-    <h2>Trao thưởng phe thắng</h2>
+    <h2>Trao thưởng đội thắng</h2>
     <div class="panel">
       <div class="flex">
         <button class="btn primary" id="btnGen">Tạo phân phối (1–10, jackpot 150 p=0.001)</button>
@@ -154,7 +154,7 @@
       </div>
       <div class="stats" id="stats"></div>
       <table class="table" id="tblPayout"></table>
-      <p class="muted" style="margin-top:8px">MADE BY PTC/CHATBOT.</p>
+      <p class="muted" style="margin-top:8px">* Không trùng ID; gộp xu nếu 1 ID thắng nhiều trận. Không vượt 1000 xu/lần và không vượt kho còn.</p>
     </div>
     <div class="panel">
       <h3 style="margin:0 0 8px 0">Danh sách đội thắng đã lưu</h3>
@@ -212,12 +212,12 @@ function buildSelectGrid(container, team){
     const id=`${team}-${i+1}`, selId=`sel-${team}-${i}`;
     const card=document.createElement('div'); card.className='card';
     card.innerHTML=`
-      <div class="thumb"><img id="thumb-${team}-${i}" alt="xem trước"></div>
+      <div class="thumb"><img id="thumb-${team}-${i}" alt="xemtruoc"></div>
       <div class="row two">
-        <h4>Nhân Vật ${team}-${i+1}</h4>
+        <h4>Tướng ${team}-${i+1}</h4>
         <input class="input" id="${team}${i}" value="${id}" placeholder="ID người chơi">
         <select class="select" id="${selId}">
-          <option value="">— Chọn Thần Tướng/Ma Tướng —</option>
+          <option value="">— Chọn tướng —</option>
           ${HEROES.map((h,idx)=>`<option value="${idx}">${heroLabel(h)}</option>`).join('')}
         </select>
       </div>`;
@@ -228,7 +228,7 @@ function buildSelectGrid(container, team){
     });
   }
 }
-buildSelectGrid(gridA,'THẦN'); buildSelectGrid(gridB,'MA');
+buildSelectGrid(gridA,'A'); buildSelectGrid(gridB,'B');
 
 /* ======= STAGE (battle) ======= */
 const scrStage=document.getElementById('scrStage');
