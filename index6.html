@@ -490,17 +490,17 @@ document.getElementById('bgVideo')?.addEventListener('error', () => {
   console.warn('Không tải được bideo.mp4 — kiểm tra tên file/đường dẫn.');
 });
 </script>
-  <script>
+
+<!-- ===== Anti-console/F12 — CHỈ HIỆN KHI VI PHẠM, CHO PHÉP PASTE ===== -->
+<script>
 (() => {
   'use strict';
 
   // ===== Config =====
-  const SHOW_ALERT = false;           // Bật cảnh báo popup khi bị chặn
-  const OVERLAY_ON_DEVTOOLS = true;   // Che mờ trang khi phát hiện DevTools
-  const DEVTOOLS_POLL_MS = 600;       // Chu kỳ kiểm tra DevTools
-  const KEYS_BLOCKED = new Set([
-    'F12'
-  ]);
+  const SHOW_OVERLAY_ON_VIOLATION = true;   // chỉ hiện khi người dùng vi phạm
+  const OVERLAY_HIDE_MS = 1200;             // tự ẩn sau 1.2s
+  const KEYS_BLOCKED = new Set(['F12']);
+
   const COMBO_BLOCKS = [
     // Ctrl/Cmd + ...
     (e)=> (e.ctrlKey||e.metaKey) && ['u','s','p','o','a','c','x'].includes(e.key.toLowerCase()), // view-source, save, print, open, select-all, copy, cut
@@ -508,150 +508,94 @@ document.getElementById('bgVideo')?.addEventListener('error', () => {
     (e)=> (e.ctrlKey||e.metaKey) && e.shiftKey && ['i','j','c','k'].includes(e.key.toLowerCase()), // DevTools, console
   ];
 
-  // ===== Helpers =====
-  const blockEvt = (e, why='')=>{
-    try{ e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation(); }catch(_){}
-    if (SHOW_ALERT && why) { try{ alert('Blocked: '+why); }catch(_){} }
-    return false;
-  };
-
-  // ===== Global overlay for DevTools detection =====
-  let overlayEl = null;
-  const ensureOverlay = ()=>{
+  // ===== Overlay (chỉ dùng khi vi phạm) =====
+  let overlayEl=null, overlayT=null;
+  const ensureOverlay=()=>{
     if (overlayEl) return overlayEl;
     overlayEl = document.createElement('div');
-    overlayEl.id = 'anti-devtools-overlay';
+    overlayEl.id = 'anti-violation-overlay';
     overlayEl.style.cssText = `
-      position:fixed; inset:0; backdrop-filter: blur(6px);
-      background: rgba(0,0,0,.55);
-      z-index: 2147483647; display:none;
+      position:fixed; inset:0; display:none;
+      backdrop-filter: blur(4px);
+      background: rgba(0,0,0,.45);
+      z-index:2147483647;
     `;
-    const msg = document.createElement('div');
-    msg.style.cssText = `
+    const msg=document.createElement('div');
+    msg.style.cssText=`
       position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      color:#fff; font: 600 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      text-align:center; padding:16px 20px; border:1px solid rgba(255,255,255,.2);
+      color:#fff; font:600 16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      text-align:center; padding:12px 16px; border:1px solid rgba(255,255,255,.2);
       border-radius:10px; background:rgba(0,0,0,.25); max-width:90vw;
     `;
-    msg.textContent = 'Nội dung đang được bảo vệ. Đóng Developer Tools để tiếp tục.';
+    msg.textContent='Hành động bị chặn.';
     overlayEl.appendChild(msg);
     document.documentElement.appendChild(overlayEl);
     return overlayEl;
   };
-
-  const showOverlay = (on)=>{
-    if (!OVERLAY_ON_DEVTOOLS) return;
-    const o = ensureOverlay();
-    o.style.display = on ? 'block' : 'none';
+  const flashOverlay=()=>{
+    if (!SHOW_OVERLAY_ON_VIOLATION) return;
+    const el=ensureOverlay();
+    el.style.display='block';
+    clearTimeout(overlayT);
+    overlayT=setTimeout(()=>{ el.style.display='none'; }, OVERLAY_HIDE_MS);
   };
 
-  // ===== Console hardening (soft) =====
+  // ===== Helpers =====
+  const isEditable = (el)=>{
+    if (!el) return false;
+    const tag = (el.tagName||'').toLowerCase();
+    return tag==='input' || tag==='textarea' || el.isContentEditable;
+  };
+  const blockEvt=(e)=>{
+    try{ e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation(); }catch(_){}
+    flashOverlay();
+    return false;
+  };
+  const add=(t,ev,h)=>t.addEventListener(ev,h,{capture:true,passive:false});
+
+  // ===== Console hardening (nhẹ) =====
   try {
-    const noop = ()=>{};
-    const patched = ['log','warn','info','debug','table','dir','trace','time','timeEnd','group','groupCollapsed','groupEnd','profile','profileEnd'];
-    for (const m of patched) {
-      try { console[m] = noop; } catch(_) {}
-    }
-    // Freeze top-level console object if possible
-    try { Object.freeze(console); } catch(_) {}
-  } catch(_) {}
+    const noop=()=>{};
+    ['log','warn','info','debug','table','dir','trace','time','timeEnd','group','groupCollapsed','groupEnd','profile','profileEnd']
+      .forEach(m=>{ try{ console[m]=noop; }catch(_){ } });
+    try{ Object.freeze(console); }catch(_){}
+  } catch(_){}
 
-  // ===== Event guards =====
-  const add = (target, type, handler) => {
-    target.addEventListener(type, handler, {capture:true, passive:false});
-  };
+  // ===== UI blockers =====
+  // Chuột phải
+  add(document,'contextmenu',e=>blockEvt(e));
+  // Không chặn select trong vùng nhập liệu; ngoài vùng vẫn chặn để khó copy
+  add(document,'selectstart',e=>{ if (!isEditable(e.target)) blockEvt(e); });
+  // Copy/Cut — chặn mọi nơi (kể cả trong input)
+  add(document,'copy',e=>blockEvt(e));
+  add(document,'cut', e=>blockEvt(e));
+  // Cho phép paste: KHÔNG gắn listener 'paste'
+  // Ngăn kéo–thả để tránh xem nguồn/ảnh
+  add(document,'dragstart',e=>blockEvt(e));
+  add(document,'drop',     e=>blockEvt(e));
 
-  // Chuột phải, chọn, copy/cut/paste, kéo–thả
-  const uiBlockers = [
-    ['contextmenu', (e)=>blockEvt(e,'contextmenu')],
-    ['selectstart', (e)=>blockEvt(e,'selectstart')],
-    ['copy',       (e)=>{ try{ if (e.clipboardData) e.clipboardData.setData('text/plain',''); }catch(_){ } return blockEvt(e,'copy'); }],
-    ['cut',        (e)=>blockEvt(e,'cut')],
-    ['paste',      (e)=>blockEvt(e,'paste')],
-    ['dragstart',  (e)=>blockEvt(e,'dragstart')],
-    ['drop',       (e)=>blockEvt(e,'drop')],
-  ];
-
-  const bindUIBlockers = ()=>{
-    for (const [t,h] of uiBlockers) {
-      add(document, t, h);
-    }
-  };
-
-  // Bàn phím (F12, DevTools, view-source…)
-  const keyHandler = (e)=>{
-    if (KEYS_BLOCKED.has(e.key)) return blockEvt(e, e.key);
-    for (const rule of COMBO_BLOCKS) {
-      try {
-        if (rule(e)) return blockEvt(e, 'key-combo');
-      } catch(_){}
-    }
-  };
-
-  // Middle-click mở tab mới
-  const auxClickHandler = (e)=>{
-    if (e.button === 1) return blockEvt(e,'auxclick');
-  };
-
-  // ===== DevTools detection (heuristics, không hoàn hảo) =====
-  let devtoolsOpen = false;
-
-  // Heuristic 1: khoảng chênh kích thước cửa sổ (dock devtools)
-  const devtoolsBySize = ()=>{
-    const TH = 160; // ngưỡng
-    const w = Math.abs(window.outerWidth - window.innerWidth) > TH;
-    const h = Math.abs(window.outerHeight - window.innerHeight) > TH;
-    return (w || h);
-  };
-
-  // Heuristic 2: timing với debugger (nếu devtools mở sẽ chậm đáng kể)
-  const devtoolsByTiming = ()=>{
-    const t0 = performance.now();
-    // cố ý "debugger" trong try để tránh crash
-    try { debugger; } catch(_){}
-    const dt = performance.now() - t0;
-    return dt > 200; // 200ms là tương đối
-  };
-
-  const pollDevtools = ()=>{
-    const suspected = devtoolsBySize() || devtoolsByTiming();
-    if (suspected !== devtoolsOpen) {
-      devtoolsOpen = suspected;
-      showOverlay(devtoolsOpen);
-    }
-  };
-
-  // ===== Self-heal: nếu ai đó gỡ listeners, tự gắn lại =====
-  const ensureGuards = ()=>{
-    bindUIBlockers(); // idempotent nhờ capture phase
-    add(window, 'keydown', keyHandler);
-    add(window, 'keyup',   keyHandler);
-    add(window, 'keypress',keyHandler);
-    add(window, 'auxclick',auxClickHandler);
-  };
-
-  // Khởi tạo
-  ensureGuards();
-  // Poll định kỳ
-  setInterval(() => {
-    pollDevtools();
-    ensureGuards();
-  }, DEVTOOLS_POLL_MS);
-
-  // Ngăn mở in/print bằng JS
-  try {
-    window.print = ()=>{};
-  } catch(_) {}
-
-  // Ngăn kéo file vào cửa sổ để xem nguồn
-  add(window, 'dragover', (e)=>blockEvt(e,'dragover'));
-  add(window, 'drop',     (e)=>blockEvt(e,'drop'));
-
-  // Ngăn mở view-source bằng URL dán vào (chỉ phần nhỏ)
-  add(window, 'hashchange', (e)=>{
-    if (String(location.hash).toLowerCase().includes('view-source')) blockEvt(e,'hashchange');
+  // ===== Keyboard blockers =====
+  add(window,'keydown',e=>{
+    const key=(e.key||'').toLowerCase();
+    if (KEYS_BLOCKED.has(e.key)) return blockEvt(e);
+    for (const rule of COMBO_BLOCKS){ try{ if (rule(e)) return blockEvt(e); }catch(_){ } }
+    // Không chặn Ctrl/Cmd+V
   });
+  add(window,'keyup',   e=>{ /* giữ capture để người khác khó override */ });
+  add(window,'keypress',e=>{ /* giữ capture */ });
+  // Chuột giữa mở tab mới
+  add(window,'auxclick',e=>{ if (e.button===1) blockEvt(e); });
 
+  // ❌ Không dùng heuristic DevTools (size/timing) để tránh false positive khi mở bàn phím ảo.
+  // Nếu bạn vẫn muốn bật lại, hãy thêm poll + guard:
+  // - Bỏ qua khi isEditable(document.activeElement) === true
+  // - Hoặc dùng window.visualViewport và bỏ qua khi bàn phím ảo đang mở.
+
+  // Vài lớp phòng thủ thêm (nhẹ)
+  try{ window.print=()=>{}; }catch(_){}
+  add(window,'hashchange',e=>{
+    if (String(location.hash).toLowerCase().includes('view-source')) blockEvt(e);
+  });
 })();
 </script>
 </body>
