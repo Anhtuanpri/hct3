@@ -176,18 +176,19 @@ const JACKPOT_AMOUNT=150;
 /* ======= HERO LIST ======= */
 function Hero(name,role,heroGif,weaponGif,passive){return {name,role,heroGif,weaponGif:weaponGif||null,passive:passive||{}};}
 const HEROES=[
-  Hero('Quang Minh Chi Tử','melee','https://i.ibb.co/bRstCb4n/IMG-5874.webp',null,{meleeDmg:0.05}),
-  Hero('Trư Bát Giới','melee','https://i.ibb.co/gb4gT5KT/IMG-5875.webp',null,{meleeDmg:0.05}),
-  Hero('Tôn Ngộ Không','melee','https://i.ibb.co/YBZxPQcM/IMG-5878.webp',null,{meleeDmg:0.06}),
-  Hero('Hứa Lập Quốc','melee','https://i.ibb.co/XZVvPgg1/IMG-5877.gif',null,{meleeDmg:0.05}),
-  Hero('Chân Long','ranged','https://i.ibb.co/4wV4YhKh/IMG-5873.webp','https://i.ibb.co/V0P3pGFm/IMG-5885.gif',{rangedDmg:0.08}),
-  Hero('Tiên Đế','melee','https://i.ibb.co/7JNV7DGQ/IMG-5876.webp',null,{meleeDmg:0.07}),
-  Hero('Thiên Thần','support','https://i.ibb.co/Q3PjtTxz/IMG-5880.gif',null,{teamHP:0.10}),
-  Hero('Hắc Vô Thường','melee','https://i.ibb.co/C3npvjft/IMG-5879.webp',null,{meleeDmg:0.05}),
-  Hero('Chu Tước','ranged','https://i.ibb.co/BH9BGwfC/IMG-5886.webp','https://i.ibb.co/7tTbHswZ/IMG-5890.gif',{rangedDmg:0.08}),
-  Hero('Dơi','melee','https://i.ibb.co/vvB65sxL/IMG-5889.gif',null,{meleeDmg:0.05}),
-  Hero('Ông Công','ranged','https://i.ibb.co/Gf46Ywjj/IMG-5887.webp','https://i.ibb.co/d4LJnZQ5/IMG-5881.webp',{rangedDmg:0.07}),
-  Hero('Chí Tôn','ranged','https://i.ibb.co/ymd6bBgX/IMG-5888.webp','https://i.ibb.co/mCPtcKB4/IMG-5883.webp',{rangedDmg:0.09,crit:0.02}),
+  Hero('Quang Minh Chi Tử (cận chiến)','melee','https://i.ibb.co/bRstCb4n/IMG-5874.webp',null,{meleeDmg:0.05}),
+  Hero('Trư Bát Giới (cận chiến) ','melee','https://i.ibb.co/gb4gT5KT/IMG-5875.webp',null,{meleeDmg:0.05}),
+  Hero('Tôn Ngộ Không (cận chiến)','melee','https://i.ibb.co/YBZxPQcM/IMG-5878.webp',null,{meleeDmg:0.06}),
+  Hero('Hứa Lập Quốc (cận chiến) ','melee','https://i.ibb.co/XZVvPgg1/IMG-5877.gif',null,{meleeDmg:0.05}),
+  Hero('Chân Long (tầm xa) ','ranged','https://i.ibb.co/4wV4YhKh/IMG-5873.webp','https://i.ibb.co/V0P3pGFm/IMG-5885.gif',{rangedDmg:0.08}),
+  Hero('Tiên Đế (cận chiến) ','melee','https://i.ibb.co/7JNV7DGQ/IMG-5876.webp',null,{meleeDmg:0.07}),
+  Hero('Thiên Thần (hổ trợ)','support','https://i.ibb.co/Q3PjtTxz/IMG-5880.gif',null,{teamHP:0.10}),
+  Hero('Chị Hằng (hổ trợ)','support','https://i.ibb.co/qQZmRbq/IMG-7009.webp',null,{teamHP:0.10}),
+  Hero('Hắc Vô Thường (cận chiến) ','melee','https://i.ibb.co/C3npvjft/IMG-5879.webp',null,{meleeDmg:0.05}),
+  Hero('Chu Tước (tầm xa) ','ranged','https://i.ibb.co/BH9BGwfC/IMG-5886.webp','https://i.ibb.co/7tTbHswZ/IMG-5890.gif',{rangedDmg:0.08}),
+  Hero('Dơi (cận chiến)','melee','https://i.ibb.co/vvB65sxL/IMG-5889.gif',null,{meleeDmg:0.05}),
+  Hero('Ông Công (tầm xa) ','ranged','https://i.ibb.co/Gf46Ywjj/IMG-5887.webp','https://i.ibb.co/d4LJnZQ5/IMG-5881.webp',{rangedDmg:0.07}),
+  Hero('Chí Tôn (tầm xa) ','ranged','https://i.ibb.co/ymd6bBgX/IMG-5888.webp','https://i.ibb.co/mCPtcKB4/IMG-5883.webp',{rangedDmg:0.09,crit:0.02}),
 ];
 
 /* ======= BANK helpers ======= */
