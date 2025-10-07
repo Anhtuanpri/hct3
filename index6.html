@@ -240,7 +240,7 @@ const state={ roster:{A:[],B:[]}, nextIdx:{A:0,B:0}, turn:0,timer:null,playing:f
   teamMods:{A:{meleeDmg:0,rangedDmg:0,crit:0,teamHP:0}, B:{meleeDmg:0,rangedDmg:0,crit:0,teamHP:0}} };
 const BASE_HP=2400, TURN_MS=900;
 const DMG={ melee:{base:320,varMin:0.85,varMax:1.10,crit:0.12,critMul:1.5}, ranged:{base:170,varMin:0.85,varMax:1.10,crit:0.10,critMul:1.35}};
-const HEAL={base:1500,varMin:0.95,varMax:1.10};
+const HEAL={base:800,varMin:0.95,varMax:1.10};
 
 function readPicks(team){const out=[];for(let i=0;i<6;i++){const id=document.getElementById(team+i).value.trim();const heroIdx=parseInt(document.getElementById(`sel-${team}-${i}`).value);out.push({id,heroIdx:Number.isFinite(heroIdx)?heroIdx:null});}return out;}
 document.getElementById('btnGo').onclick=()=>{
